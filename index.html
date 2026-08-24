@@ -94,12 +94,35 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
+    /* Sélecteur Période / Budget */
+    .month-filter-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      background: #131d31;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .month-filter-box label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .month-filter-box select {
+      padding: 5px 8px;
+      font-size: 0.82rem;
+      background: #0f172a;
+    }
+
     /* Résumés */
     .summary-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .summary-card {
       background: var(--card-bg);
@@ -117,17 +140,92 @@
     .amount-pending { color: var(--amber); }
     .amount-value { color: var(--purple); }
 
-    /* Modal Caméra */
-    #scanner-modal {
+    /* Répartition par Plateforme */
+    .platform-breakdown {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+    .platform-breakdown-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .platform-breakdown-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-reset-chip {
+      font-size: 0.7rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: auto;
+    }
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 6px;
+    }
+    .platform-chip {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .platform-chip:hover { border-color: var(--accent); }
+    .platform-chip.active {
+      border-color: var(--purple);
+      background: #1e1b4b;
+      box-shadow: 0 0 0 1px var(--purple);
+    }
+    .platform-chip-name { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .platform-chip-value { font-size: 0.82rem; font-weight: 700; color: var(--purple); }
+    .platform-chip-count { font-size: 0.68rem; color: #64748b; }
+
+    /* Modals */
+    .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.85);
       z-index: 1000;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 15px;
+    }
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 440px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1rem;
     }
     #scanner-container { width: 100%; max-width: 380px; background: #000; border-radius: 8px; overflow: hidden; }
     .btn-close-scan {
@@ -164,7 +262,7 @@
       min-width: 0;
     }
 
-    input, select, button {
+    input, select, textarea, button {
       padding: 9px 10px;
       border-radius: 6px;
       border: 1px solid var(--border);
@@ -172,6 +270,11 @@
       color: var(--text);
       font-size: 0.88rem;
       width: 100%;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 55px;
+      font-family: inherit;
     }
 
     .input-with-btn {
@@ -203,15 +306,15 @@
     }
 
     .input-with-btn.btn-text input {
-      padding-right: 68px;
+      padding-right: 80px;
     }
     .input-with-btn.btn-text .btn-inside {
       width: auto;
       padding: 0 8px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 600;
-      background: #312e81;
-      color: #c7d2fe;
+      background: #ea580c;
+      color: #ffedd5;
     }
 
     button.btn-add {
@@ -222,11 +325,47 @@
       padding: 10px;
     }
 
+    .image-picker-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #0f172a;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .image-preview-thumb {
+      width: 36px;
+      height: 36px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: #1e293b;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .btn-img-tool {
+      padding: 6px 10px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: #1e1b4b;
+      color: #c7d2fe;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-img-google { background: #1e3a8a; color: #93c5fd; border-color: #3b82f6; flex: 1; }
+    .btn-img-paste { background: #064e3b; color: #a7f3d0; border-color: #059669; }
+
     /* Filtres */
     .controls { display: flex; gap: 8px; margin-bottom: 10px; width: 100%; }
     .controls select { flex: 1; padding: 8px; font-size: 0.82rem; }
 
-    /* Cartes */
+    /* Cartes avec Jaquettes */
     .item-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -234,14 +373,50 @@
       padding: 10px;
       margin-bottom: 8px;
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      gap: 10px;
       width: 100%;
+      border-left: 5px solid var(--border);
     }
+    
+    .item-card.status-take { border-left-color: var(--green); }
+    .item-card.status-think { border-left-color: var(--amber); }
+    .item-card.status-pass { border-left-color: var(--red); }
+
+    .item-cover {
+      width: 65px;
+      height: 82px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .item-cover-placeholder {
+      width: 65px;
+      height: 82px;
+      border-radius: 6px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: var(--text-muted);
+    }
+
+    .item-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+    }
+
     .card-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       gap: 8px;
     }
     .item-info { min-width: 0; flex: 1; }
@@ -254,6 +429,24 @@
     }
     .item-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
     .badge { padding: 2px 5px; border-radius: 4px; font-size: 0.68rem; background: #312e81; color: #c7d2fe; }
+    .badge-store { padding: 2px 5px; border-radius: 4px; font-size: 0.68rem; background: #064e3b; color: #a7f3d0; }
+    .badge-state { padding: 2px 5px; border-radius: 4px; font-size: 0.68rem; background: #1e1b4b; color: #cbd5e1; border: 1px solid var(--border); }
+    .badge-play { padding: 2px 5px; border-radius: 4px; font-size: 0.68rem; background: #3b0764; color: #e9d5ff; }
+
+    .badge-status { padding: 2px 5px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; }
+    .badge-status.take { background: rgba(16, 185, 129, 0.2); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-status.think { background: rgba(245, 158, 11, 0.2); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-status.pass { background: rgba(239, 68, 68, 0.2); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+    .item-note {
+      font-size: 0.75rem;
+      background: #0f172a;
+      padding: 5px 8px;
+      border-radius: 4px;
+      color: #94a3b8;
+      border-left: 2px solid var(--accent);
+      margin-top: 2px;
+    }
 
     .market-links {
       display: flex;
@@ -273,6 +466,7 @@
       display: inline-flex;
       align-items: center;
     }
+    .btn-market.collector { color: #f59e0b; border-color: #78350f; }
     .btn-market.pricecharting { color: #a78bfa; border-color: #5b21b6; }
     
     .actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
@@ -286,6 +480,7 @@
       color: var(--text-muted);
       width: auto;
     }
+    .btn-edit { border-color: rgba(99, 102, 241, 0.4); color: #818cf8; }
     .btn-transfer { border-color: rgba(16, 185, 129, 0.4); color: var(--green); }
     .btn-delete { color: var(--red); }
   </style>
@@ -294,8 +489,152 @@
 
 <div class="container">
 
-  <!-- Scanner Modal -->
-  <div id="scanner-modal">
+  <!-- Modal Modification Wishlist -->
+  <div id="edit-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>✏️ Modifier l'article (Wishlist)</span>
+        <button type="button" class="btn-action" style="border:none;" onclick="closeEditModal()">✕</button>
+      </div>
+      <input type="hidden" id="edit-index">
+      <input type="text" id="edit-title" placeholder="Nom du produit" required>
+      
+      <div class="form-row">
+        <select id="edit-platform">
+          <option value="PS5">PlayStation 5</option>
+          <option value="Switch">Nintendo Switch</option>
+          <option value="Switch 2">Nintendo Switch 2</option>
+          <option value="3DS">3DS</option>
+          <option value="DS">DS</option>
+          <option value="GBA">Game Boy Advance</option>
+          <option value="GBC">Game Boy Color</option>
+          <option value="Vinyle">🎵 Vinyle</option>
+          <option value="Blu-ray">🎬 Blu-ray / 4K</option>
+          <option value="Vêtement">👕 Vêtement</option>
+          <option value="Autre">📦 Autre</option>
+        </select>
+        <input type="number" id="edit-price" placeholder="Prix (€)" step="0.01">
+      </div>
+
+      <div class="form-row">
+        <select id="edit-store">
+          <option value="Non renseigné">🏪 Lieu de préco / achat</option>
+          <option value="Fnac">Fnac</option>
+          <option value="Leclerc">Leclerc</option>
+          <option value="Amazon">Amazon</option>
+          <option value="Cdiscount">Cdiscount</option>
+          <option value="Auchan">Auchan</option>
+          <option value="Carrefour">Carrefour</option>
+          <option value="Vinted">Vinted</option>
+          <option value="Leboncoin">Leboncoin</option>
+          <option value="Autre">Autre enseigne</option>
+        </select>
+        <input type="date" id="edit-releaseDate" title="Date de sortie">
+      </div>
+
+      <input type="hidden" id="edit-image">
+      <div class="image-picker-bar">
+        <img id="edit-preview" class="image-preview-thumb" src="" alt="" style="display:none;">
+        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">🔍 Chercher sur Google</button>
+        <button type="button" class="btn-img-tool btn-img-paste" onclick="pasteImageToField('edit-image', 'edit-preview')">📋 Coller</button>
+        <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('edit-image', 'edit-preview')">✕</button>
+      </div>
+
+      <select id="edit-status">
+        <option value="À prendre">✅ Je prends</option>
+        <option value="En réflexion">⏳ En réflexion</option>
+        <option value="Je passe">❌ Je passe</option>
+      </select>
+
+      <button type="button" class="btn-add" onclick="saveWishlistEdit()">Enregistrer les modifications</button>
+    </div>
+  </div>
+
+  <!-- Modal Modification Collection -->
+  <div id="edit-collection-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>✏️ Modifier l'objet (Collection)</span>
+        <button type="button" class="btn-action" style="border:none;" onclick="closeEditCollectionModal()">✕</button>
+      </div>
+      <input type="hidden" id="edit-c-index">
+      <input type="text" id="edit-c-title" placeholder="Nom du produit" required>
+      
+      <div class="form-row">
+        <select id="edit-c-platform">
+          <option value="PS5">PlayStation 5</option>
+          <option value="Switch">Nintendo Switch</option>
+          <option value="Switch 2">Nintendo Switch 2</option>
+          <option value="3DS">3DS</option>
+          <option value="DS">DS</option>
+          <option value="GBA">Game Boy Advance</option>
+          <option value="GBC">Game Boy Color</option>
+          <option value="Vinyle">🎵 Vinyle</option>
+          <option value="Blu-ray">🎬 Blu-ray / 4K</option>
+          <option value="Vêtement">👕 Vêtement</option>
+          <option value="Autre">📦 Autre</option>
+        </select>
+        <input type="number" id="edit-c-price" placeholder="Valeur (€)" step="0.01">
+      </div>
+
+      <div class="form-row">
+        <select id="edit-c-store">
+          <option value="Non renseigné">🏪 Acheté chez...</option>
+          <option value="Fnac">Fnac</option>
+          <option value="Leclerc">Leclerc</option>
+          <option value="Amazon">Amazon</option>
+          <option value="Cdiscount">Cdiscount</option>
+          <option value="Auchan">Auchan</option>
+          <option value="Carrefour">Carrefour</option>
+          <option value="Vinted">Vinted</option>
+          <option value="Leboncoin">Leboncoin</option>
+          <option value="Autre">Autre enseigne</option>
+        </select>
+        <select id="edit-c-state" required>
+          <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
+          <option value="🟢 Occasion (Très bon état)">🟢 Occasion (Très bon état)</option>
+          <option value="🟡 Occasion (Bon état)">🟡 Occasion (Bon état)</option>
+          <option value="🟠 Occasion (Abîmé / Usé)">🟠 Occasion (Abîmé / Usé)</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label style="font-size:0.7rem; color:var(--text-muted);">📅 Sortie originale :</label>
+          <input type="date" id="edit-c-releaseDate">
+        </div>
+        <div>
+          <label style="font-size:0.7rem; color:var(--text-muted);">🛒 Date d'achat :</label>
+          <input type="date" id="edit-c-buyDate">
+        </div>
+      </div>
+
+      <input type="hidden" id="edit-c-image">
+      <div class="image-picker-bar">
+        <img id="edit-c-preview" class="image-preview-thumb" src="" alt="" style="display:none;">
+        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-c-title', 'edit-c-platform')">🔍 Chercher sur Google</button>
+        <button type="button" class="btn-img-tool btn-img-paste" onclick="pasteImageToField('edit-c-image', 'edit-c-preview')">📋 Coller</button>
+        <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('edit-c-image', 'edit-c-preview')">✕</button>
+      </div>
+
+      <div>
+        <label style="font-size:0.7rem; color:var(--text-muted);">Progression / Jeu (facultatif) :</label>
+        <select id="edit-c-gameplay">
+          <option value="Non commencé">⏳ Non commencé / Jamais lancé</option>
+          <option value="En cours">🎮 En cours</option>
+          <option value="Terminé">🏆 Terminé</option>
+          <option value="Non applicable">⚪ Non applicable / Collection</option>
+        </select>
+      </div>
+
+      <textarea id="edit-c-note" placeholder="Notes & commentaires..."></textarea>
+
+      <button type="button" class="btn-add" onclick="saveCollectionEdit()">Enregistrer les modifications</button>
+    </div>
+  </div>
+
+  <!-- Modal Scanner -->
+  <div id="scanner-modal" class="modal-overlay" style="flex-direction: column;">
     <div id="scanner-container">
       <div id="reader"></div>
     </div>
@@ -318,13 +657,21 @@
 
   <!-- WISHLIST -->
   <div id="tab-wishlist" class="tab-content active">
+    
+    <div class="month-filter-box">
+      <label for="w-monthFilter">📅 Période / Budget :</label>
+      <select id="w-monthFilter" onchange="renderWishlist()">
+        <option value="all">Tout le calendrier</option>
+      </select>
+    </div>
+
     <div class="summary-grid">
       <div class="summary-card confirmed">
-        <div class="summary-label">Total prévu</div>
+        <div class="summary-label" id="labelConfirmed">Total prévu</div>
         <div class="summary-amount amount-confirmed" id="totalConfirmed">0,00 €</div>
       </div>
       <div class="summary-card pending">
-        <div class="summary-label">Total potentiel</div>
+        <div class="summary-label" id="labelPotential">Total potentiel</div>
         <div class="summary-amount amount-pending" id="totalPotential">0,00 €</div>
       </div>
     </div>
@@ -332,7 +679,7 @@
     <form id="wishlistForm">
       <div class="input-with-btn">
         <input type="text" id="w-title" placeholder="Nom du jeu, vinyle, vêtement..." required>
-        <button type="button" class="btn-inside" title="Scanner le code-barres" onclick="startScanner('w-title')">📷</button>
+        <button type="button" class="btn-inside" title="Scanner le code-barres" onclick="startScanner('w-title', 'w-image', 'w-preview')">📷</button>
       </div>
 
       <div class="form-row">
@@ -352,25 +699,47 @@
         
         <div class="input-with-btn btn-text">
           <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
-          <button type="button" class="btn-inside" onclick="fetchPriceChartingEstimate('w-title', 'w-platform')">🔍 Cote</button>
+          <button type="button" class="btn-inside" onclick="searchEditionCollector('w-title')">🏆 Préco</button>
         </div>
       </div>
 
       <div class="form-row">
-        <input type="date" id="w-releaseDate">
-        <select id="w-status">
-          <option value="À prendre">✅ Je prends</option>
-          <option value="En réflexion">⏳ En réflexion</option>
-          <option value="Je passe">❌ Je passe</option>
+        <select id="w-store">
+          <option value="Non renseigné">🏪 Lieu de préco / achat</option>
+          <option value="Fnac">Fnac</option>
+          <option value="Leclerc">Leclerc</option>
+          <option value="Amazon">Amazon</option>
+          <option value="Cdiscount">Cdiscount</option>
+          <option value="Auchan">Auchan</option>
+          <option value="Carrefour">Carrefour</option>
+          <option value="Vinted">Vinted</option>
+          <option value="Leboncoin">Leboncoin</option>
+          <option value="Autre">Autre enseigne</option>
         </select>
+        <input type="date" id="w-releaseDate" title="Date de sortie">
       </div>
+
+      <!-- Barre Image Formulaire Wishlist -->
+      <input type="hidden" id="w-image">
+      <div class="image-picker-bar">
+        <img id="w-preview" class="image-preview-thumb" src="" alt="" style="display:none;">
+        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">🔍 Chercher sur Google</button>
+        <button type="button" class="btn-img-tool btn-img-paste" onclick="pasteImageToField('w-image', 'w-preview')">📋 Coller</button>
+        <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('w-image', 'w-preview')">✕</button>
+      </div>
+
+      <select id="w-status">
+        <option value="À prendre">✅ Je prends</option>
+        <option value="En réflexion">⏳ En réflexion</option>
+        <option value="Je passe">❌ Je passe</option>
+      </select>
 
       <button type="submit" class="btn-add">+ Ajouter à la wishlist</button>
     </form>
 
     <div class="controls">
       <select id="w-filterPlatform">
-        <option value="all">Tous les supports</option>
+        <option value="all">Tous supports</option>
         <option value="PS5">PS5</option>
         <option value="Switch">Switch</option>
         <option value="Switch 2">Switch 2</option>
@@ -382,8 +751,19 @@
         <option value="Blu-ray">Blu-ray</option>
         <option value="Vêtement">Vêtements</option>
       </select>
+      <select id="w-filterStore">
+        <option value="all">Toutes enseignes</option>
+        <option value="Fnac">Fnac</option>
+        <option value="Leclerc">Leclerc</option>
+        <option value="Amazon">Amazon</option>
+        <option value="Cdiscount">Cdiscount</option>
+        <option value="Auchan">Auchan</option>
+        <option value="Carrefour">Carrefour</option>
+        <option value="Vinted">Vinted</option>
+        <option value="Leboncoin">Leboncoin</option>
+      </select>
       <select id="w-filterStatus">
-        <option value="all">Tous les statuts</option>
+        <option value="all">Tous statuts</option>
         <option value="À prendre">Je prends</option>
         <option value="En réflexion">En réflexion</option>
         <option value="Je passe">Je passe</option>
@@ -395,21 +775,37 @@
 
   <!-- COLLECTION -->
   <div id="tab-collection" class="tab-content">
+    
+    <div class="month-filter-box">
+      <label for="c-monthFilter">📅 Période d'achat / ajout :</label>
+      <select id="c-monthFilter" onchange="renderCollection()">
+        <option value="all">Tout l'historique</option>
+      </select>
+    </div>
+
     <div class="summary-grid">
       <div class="summary-card value">
-        <div class="summary-label">Valeur totale</div>
+        <div class="summary-label" id="c-labelValue">Valeur totale</div>
         <div class="summary-amount amount-value" id="collectionTotalValue">0,00 €</div>
       </div>
       <div class="summary-card">
-        <div class="summary-label">Objets possédés</div>
+        <div class="summary-label" id="c-labelCount">Objets possédés</div>
         <div class="summary-amount" id="collectionItemTotal">0</div>
       </div>
+    </div>
+
+    <div class="platform-breakdown">
+      <div class="platform-breakdown-header">
+        <div class="platform-breakdown-title">📊 Valeur par support (clic pour filtrer)</div>
+        <button type="button" class="btn-reset-chip" onclick="resetPlatformFilter()">Tout voir</button>
+      </div>
+      <div class="platform-grid" id="platformBreakdownGrid"></div>
     </div>
 
     <form id="collectionForm">
       <div class="input-with-btn">
         <input type="text" id="c-title" placeholder="Nom de l'objet possédé" required>
-        <button type="button" class="btn-inside" title="Scanner le code-barres" onclick="startScanner('c-title')">📷</button>
+        <button type="button" class="btn-inside" title="Scanner le code-barres" onclick="startScanner('c-title', 'c-image', 'c-preview')">📷</button>
       </div>
 
       <div class="form-row">
@@ -427,25 +823,71 @@
           <option value="Autre">📦 Autre</option>
         </select>
         
-        <div class="input-with-btn btn-text">
+        <div class="input-with-btn btn-text" style="--accent:#4338ca;">
           <input type="number" id="c-price" placeholder="Valeur (€)" step="0.01">
-          <button type="button" class="btn-inside" onclick="fetchPriceChartingEstimate('c-title', 'c-platform')">🔍 Cote</button>
+          <button type="button" class="btn-inside" style="background:#312e81; color:#c7d2fe;" onclick="searchUsedMarketArgus('c-title', 'c-platform')">🔍 Argus</button>
         </div>
       </div>
 
-      <select id="c-state" required>
-        <option value="Sous blister / Neuf">✨ Sous blister / Neuf</option>
-        <option value="Pas encore joué / Jamais écouté / Non vu">⏳ Non fait / Non écouté</option>
-        <option value="En cours / Déjà utilisé">🎮 En cours / Utilisé</option>
-        <option value="Terminé / Utilisé">🏆 Terminé</option>
-      </select>
+      <div class="form-row">
+        <select id="c-store">
+          <option value="Non renseigné">🏪 Acheté chez...</option>
+          <option value="Fnac">Fnac</option>
+          <option value="Leclerc">Leclerc</option>
+          <option value="Amazon">Amazon</option>
+          <option value="Cdiscount">Cdiscount</option>
+          <option value="Auchan">Auchan</option>
+          <option value="Carrefour">Carrefour</option>
+          <option value="Vinted">Vinted</option>
+          <option value="Leboncoin">Leboncoin</option>
+          <option value="Autre">Autre enseigne</option>
+        </select>
+        <select id="c-state" required>
+          <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
+          <option value="🟢 Occasion (Très bon état)">🟢 Occasion (Très bon état)</option>
+          <option value="🟡 Occasion (Bon état)">🟡 Occasion (Bon état)</option>
+          <option value="🟠 Occasion (Abîmé / Usé)">🟠 Occasion (Abîmé / Usé)</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label style="font-size:0.7rem; color:var(--text-muted);">📅 Sortie originale :</label>
+          <input type="date" id="c-releaseDate">
+        </div>
+        <div>
+          <label style="font-size:0.7rem; color:var(--text-muted);">🛒 Date d'achat :</label>
+          <input type="date" id="c-buyDate">
+        </div>
+      </div>
+
+      <!-- Barre Image Formulaire Collection -->
+      <input type="hidden" id="c-image">
+      <div class="image-picker-bar">
+        <img id="c-preview" class="image-preview-thumb" src="" alt="" style="display:none;">
+        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">🔍 Chercher sur Google</button>
+        <button type="button" class="btn-img-tool btn-img-paste" onclick="pasteImageToField('c-image', 'c-preview')">📋 Coller</button>
+        <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('c-image', 'c-preview')">✕</button>
+      </div>
+
+      <div>
+        <label style="font-size:0.7rem; color:var(--text-muted);">Progression (facultatif) :</label>
+        <select id="c-gameplay">
+          <option value="Non commencé">⏳ Non commencé / Jamais lancé</option>
+          <option value="En cours">🎮 En cours</option>
+          <option value="Terminé">🏆 Terminé</option>
+          <option value="Non applicable">⚪ Non applicable / Collection</option>
+        </select>
+      </div>
+
+      <textarea id="c-note" placeholder="Notes & commentaires..."></textarea>
 
       <button type="submit" class="btn-add">+ Ajouter à ma collection</button>
     </form>
 
     <div class="controls">
       <select id="c-filterPlatform">
-        <option value="all">Tous les supports</option>
+        <option value="all">Tous supports</option>
         <option value="PS5">PS5</option>
         <option value="Switch">Switch</option>
         <option value="Switch 2">Switch 2</option>
@@ -457,12 +899,29 @@
         <option value="Blu-ray">Blu-ray</option>
         <option value="Vêtement">Vêtements</option>
       </select>
+      <select id="c-filterStore">
+        <option value="all">Toutes enseignes</option>
+        <option value="Fnac">Fnac</option>
+        <option value="Leclerc">Leclerc</option>
+        <option value="Amazon">Amazon</option>
+        <option value="Cdiscount">Cdiscount</option>
+        <option value="Auchan">Auchan</option>
+        <option value="Carrefour">Carrefour</option>
+        <option value="Vinted">Vinted</option>
+        <option value="Leboncoin">Leboncoin</option>
+      </select>
       <select id="c-filterState">
-        <option value="all">Tous les états</option>
-        <option value="Sous blister / Neuf">✨ Neuf</option>
-        <option value="Pas encore joué / Jamais écouté / Non vu">⏳ Non fait</option>
-        <option value="En cours / Déjà utilisé">🎮 En cours</option>
-        <option value="Terminé / Utilisé">🏆 Terminé</option>
+        <option value="all">Tous états</option>
+        <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
+        <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
+        <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
+        <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
+      </select>
+      <select id="c-filterGameplay">
+        <option value="all">Toutes progressions</option>
+        <option value="Non commencé">⏳ Non commencé</option>
+        <option value="En cours">🎮 En cours</option>
+        <option value="Terminé">🏆 Terminé</option>
       </select>
     </div>
 
@@ -476,6 +935,8 @@
   let collection = JSON.parse(localStorage.getItem('app_collection_v4')) || [];
   let html5QrCode = null;
   let targetInputId = null;
+  let targetImageInputId = null;
+  let targetPreviewId = null;
 
   function formatMoney(amount) {
     return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0);
@@ -484,25 +945,90 @@
   function saveData() {
     localStorage.setItem('app_wishlist_v4', JSON.stringify(wishlist));
     localStorage.setItem('app_collection_v4', JSON.stringify(collection));
+    updateMonthFilterDropdowns();
     renderWishlist();
     renderCollection();
   }
 
-  // --- RECHERCHE COTE & ARGUS ---
-  function fetchPriceChartingEstimate(titleFieldId, platformFieldId) {
+  // --- OUVERTURE GOOGLE IMAGES CIBLÉ EN 1 CLIC ---
+  function openGoogleImagesTab(titleFieldId, platformFieldId) {
     const title = document.getElementById(titleFieldId).value.trim();
     const platform = document.getElementById(platformFieldId).value;
+
     if (!title) {
-      alert("Veuillez d'abord saisir le nom du titre.");
+      alert("Veuillez d'abord saisir le nom du produit.");
       return;
     }
-    const query = encodeURIComponent(`${title} ${platform}`);
-    window.open(`https://www.pricecharting.com/search-products?type=prices&q=${query}`, '_blank');
+
+    const query = encodeURIComponent(`jaquette ${title} ${platform !== 'Autre' ? platform : ''}`);
+    window.open(`https://www.google.com/search?tbm=isch&q=${query}`, '_blank');
+  }
+
+  // --- COLLER L'IMAGE COPIÉE DE GOOGLE ---
+  async function pasteImageToField(imageFieldId, previewImgId) {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      for (const item of clipboardItems) {
+        const imageType = item.types.find(t => t.startsWith('image/'));
+        if (imageType) {
+          const blob = await item.getType(imageType);
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            document.getElementById(imageFieldId).value = e.target.result;
+            const prev = document.getElementById(previewImgId);
+            prev.src = e.target.result;
+            prev.style.display = 'block';
+          };
+          reader.readAsDataURL(blob);
+          return;
+        }
+      }
+      const text = await navigator.clipboard.readText();
+      if (text && (text.startsWith('http://') || text.startsWith('https://') || text.startsWith('data:image'))) {
+        document.getElementById(imageFieldId).value = text.trim();
+        const prev = document.getElementById(previewImgId);
+        prev.src = text.trim();
+        prev.style.display = 'block';
+        return;
+      }
+      alert("Aucune image trouvée dans le presse-papier. Assurez-vous d'avoir fait 'Copier l'image' sur Google.");
+    } catch (err) {
+      const url = prompt("Collez l'adresse de l'image ici :");
+      if (url) {
+        document.getElementById(imageFieldId).value = url.trim();
+        const prev = document.getElementById(previewImgId);
+        prev.src = url.trim();
+        prev.style.display = 'block';
+      }
+    }
+  }
+
+  function clearImageField(imageFieldId, previewImgId) {
+    document.getElementById(imageFieldId).value = '';
+    const prev = document.getElementById(previewImgId);
+    prev.src = '';
+    prev.style.display = 'none';
+  }
+
+  // --- REDIRECTION EDITIONCOLLECTOR & ARGUS ---
+  function searchEditionCollector(titleFieldId) {
+    const title = document.getElementById(titleFieldId).value.trim();
+    if (!title) { alert("Veuillez d'abord saisir le nom du jeu."); return; }
+    window.open(`https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}`, '_blank');
+  }
+
+  function searchUsedMarketArgus(titleFieldId, platformFieldId) {
+    const title = document.getElementById(titleFieldId).value.trim();
+    const platform = document.getElementById(platformFieldId).value;
+    if (!title) { alert("Veuillez d'abord saisir le nom du titre."); return; }
+    window.open(`https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(title + ' ' + platform)}`, '_blank');
   }
 
   // --- SCANNER DE CODE-BARRES ---
-  function startScanner(targetField) {
+  function startScanner(targetField, imageField, previewField) {
     targetInputId = targetField;
+    targetImageInputId = imageField;
+    targetPreviewId = previewField;
     document.getElementById('scanner-modal').style.display = 'flex';
 
     html5QrCode = new Html5Qrcode("reader");
@@ -512,16 +1038,21 @@
       async (decodedText) => {
         stopScanner();
         const inputField = document.getElementById(targetInputId);
+        const imageFieldEl = targetImageInputId ? document.getElementById(targetImageInputId) : null;
+        const previewEl = targetPreviewId ? document.getElementById(targetPreviewId) : null;
+
         inputField.value = "Recherche...";
 
         const cleanCode = decodedText.trim();
         let foundTitle = null;
+        let foundImage = null;
 
         try {
           const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${cleanCode}.json`);
           const data = await res.json();
           if (data.status === 1 && data.product && data.product.product_name) {
             foundTitle = data.product.product_name;
+            foundImage = data.product.image_url;
           }
         } catch (e) {}
 
@@ -532,14 +1063,15 @@
             if (dataMusic.releases && dataMusic.releases.length > 0) {
               const rel = dataMusic.releases[0];
               foundTitle = `${rel['artist-credit']?.[0]?.name || ''} - ${rel.title}`;
+              foundImage = `https://coverartarchive.org/release/${rel.id}/front-250`;
             }
           } catch (e) {}
         }
 
-        if (foundTitle) {
-          inputField.value = foundTitle;
-        } else {
-          inputField.value = cleanCode;
+        inputField.value = foundTitle || cleanCode;
+        if (foundImage && imageFieldEl) {
+          imageFieldEl.value = foundImage;
+          if (previewEl) { previewEl.src = foundImage; previewEl.style.display = 'block'; }
         }
       },
       () => {}
@@ -560,6 +1092,132 @@
     } else {
       document.getElementById('scanner-modal').style.display = 'none';
     }
+  }
+
+  // --- MODIFICATION D'UN ARTICLE WISHLIST ---
+  function openEditModal(index) {
+    const item = wishlist[index];
+    document.getElementById('edit-index').value = index;
+    document.getElementById('edit-title').value = item.title;
+    document.getElementById('edit-platform').value = item.platform;
+    document.getElementById('edit-price').value = item.price || '';
+    document.getElementById('edit-store').value = item.store || 'Non renseigné';
+    document.getElementById('edit-releaseDate').value = item.releaseDate || '';
+    document.getElementById('edit-image').value = item.image || '';
+    
+    const prev = document.getElementById('edit-preview');
+    if (item.image) { prev.src = item.image; prev.style.display = 'block'; }
+    else { prev.src = ''; prev.style.display = 'none'; }
+
+    document.getElementById('edit-status').value = item.status || 'À prendre';
+    document.getElementById('edit-modal').style.display = 'flex';
+  }
+
+  function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
+
+  function saveWishlistEdit() {
+    const index = parseInt(document.getElementById('edit-index').value, 10);
+    if (isNaN(index) || !wishlist[index]) return;
+
+    wishlist[index] = {
+      title: document.getElementById('edit-title').value.trim(),
+      platform: document.getElementById('edit-platform').value,
+      price: document.getElementById('edit-price').value,
+      store: document.getElementById('edit-store').value,
+      releaseDate: document.getElementById('edit-releaseDate').value,
+      image: document.getElementById('edit-image').value.trim(),
+      status: document.getElementById('edit-status').value
+    };
+
+    closeEditModal();
+    saveData();
+  }
+
+  // --- MODIFICATION D'UN OBJET COLLECTION ---
+  function openEditCollectionModal(index) {
+    const item = collection[index];
+    document.getElementById('edit-c-index').value = index;
+    document.getElementById('edit-c-title').value = item.title;
+    document.getElementById('edit-c-platform').value = item.platform;
+    document.getElementById('edit-c-price').value = item.price || '';
+    document.getElementById('edit-c-store').value = item.store || 'Non renseigné';
+    document.getElementById('edit-c-state').value = item.state || '✨ Neuf sous blister';
+    document.getElementById('edit-c-releaseDate').value = item.releaseDate || '';
+    document.getElementById('edit-c-buyDate').value = item.buyDate || '';
+    document.getElementById('edit-c-image').value = item.image || '';
+
+    const prev = document.getElementById('edit-c-preview');
+    if (item.image) { prev.src = item.image; prev.style.display = 'block'; }
+    else { prev.src = ''; prev.style.display = 'none'; }
+
+    document.getElementById('edit-c-gameplay').value = item.gameplay || 'Non commencé';
+    document.getElementById('edit-c-note').value = item.note || '';
+    document.getElementById('edit-collection-modal').style.display = 'flex';
+  }
+
+  function closeEditCollectionModal() { document.getElementById('edit-collection-modal').style.display = 'none'; }
+
+  function saveCollectionEdit() {
+    const index = parseInt(document.getElementById('edit-c-index').value, 10);
+    if (isNaN(index) || !collection[index]) return;
+
+    collection[index] = {
+      title: document.getElementById('edit-c-title').value.trim(),
+      platform: document.getElementById('edit-c-platform').value,
+      price: document.getElementById('edit-c-price').value,
+      store: document.getElementById('edit-c-store').value,
+      state: document.getElementById('edit-c-state').value,
+      releaseDate: document.getElementById('edit-c-releaseDate').value,
+      buyDate: document.getElementById('edit-c-buyDate').value,
+      image: document.getElementById('edit-c-image').value.trim(),
+      gameplay: document.getElementById('edit-c-gameplay').value,
+      note: document.getElementById('edit-c-note').value.trim()
+    };
+
+    closeEditCollectionModal();
+    saveData();
+  }
+
+  // --- MISE À JOUR DES SÉLECTEURS DE MOIS ---
+  function updateMonthFilterDropdowns() {
+    const wMonthSelect = document.getElementById('w-monthFilter');
+    const wCurrentVal = wMonthSelect.value;
+    const wMonthsSet = new Set();
+    wishlist.forEach(i => { if (i.releaseDate) wMonthsSet.add(i.releaseDate.substring(0, 7)); });
+    
+    wMonthSelect.innerHTML = '<option value="all">Tout le calendrier</option><option value="nodate">📅 Sans date fixée</option>';
+    Array.from(wMonthsSet).sort().forEach(ym => {
+      const [year, month] = ym.split('-');
+      const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+      const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      const opt = document.createElement('option');
+      opt.value = ym;
+      opt.textContent = `📅 ${label.charAt(0).toUpperCase() + label.slice(1)}`;
+      wMonthSelect.appendChild(opt);
+    });
+    wMonthSelect.value = Array.from(wMonthSelect.options).some(o => o.value === wCurrentVal) ? wCurrentVal : 'all';
+
+    const cMonthSelect = document.getElementById('c-monthFilter');
+    const cCurrentVal = cMonthSelect.value;
+    const cMonthsSet = new Set();
+    collection.forEach(i => { if (i.buyDate) cMonthsSet.add(i.buyDate.substring(0, 7)); });
+
+    cMonthSelect.innerHTML = '<option value="all">Tout l\'historique</option><option value="nodate">📅 Sans date d\'achat</option>';
+    Array.from(cMonthsSet).sort().forEach(ym => {
+      const [year, month] = ym.split('-');
+      const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+      const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      const opt = document.createElement('option');
+      opt.value = ym;
+      opt.textContent = `📅 ${label.charAt(0).toUpperCase() + label.slice(1)}`;
+      cMonthSelect.appendChild(opt);
+    });
+    cMonthSelect.value = Array.from(cMonthSelect.options).some(o => o.value === cCurrentVal) ? cCurrentVal : 'all';
+  }
+
+  function resetPlatformFilter() {
+    document.getElementById('c-filterPlatform').value = 'all';
+    renderCollection();
   }
 
   // --- SAUVEGARDE & RESTAURATION ---
@@ -603,44 +1261,109 @@
 
   // --- RENDU WISHLIST ---
   function renderWishlist() {
+    const monthFilter = document.getElementById('w-monthFilter').value;
+    const platF = document.getElementById('w-filterPlatform').value;
+    const storeF = document.getElementById('w-filterStore').value;
+    const statF = document.getElementById('w-filterStatus').value;
+
     let totalConfirmed = 0, totalPending = 0;
+
     wishlist.forEach(i => {
       const p = parseFloat(i.price) || 0;
-      if (i.status === 'À prendre') totalConfirmed += p;
-      if (i.status === 'En réflexion') totalPending += p;
+      const itemYM = i.releaseDate ? i.releaseDate.substring(0, 7) : 'nodate';
+      const matchMonth = (monthFilter === 'all') || (monthFilter === 'nodate' && !i.releaseDate) || (monthFilter === itemYM);
+
+      if (matchMonth) {
+        if (i.status === 'À prendre') totalConfirmed += p;
+        if (i.status === 'En réflexion') totalPending += p;
+      }
     });
+
+    if (monthFilter !== 'all') {
+      document.getElementById('labelConfirmed').textContent = 'Prévu (sélection)';
+      document.getElementById('labelPotential').textContent = 'Potentiel (sélection)';
+    } else {
+      document.getElementById('labelConfirmed').textContent = 'Total prévu';
+      document.getElementById('labelPotential').textContent = 'Total potentiel';
+    }
 
     document.getElementById('totalConfirmed').textContent = formatMoney(totalConfirmed);
     document.getElementById('totalPotential').textContent = formatMoney(totalConfirmed + totalPending);
 
     const container = document.getElementById('wishlistContainer');
-    const platF = document.getElementById('w-filterPlatform').value;
-    const statF = document.getElementById('w-filterStatus').value;
     container.innerHTML = '';
 
-    const filtered = wishlist.filter(i => (platF === 'all' || i.platform === platF) && (statF === 'all' || i.status === statF));
+    const filtered = wishlist.filter(i => {
+      const itemYM = i.releaseDate ? i.releaseDate.substring(0, 7) : 'nodate';
+      const matchMonth = (monthFilter === 'all') || (monthFilter === 'nodate' && !i.releaseDate) || (monthFilter === itemYM);
+      const matchPlat = (platF === 'all' || i.platform === platF);
+      const matchStore = (storeF === 'all' || i.store === storeF);
+      const matchStat = (statF === 'all' || i.status === statF);
+
+      return matchMonth && matchPlat && matchStore && matchStat;
+    });
 
     filtered.forEach(item => {
       const index = wishlist.indexOf(item);
       const card = document.createElement('div');
-      card.className = 'item-card';
+      
+      let statusClass = 'status-take';
+      let badgeStatusClass = 'take';
+      let statusText = '✅ Je prends';
+      
+      if (item.status === 'En réflexion') {
+        statusClass = 'status-think';
+        badgeStatusClass = 'think';
+        statusText = '⏳ En réflexion';
+      } else if (item.status === 'Je passe') {
+        statusClass = 'status-pass';
+        badgeStatusClass = 'pass';
+        statusText = '❌ Je passe';
+      }
+
+      card.className = `item-card ${statusClass}`;
       const dateStr = item.releaseDate ? `📅 ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}` : '📅 Sans date';
       const priceStr = item.price ? formatMoney(item.price) : 'Prix non fixé';
+      const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${item.store}</span>` : '';
+
+      const coverHtml = item.image 
+        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>🎮</div>'">`
+        : `<div class="item-cover-placeholder">🎮</div>`;
+
+      const q = encodeURIComponent(`${item.title} ${item.platform}`);
+      const ecUrl = `https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + item.title)}`;
+      const leclercUrl = `https://www.e.leclerc/recherche?q=${q}`;
+      const fnacUrl = `https://www.fnac.com/SearchResult/ResultList.aspx?Search=${q}`;
+      const amazonUrl = `https://www.amazon.fr/s?k=${q}`;
 
       card.innerHTML = `
-        <div class="card-header">
-          <div class="item-info">
-            <h3>${item.title}</h3>
-            <div class="item-meta">
-              <span class="badge">${item.platform}</span>
-              <span>${priceStr}</span>
-              <span>•</span>
-              <span>${dateStr}</span>
+        ${coverHtml}
+        <div class="item-content">
+          <div class="card-header">
+            <div class="item-info">
+              <h3>${item.title}</h3>
+              <div class="item-meta">
+                <span class="badge">${item.platform}</span>
+                <span class="badge-status ${badgeStatusClass}">${statusText}</span>
+                ${storeBadge}
+                <span>${priceStr}</span>
+                <span>•</span>
+                <span>${dateStr}</span>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn-action btn-edit" title="Modifier l'article" onclick="openEditModal(${index})">✏️</button>
+              <button class="btn-action btn-transfer" title="Acheté -> Transférer dans la Collection" onclick="moveToCollection(${index})">📥</button>
+              <button class="btn-action btn-delete" onclick="deleteWishlistItem(${index})">✕</button>
             </div>
           </div>
-          <div class="actions">
-            <button class="btn-action btn-transfer" title="Acheté -> Passer en Collection" onclick="moveToCollection(${index})">📥</button>
-            <button class="btn-action btn-delete" onclick="deleteWishlistItem(${index})">✕</button>
+
+          <div class="market-links">
+            <span style="font-size:0.7rem; color:var(--text-muted);">Infos & Préco :</span>
+            <a class="btn-market collector" href="${ecUrl}" target="_blank">🏆 EditionCollector</a>
+            <a class="btn-market" href="${leclercUrl}" target="_blank">Leclerc</a>
+            <a class="btn-market" href="${fnacUrl}" target="_blank">Fnac</a>
+            <a class="btn-market" href="${amazonUrl}" target="_blank">Amazon</a>
           </div>
         </div>
       `;
@@ -651,24 +1374,99 @@
   // --- RENDU COLLECTION ---
   function renderCollection() {
     document.getElementById('collectionCount').textContent = collection.length;
-    document.getElementById('collectionItemTotal').textContent = collection.length;
+
+    const monthFilter = document.getElementById('c-monthFilter').value;
+    const currentPlatformFilter = document.getElementById('c-filterPlatform').value;
+    const storeF = document.getElementById('c-filterStore').value;
+    const stateF = document.getElementById('c-filterState').value;
+    const playF = document.getElementById('c-filterGameplay').value;
+
+    const monthItems = collection.filter(i => {
+      const itemYM = i.buyDate ? i.buyDate.substring(0, 7) : 'nodate';
+      return (monthFilter === 'all') || (monthFilter === 'nodate' && !i.buyDate) || (monthFilter === itemYM);
+    });
+
+    const platformStats = {};
+    monthItems.forEach(i => {
+      const p = i.platform || 'Autre';
+      const val = parseFloat(i.price) || 0;
+      if (!platformStats[p]) platformStats[p] = { count: 0, total: 0 };
+      platformStats[p].count += 1;
+      platformStats[p].total += val;
+    });
+
+    const breakdownGrid = document.getElementById('platformBreakdownGrid');
+    breakdownGrid.innerHTML = '';
+
+    const sortedPlatforms = Object.keys(platformStats).sort((a, b) => platformStats[b].total - platformStats[a].total);
+
+    if (sortedPlatforms.length === 0) {
+      breakdownGrid.innerHTML = '<span style="font-size:0.75rem; color:#64748b;">Aucun objet pour cette période.</span>';
+    } else {
+      sortedPlatforms.forEach(plat => {
+        const data = platformStats[plat];
+        const chip = document.createElement('div');
+        const isSelected = (currentPlatformFilter === plat);
+        
+        chip.className = `platform-chip ${isSelected ? 'active' : ''}`;
+        chip.title = isSelected ? `Désélectionner ${plat}` : `Filtrer sur ${plat}`;
+        
+        chip.onclick = () => {
+          document.getElementById('c-filterPlatform').value = (document.getElementById('c-filterPlatform').value === plat) ? 'all' : plat;
+          renderCollection();
+        };
+
+        chip.innerHTML = `
+          <div class="platform-chip-name">${plat} ${isSelected ? '✓' : ''}</div>
+          <div class="platform-chip-value">${formatMoney(data.total)}</div>
+          <div class="platform-chip-count">${data.count} objet${data.count > 1 ? 's' : ''}</div>
+        `;
+        breakdownGrid.appendChild(chip);
+      });
+    }
+
+    const filtered = collection.filter(i => {
+      const itemYM = i.buyDate ? i.buyDate.substring(0, 7) : 'nodate';
+      const matchMonth = (monthFilter === 'all') || (monthFilter === 'nodate' && !i.buyDate) || (monthFilter === itemYM);
+      const matchPlat = (currentPlatformFilter === 'all' || i.platform === currentPlatformFilter);
+      const matchStore = (storeF === 'all' || i.store === storeF);
+      const matchState = (stateF === 'all' || i.state === stateF);
+      const matchPlay = (playF === 'all' || i.gameplay === playF);
+
+      return matchMonth && matchPlat && matchStore && matchState && matchPlay;
+    });
 
     let totalVal = 0;
-    collection.forEach(i => { totalVal += parseFloat(i.price) || 0; });
+    filtered.forEach(i => { totalVal += parseFloat(i.price) || 0; });
     document.getElementById('collectionTotalValue').textContent = formatMoney(totalVal);
+    document.getElementById('collectionItemTotal').textContent = filtered.length;
+
+    const isFiltered = (monthFilter !== 'all' || currentPlatformFilter !== 'all' || storeF !== 'all' || stateF !== 'all' || playF !== 'all');
+    document.getElementById('c-labelValue').textContent = isFiltered ? 'Valeur (sélection)' : 'Valeur totale';
+    document.getElementById('c-labelCount').textContent = isFiltered ? 'Objets (sélection)' : 'Objets possédés';
 
     const container = document.getElementById('collectionContainer');
-    const platF = document.getElementById('c-filterPlatform').value;
-    const stateF = document.getElementById('c-filterState').value;
     container.innerHTML = '';
-
-    const filtered = collection.filter(i => (platF === 'all' || i.platform === platF) && (stateF === 'all' || i.state === stateF));
 
     filtered.forEach(item => {
       const index = collection.indexOf(item);
       const card = document.createElement('div');
       card.className = 'item-card';
       const valStr = item.price ? formatMoney(item.price) : 'Non estimé';
+      const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${item.store}</span>` : '';
+      const stateBadge = item.state ? `<span class="badge-state">${item.state}</span>` : '';
+      const playBadge = (item.gameplay && item.gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${item.gameplay}</span>` : '';
+
+      const coverHtml = item.image 
+        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>🎮</div>'">`
+        : `<div class="item-cover-placeholder">🎮</div>`;
+
+      let datesDisplay = [];
+      if (item.releaseDate) datesDisplay.push(`📅 Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
+      if (item.buyDate) datesDisplay.push(`🛒 Acheté : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
+      const datesStr = datesDisplay.length > 0 ? datesDisplay.join(' • ') : '📅 Dates non fixées';
+
+      const noteHtml = item.note ? `<div class="item-note">📝 ${item.note}</div>` : '';
 
       const query = encodeURIComponent(`${item.title} ${item.platform}`);
       const priceChartingUrl = `https://www.pricecharting.com/search-products?type=prices&q=${query}`;
@@ -677,87 +1475,115 @@
       const vintedUrl = `https://www.vinted.fr/catalog?search_text=${query}`;
 
       card.innerHTML = `
-        <div class="card-header">
-          <div class="item-info">
-            <h3>${item.title}</h3>
-            <div class="item-meta">
-              <span class="badge">${item.platform}</span>
-              <span style="font-weight:600;">${valStr}</span>
+        ${coverHtml}
+        <div class="item-content">
+          <div class="card-header">
+            <div class="item-info">
+              <h3>${item.title}</h3>
+              <div class="item-meta">
+                <span class="badge">${item.platform}</span>
+                ${stateBadge}
+                ${playBadge}
+                ${storeBadge}
+                <span style="font-weight:600;">${valStr}</span>
+              </div>
+              <div class="item-meta" style="margin-top:2px;">
+                <span>${datesStr}</span>
+              </div>
+              ${noteHtml}
+            </div>
+            <div class="actions">
+              <button class="btn-action btn-edit" title="Modifier l'objet" onclick="openEditCollectionModal(${index})">✏️</button>
+              <button class="btn-action btn-delete" onclick="deleteCollectionItem(${index})">✕</button>
             </div>
           </div>
-          <div class="actions">
-            <select onchange="updateCollectionState(${index}, this.value)" style="padding:4px; font-size:0.75rem; width:auto;">
-              <option value="Sous blister / Neuf" ${item.state === 'Sous blister / Neuf' ? 'selected' : ''}>✨ Neuf</option>
-              <option value="Pas encore joué / Jamais écouté / Non vu" ${item.state === 'Pas encore joué / Jamais écouté / Non vu' ? 'selected' : ''}>⏳ Non fait</option>
-              <option value="En cours / Déjà utilisé" ${item.state === 'En cours / Déjà utilisé' ? 'selected' : ''}>🎮 En cours</option>
-              <option value="Terminé / Utilisé" ${item.state === 'Terminé / Utilisé' ? 'selected' : ''}>🏆 Terminé</option>
-            </select>
-            <button class="btn-action btn-delete" onclick="deleteCollectionItem(${index})">✕</button>
-          </div>
-        </div>
 
-        <div class="market-links">
-          <span style="font-size:0.7rem; color:var(--text-muted);">Argus :</span>
-          <a class="btn-market pricecharting" href="${priceChartingUrl}" target="_blank">📈 PriceCharting</a>
-          <a class="btn-market" href="${ebaySoldUrl}" target="_blank">📊 eBay</a>
-          <a class="btn-market" href="${leboncoinUrl}" target="_blank">🟠 LBC</a>
-          <a class="btn-market" href="${vintedUrl}" target="_blank">🟢 Vinted</a>
+          <div class="market-links">
+            <span style="font-size:0.7rem; color:var(--text-muted);">Argus :</span>
+            <a class="btn-market pricecharting" href="${priceChartingUrl}" target="_blank">📈 PriceCharting</a>
+            <a class="btn-market" href="${ebaySoldUrl}" target="_blank">📊 eBay</a>
+            <a class="btn-market" href="${leboncoinUrl}" target="_blank">🟠 LBC</a>
+            <a class="btn-market" href="${vintedUrl}" target="_blank">🟢 Vinted</a>
+          </div>
         </div>
       `;
       container.appendChild(card);
     });
   }
 
-  // Wishlist Form
+  // Wishlist Form Submit
   document.getElementById('wishlistForm').addEventListener('submit', (e) => {
     e.preventDefault();
     wishlist.unshift({
       title: document.getElementById('w-title').value.trim(),
       platform: document.getElementById('w-platform').value,
       price: document.getElementById('w-price').value,
+      store: document.getElementById('w-store').value,
       releaseDate: document.getElementById('w-releaseDate').value,
+      image: document.getElementById('w-image').value.trim(),
       status: document.getElementById('w-status').value
     });
     saveData();
     e.target.reset();
+    clearImageField('w-image', 'w-preview');
   });
 
   function deleteWishlistItem(index) { wishlist.splice(index, 1); saveData(); }
 
+  // Transfert Wishlist -> Collection
   function moveToCollection(index) {
     const item = wishlist[index];
+    const today = new Date().toISOString().slice(0, 10);
+
     collection.unshift({
       title: item.title,
       platform: item.platform,
       price: item.price || '',
-      state: 'Sous blister / Neuf'
+      store: item.store || 'Non renseigné',
+      state: '✨ Neuf sous blister',
+      releaseDate: item.releaseDate || '',
+      buyDate: today,
+      image: item.image || '',
+      gameplay: 'Non commencé',
+      note: ''
     });
     wishlist.splice(index, 1);
     saveData();
     switchTab('collection');
   }
 
-  // Collection Form
+  // Collection Form Submit
   document.getElementById('collectionForm').addEventListener('submit', (e) => {
     e.preventDefault();
     collection.unshift({
       title: document.getElementById('c-title').value.trim(),
       platform: document.getElementById('c-platform').value,
       price: document.getElementById('c-price').value,
-      state: document.getElementById('c-state').value
+      store: document.getElementById('c-store').value,
+      state: document.getElementById('c-state').value,
+      releaseDate: document.getElementById('c-releaseDate').value,
+      buyDate: document.getElementById('c-buyDate').value,
+      image: document.getElementById('c-image').value.trim(),
+      gameplay: document.getElementById('c-gameplay').value,
+      note: document.getElementById('c-note').value.trim()
     });
     saveData();
     e.target.reset();
+    clearImageField('c-image', 'c-preview');
   });
 
-  function updateCollectionState(index, state) { collection[index].state = state; saveData(); }
   function deleteCollectionItem(index) { collection.splice(index, 1); saveData(); }
 
   document.getElementById('w-filterPlatform').addEventListener('change', renderWishlist);
+  document.getElementById('w-filterStore').addEventListener('change', renderWishlist);
   document.getElementById('w-filterStatus').addEventListener('change', renderWishlist);
-  document.getElementById('c-filterPlatform').addEventListener('change', renderCollection);
-  document.getElementById('c-filterState').addEventListener('change', renderCollection);
 
+  document.getElementById('c-filterPlatform').addEventListener('change', renderCollection);
+  document.getElementById('c-filterStore').addEventListener('change', renderCollection);
+  document.getElementById('c-filterState').addEventListener('change', renderCollection);
+  document.getElementById('c-filterGameplay').addEventListener('change', renderCollection);
+
+  updateMonthFilterDropdowns();
   saveData();
 </script>
 
