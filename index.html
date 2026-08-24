@@ -31,27 +31,37 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
     body { 
       background: var(--bg); 
       color: var(--text); 
-      padding: 15px; 
+      padding: 12px; 
       display: flex; 
       justify-content: center;
-      padding-top: env(safe-area-inset-top, 15px);
-      padding-bottom: env(safe-area-inset-bottom, 15px);
+      padding-top: env(safe-area-inset-top, 12px);
+      padding-bottom: env(safe-area-inset-bottom, 12px);
     }
-    .container { max-width: 600px; width: 100%; }
+    
+    .container { 
+      width: 100%; 
+      max-width: 500px;
+    }
 
     .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
-    .header-bar h1 { font-size: 1.3rem; }
+    .header-bar h1 { font-size: 1.25rem; }
     .btn-backup {
       padding: 6px 10px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       background: var(--card-bg);
       border: 1px solid var(--border);
       color: var(--text-muted);
@@ -63,20 +73,21 @@
     .tabs {
       display: flex;
       gap: 8px;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       border-bottom: 2px solid var(--border);
       padding-bottom: 8px;
     }
     .tab-btn {
       flex: 1;
-      padding: 10px;
+      padding: 10px 6px;
       background: var(--card-bg);
       border: 1px solid var(--border);
       color: var(--text-muted);
       border-radius: 6px;
       font-weight: 600;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
+      text-align: center;
     }
     .tab-btn.active { background: var(--accent); color: var(--text); border-color: var(--accent); }
 
@@ -87,21 +98,21 @@
     .summary-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 15px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
     .summary-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px;
+      padding: 8px;
       text-align: center;
     }
     .summary-card.confirmed { border-color: rgba(16, 185, 129, 0.4); }
     .summary-card.pending { border-color: rgba(245, 158, 11, 0.4); }
     .summary-card.value { border-color: rgba(168, 85, 247, 0.4); }
-    .summary-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px; }
-    .summary-amount { font-size: 1.1rem; font-weight: 700; }
+    .summary-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 2px; }
+    .summary-amount { font-size: 1.05rem; font-weight: 700; }
     .amount-confirmed { color: var(--green); }
     .amount-pending { color: var(--amber); }
     .amount-value { color: var(--purple); }
@@ -116,9 +127,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 15px;
     }
-    #scanner-container { width: 100%; max-width: 400px; background: #000; border-radius: 8px; overflow: hidden; }
+    #scanner-container { width: 100%; max-width: 380px; background: #000; border-radius: 8px; overflow: hidden; }
     .btn-close-scan {
       margin-top: 15px;
       background: var(--red);
@@ -133,91 +144,128 @@
     /* Formulaires */
     form {
       background: var(--card-bg);
-      padding: 14px;
+      padding: 12px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 12px;
+      width: 100%;
     }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .form-row > * {
+      flex: 1;
+      min-width: 0;
+    }
+
     input, select, button {
-      padding: 10px;
+      padding: 9px 10px;
       border-radius: 6px;
       border: 1px solid var(--border);
       background: #0f172a;
       color: var(--text);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
+      width: 100%;
     }
-    .full-width { grid-column: span 2; }
-    
-    .input-scan-group {
-      grid-column: span 2;
+
+    /* Groupes d'inputs avec boutons intégrés */
+    .input-with-btn {
+      position: relative;
       display: flex;
-      gap: 8px;
+      align-items: center;
+      width: 100%;
     }
-    .input-scan-group input { flex: 1; }
-    .btn-scan {
+    .input-with-btn input {
+      padding-right: 42px;
+      width: 100%;
+    }
+    .input-with-btn .btn-inside {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 30px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: #334155;
-      border: 1px solid var(--border);
+      border: none;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 1rem;
-      padding: 0 14px;
+      font-size: 0.85rem;
     }
-    .btn-fetch-argus {
-      padding: 8px 10px;
-      font-size: 0.78rem;
-      background: #1e1b4b;
-      border: 1px solid #4338ca;
+
+    .input-with-btn.btn-text input {
+      padding-right: 68px;
+    }
+    .input-with-btn.btn-text .btn-inside {
+      width: auto;
+      padding: 0 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #312e81;
       color: #c7d2fe;
-      cursor: pointer;
-      border-radius: 6px;
-      font-weight: 500;
     }
-    .btn-fetch-argus:hover { background: #312e81; }
 
     button.btn-add {
       background: var(--accent);
       border: none;
       font-weight: 600;
       cursor: pointer;
+      padding: 10px;
     }
 
     /* Filtres */
-    .controls { display: flex; gap: 8px; margin-bottom: 12px; }
-    .controls select { flex: 1; padding: 8px; }
+    .controls { display: flex; gap: 8px; margin-bottom: 10px; width: 100%; }
+    .controls select { flex: 1; padding: 8px; font-size: 0.82rem; }
 
     /* Cartes */
     .item-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 12px;
+      padding: 10px;
       margin-bottom: 8px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
+      width: 100%;
     }
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
-    .item-info h3 { font-size: 0.95rem; margin-bottom: 4px; }
-    .item-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
-    .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; background: #312e81; color: #c7d2fe; }
+    .item-info { min-width: 0; flex: 1; }
+    .item-info h3 { 
+      font-size: 0.92rem; 
+      margin-bottom: 3px; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+    }
+    .item-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+    .badge { padding: 2px 5px; border-radius: 4px; font-size: 0.68rem; background: #312e81; color: #c7d2fe; }
 
     .market-links {
       display: flex;
-      gap: 6px;
+      gap: 5px;
       flex-wrap: wrap;
-      padding-top: 6px;
+      padding-top: 5px;
       border-top: 1px solid rgba(255,255,255,0.05);
     }
     .btn-market {
-      font-size: 0.72rem;
-      padding: 3px 8px;
+      font-size: 0.7rem;
+      padding: 3px 6px;
       border-radius: 4px;
       background: #0f172a;
       border: 1px solid var(--border);
@@ -225,20 +273,19 @@
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
     }
     .btn-market.pricecharting { color: #a78bfa; border-color: #5b21b6; }
-    .btn-market:hover { border-color: var(--accent); color: white; }
     
-    .actions { display: flex; align-items: center; gap: 6px; }
+    .actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
     .btn-action {
       background: transparent;
       border: 1px solid var(--border);
       cursor: pointer;
-      padding: 6px 8px;
-      border-radius: 6px;
-      font-size: 0.8rem;
+      padding: 5px 7px;
+      border-radius: 5px;
+      font-size: 0.78rem;
       color: var(--text-muted);
+      width: auto;
     }
     .btn-transfer { border-color: rgba(16, 185, 129, 0.4); color: var(--green); }
     .btn-delete { color: var(--red); }
@@ -258,7 +305,7 @@
 
   <div class="header-bar">
     <h1>Mes Listes & Collection</h1>
-    <div>
+    <div style="display: flex; gap: 6px;">
       <button class="btn-backup" onclick="exportData()">💾 Sauvegarder</button>
       <button class="btn-backup" onclick="document.getElementById('importFile').click()">📥 Charger</button>
       <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
@@ -284,34 +331,42 @@
     </div>
 
     <form id="wishlistForm">
-      <div class="input-scan-group">
+      <div class="input-with-btn">
         <input type="text" id="w-title" placeholder="Nom du jeu, vinyle, vêtement..." required>
-        <button type="button" class="btn-scan" title="Scanner le code-barres" onclick="startScanner('w-title')">📷</button>
+        <button type="button" class="btn-inside" title="Scanner le code-barres" onclick="startScanner('w-title')">📷</button>
       </div>
-      <select id="w-platform" required>
-        <option value="PS5">PlayStation 5</option>
-        <option value="Switch">Nintendo Switch</option>
-        <option value="Switch 2">Nintendo Switch 2</option>
-        <option value="3DS">3DS</option>
-        <option value="DS">DS</option>
-        <option value="GBA">Game Boy Advance</option>
-        <option value="GBC">Game Boy Color</option>
-        <option value="Vinyle">🎵 Vinyle</option>
-        <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-        <option value="Vêtement">👕 Vêtement</option>
-        <option value="Autre">📦 Autre</option>
-      </select>
-      <div style="display:flex; gap:6px;">
-        <input type="number" id="w-price" placeholder="Prix (€)" step="0.01" style="flex:1;">
-        <button type="button" class="btn-fetch-argus" onclick="fetchPriceChartingEstimate('w-title', 'w-platform', 'w-price')">🔍 Cote</button>
+
+      <div class="form-row">
+        <select id="w-platform" required>
+          <option value="PS5">PlayStation 5</option>
+          <option value="Switch">Nintendo Switch</option>
+          <option value="Switch 2">Nintendo Switch 2</option>
+          <option value="3DS">3DS</option>
+          <option value="DS">DS</option>
+          <option value="GBA">Game Boy Advance</option>
+          <option value="GBC">Game Boy Color</option>
+          <option value="Vinyle">🎵 Vinyle</option>
+          <option value="Blu-ray">🎬 Blu-ray / 4K</option>
+          <option value="Vêtement">👕 Vêtement</option>
+          <option value="Autre">📦 Autre</option>
+        </select>
+        
+        <div class="input-with-btn btn-text">
+          <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
+          <button type="button" class="btn-inside" onclick="fetchPriceChartingEstimate('w-title', 'w-platform', 'w-price')">🔍 Cote</button>
+        </div>
       </div>
-      <input type="date" id="w-releaseDate">
-      <select id="w-status">
-        <option value="À prendre">✅ Je prends</option>
-        <option value="En réflexion">⏳ En réflexion</option>
-        <option value="Je passe">❌ Je passe</option>
-      </select>
-      <button type="submit" class="btn-add full-width">+ Ajouter à la wishlist</button>
+
+      <div class="form-row">
+        <input type="date" id="w-releaseDate">
+        <select id="w-status">
+          <option value="À prendre">✅ Je prends</option>
+          <option value="En réflexion">⏳ En réflexion</option>
+          <option value="Je passe">❌ Je passe</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-add">+ Ajouter à la wishlist</button>
     </form>
 
     <div class="controls">
@@ -353,34 +408,40 @@
     </div>
 
     <form id="collectionForm">
-      <div class="input-scan-group">
+      <div class="input-with-btn">
         <input type="text" id="c-title" placeholder="Nom de l'objet possédé" required>
-        <button type="button" class="btn-scan" title="Scanner le code-barres" onclick="startScanner('c-title')">📷</button>
+        <button type="button" class="btn-inside" title="Scanner le code-barres" onclick="startScanner('c-title')">📷</button>
       </div>
-      <select id="c-platform" required>
-        <option value="PS5">PlayStation 5</option>
-        <option value="Switch">Nintendo Switch</option>
-        <option value="Switch 2">Nintendo Switch 2</option>
-        <option value="3DS">3DS</option>
-        <option value="DS">DS</option>
-        <option value="GBA">Game Boy Advance</option>
-        <option value="GBC">Game Boy Color</option>
-        <option value="Vinyle">🎵 Vinyle</option>
-        <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-        <option value="Vêtement">👕 Vêtement</option>
-        <option value="Autre">📦 Autre</option>
-      </select>
-      <div style="display:flex; gap:6px;">
-        <input type="number" id="c-price" placeholder="Valeur estimée (€)" step="0.01" style="flex:1;">
-        <button type="button" class="btn-fetch-argus" onclick="fetchPriceChartingEstimate('c-title', 'c-platform', 'c-price')">🔍 Cote</button>
+
+      <div class="form-row">
+        <select id="c-platform" required>
+          <option value="PS5">PlayStation 5</option>
+          <option value="Switch">Nintendo Switch</option>
+          <option value="Switch 2">Nintendo Switch 2</option>
+          <option value="3DS">3DS</option>
+          <option value="DS">DS</option>
+          <option value="GBA">Game Boy Advance</option>
+          <option value="GBC">Game Boy Color</option>
+          <option value="Vinyle">🎵 Vinyle</option>
+          <option value="Blu-ray">🎬 Blu-ray / 4K</option>
+          <option value="Vêtement">👕 Vêtement</option>
+          <option value="Autre">📦 Autre</option>
+        </select>
+        
+        <div class="input-with-btn btn-text">
+          <input type="number" id="c-price" placeholder="Valeur (€)" step="0.01">
+          <button type="button" class="btn-inside" onclick="fetchPriceChartingEstimate('c-title', 'c-platform', 'c-price')">🔍 Cote</button>
+        </div>
       </div>
-      <select id="c-state" required class="full-width">
+
+      <select id="c-state" required>
         <option value="Sous blister / Neuf">✨ Sous blister / Neuf</option>
         <option value="Pas encore joué / Jamais écouté / Non vu">⏳ Non fait / Non écouté</option>
         <option value="En cours / Déjà utilisé">🎮 En cours / Utilisé</option>
         <option value="Terminé / Utilisé">🏆 Terminé</option>
       </select>
-      <button type="submit" class="btn-add full-width">+ Ajouter à ma collection</button>
+
+      <button type="submit" class="btn-add">+ Ajouter à ma collection</button>
     </form>
 
     <div class="controls">
@@ -399,9 +460,9 @@
       </select>
       <select id="c-filterState">
         <option value="all">Tous les états</option>
-        <option value="Sous blister / Neuf">✨ Sous blister / Neuf</option>
-        <option value="Pas encore joué / Jamais écouté / Non vu">⏳ Non fait / Non écouté</option>
-        <option value="En cours / Déjà utilisé">🎮 En cours / Utilisé</option>
+        <option value="Sous blister / Neuf">✨ Neuf</option>
+        <option value="Pas encore joué / Jamais écouté / Non vu">⏳ Non fait</option>
+        <option value="En cours / Déjà utilisé">🎮 En cours</option>
         <option value="Terminé / Utilisé">🏆 Terminé</option>
       </select>
     </div>
@@ -428,7 +489,7 @@
     renderCollection();
   }
 
-  // --- API PRICECHARTING (ESTIMATION DIRECTE) ---
+  // --- API PRICECHARTING ---
   async function fetchPriceChartingEstimate(titleFieldId, platformFieldId, priceFieldId) {
     const title = document.getElementById(titleFieldId).value.trim();
     const platform = document.getElementById(platformFieldId).value;
@@ -438,34 +499,30 @@
     }
 
     const priceInput = document.getElementById(priceFieldId);
-    priceInput.placeholder = "Recherche cote...";
+    priceInput.placeholder = "Recherche...";
 
     try {
-      // Requête via l'endpoint de recherche PriceCharting
       const query = encodeURIComponent(`${title} ${platform}`);
       const res = await fetch(`https://www.pricecharting.com/api/products?q=${query}`);
       const data = await res.json();
 
       if (data && data.products && data.products.length > 0) {
         const prod = data.products[0];
-        // Conversion centimes USD vers EUR estimé (taux indicatif 0.92)
         const priceCents = prod['loose-price'] || prod['cib-price'] || prod['new-price'] || 0;
         const priceEur = ((priceCents / 100) * 0.92).toFixed(2);
         priceInput.value = priceEur;
-        alert(`Cote trouvée pour "${prod['product-name']}" : ${priceEur} €`);
+        alert(`Cote trouvée : ${priceEur} €`);
       } else {
-        alert("Aucun prix trouvé sur PriceCharting pour cette référence.");
+        window.open(`https://www.pricecharting.com/search-products?type=prices&q=${query}`, '_blank');
       }
     } catch (e) {
-      // Si la requête directe est bloquée, ouvrir la page web PriceCharting pré-remplie
-      const pcSearchUrl = `https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(title + ' ' + platform)}`;
-      window.open(pcSearchUrl, '_blank');
+      window.open(`https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(title + ' ' + platform)}`, '_blank');
     } finally {
-      priceInput.placeholder = "Valeur estimée (€)";
+      priceInput.placeholder = "Prix (€)";
     }
   }
 
-  // --- SCANNER DE CODE-BARRES ---
+  // --- SCANNER ---
   function startScanner(targetField) {
     targetInputId = targetField;
     document.getElementById('scanner-modal').style.display = 'flex';
@@ -476,23 +533,40 @@
       { fps: 10, qrbox: { width: 250, height: 150 } },
       async (decodedText) => {
         stopScanner();
-        document.getElementById(targetInputId).value = "Recherche en cours...";
-        
+        const inputField = document.getElementById(targetInputId);
+        inputField.value = "Recherche...";
+
+        const cleanCode = decodedText.trim();
+        let foundTitle = null;
+
         try {
-          const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${decodedText}`);
+          const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${cleanCode}.json`);
           const data = await res.json();
-          if (data.items && data.items.length > 0) {
-            document.getElementById(targetInputId).value = data.items[0].title;
-          } else {
-            document.getElementById(targetInputId).value = `Article (${decodedText})`;
+          if (data.status === 1 && data.product && data.product.product_name) {
+            foundTitle = data.product.product_name;
           }
-        } catch (e) {
-          document.getElementById(targetInputId).value = `Code: ${decodedText}`;
+        } catch (e) {}
+
+        if (!foundTitle) {
+          try {
+            const resMusic = await fetch(`https://musicbrainz.org/ws/2/release/?query=barcode:${cleanCode}&fmt=json`);
+            const dataMusic = await resMusic.json();
+            if (dataMusic.releases && dataMusic.releases.length > 0) {
+              const rel = dataMusic.releases[0];
+              foundTitle = `${rel['artist-credit']?.[0]?.name || ''} - ${rel.title}`;
+            }
+          } catch (e) {}
+        }
+
+        if (foundTitle) {
+          inputField.value = foundTitle;
+        } else {
+          inputField.value = cleanCode;
         }
       },
-      (errorMessage) => {}
-    ).catch(err => {
-      alert("Impossible d'accéder à la caméra. Vérifiez l'adresse https://");
+      () => {}
+    ).catch(() => {
+      alert("Erreur accès caméra.");
       stopScanner();
     });
   }
@@ -596,7 +670,7 @@
     });
   }
 
-  // --- RENDU COLLECTION AVEC TOUS LES LIENS DU MARCHÉ ---
+  // --- RENDU COLLECTION ---
   function renderCollection() {
     document.getElementById('collectionCount').textContent = collection.length;
     document.getElementById('collectionItemTotal').textContent = collection.length;
@@ -634,7 +708,7 @@
             </div>
           </div>
           <div class="actions">
-            <select onchange="updateCollectionState(${index}, this.value)" style="padding:4px; font-size:0.75rem;">
+            <select onchange="updateCollectionState(${index}, this.value)" style="padding:4px; font-size:0.75rem; width:auto;">
               <option value="Sous blister / Neuf" ${item.state === 'Sous blister / Neuf' ? 'selected' : ''}>✨ Neuf</option>
               <option value="Pas encore joué / Jamais écouté / Non vu" ${item.state === 'Pas encore joué / Jamais écouté / Non vu' ? 'selected' : ''}>⏳ Non fait</option>
               <option value="En cours / Déjà utilisé" ${item.state === 'En cours / Déjà utilisé' ? 'selected' : ''}>🎮 En cours</option>
@@ -644,12 +718,11 @@
           </div>
         </div>
 
-        <!-- Raccourcis Argus & Marché complets -->
         <div class="market-links">
-          <span style="font-size:0.72rem; color:var(--text-muted); margin-right:2px;">Argus :</span>
+          <span style="font-size:0.7rem; color:var(--text-muted);">Argus :</span>
           <a class="btn-market pricecharting" href="${priceChartingUrl}" target="_blank">📈 PriceCharting</a>
-          <a class="btn-market" href="${ebaySoldUrl}" target="_blank">📊 eBay Ventes</a>
-          <a class="btn-market" href="${leboncoinUrl}" target="_blank">🟠 Leboncoin</a>
+          <a class="btn-market" href="${ebaySoldUrl}" target="_blank">📊 eBay</a>
+          <a class="btn-market" href="${leboncoinUrl}" target="_blank">🟠 LBC</a>
           <a class="btn-market" href="${vintedUrl}" target="_blank">🟢 Vinted</a>
         </div>
       `;
