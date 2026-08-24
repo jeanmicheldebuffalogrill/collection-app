@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Wishlist & Collection</title>
 
-  <!-- Configuration pour l'iPhone et le logo personnalisé -->
+  <!-- PWA & Icône iPhone -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" href="apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Collection">
 
-  <!-- Librairie de scan caméra -->
+  <!-- Scanner de code-barres -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
@@ -164,6 +164,17 @@
       font-size: 1rem;
       padding: 0 14px;
     }
+    .btn-fetch-argus {
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      background: #1e1b4b;
+      border: 1px solid #4338ca;
+      color: #c7d2fe;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    .btn-fetch-argus:hover { background: #312e81; }
 
     button.btn-add {
       background: var(--accent);
@@ -184,6 +195,11 @@
       padding: 12px;
       margin-bottom: 8px;
       display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card-header {
+      display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
@@ -191,6 +207,28 @@
     .item-info h3 { font-size: 0.95rem; margin-bottom: 4px; }
     .item-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
     .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; background: #312e81; color: #c7d2fe; }
+
+    .market-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .btn-market {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: #93c5fd;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-market.pricecharting { color: #a78bfa; border-color: #5b21b6; }
+    .btn-market:hover { border-color: var(--accent); color: white; }
     
     .actions { display: flex; align-items: center; gap: 6px; }
     .btn-action {
@@ -263,7 +301,10 @@
         <option value="Vêtement">👕 Vêtement</option>
         <option value="Autre">📦 Autre</option>
       </select>
-      <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
+      <div style="display:flex; gap:6px;">
+        <input type="number" id="w-price" placeholder="Prix (€)" step="0.01" style="flex:1;">
+        <button type="button" class="btn-fetch-argus" onclick="fetchPriceChartingEstimate('w-title', 'w-platform', 'w-price')">🔍 Cote</button>
+      </div>
       <input type="date" id="w-releaseDate">
       <select id="w-status">
         <option value="À prendre">✅ Je prends</option>
@@ -329,7 +370,10 @@
         <option value="Vêtement">👕 Vêtement</option>
         <option value="Autre">📦 Autre</option>
       </select>
-      <input type="number" id="c-price" placeholder="Valeur estimée (€)" step="0.01">
+      <div style="display:flex; gap:6px;">
+        <input type="number" id="c-price" placeholder="Valeur estimée (€)" step="0.01" style="flex:1;">
+        <button type="button" class="btn-fetch-argus" onclick="fetchPriceChartingEstimate('c-title', 'c-platform', 'c-price')">🔍 Cote</button>
+      </div>
       <select id="c-state" required class="full-width">
         <option value="Sous blister / Neuf">✨ Sous blister / Neuf</option>
         <option value="Pas encore joué / Jamais écouté / Non vu">⏳ Non fait / Non écouté</option>
@@ -384,6 +428,43 @@
     renderCollection();
   }
 
+  // --- API PRICECHARTING (ESTIMATION DIRECTE) ---
+  async function fetchPriceChartingEstimate(titleFieldId, platformFieldId, priceFieldId) {
+    const title = document.getElementById(titleFieldId).value.trim();
+    const platform = document.getElementById(platformFieldId).value;
+    if (!title) {
+      alert("Veuillez d'abord saisir le nom du titre.");
+      return;
+    }
+
+    const priceInput = document.getElementById(priceFieldId);
+    priceInput.placeholder = "Recherche cote...";
+
+    try {
+      // Requête via l'endpoint de recherche PriceCharting
+      const query = encodeURIComponent(`${title} ${platform}`);
+      const res = await fetch(`https://www.pricecharting.com/api/products?q=${query}`);
+      const data = await res.json();
+
+      if (data && data.products && data.products.length > 0) {
+        const prod = data.products[0];
+        // Conversion centimes USD vers EUR estimé (taux indicatif 0.92)
+        const priceCents = prod['loose-price'] || prod['cib-price'] || prod['new-price'] || 0;
+        const priceEur = ((priceCents / 100) * 0.92).toFixed(2);
+        priceInput.value = priceEur;
+        alert(`Cote trouvée pour "${prod['product-name']}" : ${priceEur} €`);
+      } else {
+        alert("Aucun prix trouvé sur PriceCharting pour cette référence.");
+      }
+    } catch (e) {
+      // Si la requête directe est bloquée, ouvrir la page web PriceCharting pré-remplie
+      const pcSearchUrl = `https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(title + ' ' + platform)}`;
+      window.open(pcSearchUrl, '_blank');
+    } finally {
+      priceInput.placeholder = "Valeur estimée (€)";
+    }
+  }
+
   // --- SCANNER DE CODE-BARRES ---
   function startScanner(targetField) {
     targetInputId = targetField;
@@ -411,7 +492,7 @@
       },
       (errorMessage) => {}
     ).catch(err => {
-      alert("Impossible d'accéder à la caméra. Vérifiez que vous utilisez bien une adresse https://");
+      alert("Impossible d'accéder à la caméra. Vérifiez l'adresse https://");
       stopScanner();
     });
   }
@@ -495,25 +576,27 @@
       const priceStr = item.price ? formatMoney(item.price) : 'Prix non fixé';
 
       card.innerHTML = `
-        <div class="item-info">
-          <h3>${item.title}</h3>
-          <div class="item-meta">
-            <span class="badge">${item.platform}</span>
-            <span>${priceStr}</span>
-            <span>•</span>
-            <span>${dateStr}</span>
+        <div class="card-header">
+          <div class="item-info">
+            <h3>${item.title}</h3>
+            <div class="item-meta">
+              <span class="badge">${item.platform}</span>
+              <span>${priceStr}</span>
+              <span>•</span>
+              <span>${dateStr}</span>
+            </div>
           </div>
-        </div>
-        <div class="actions">
-          <button class="btn-action btn-transfer" title="Acheté -> Passer en Collection" onclick="moveToCollection(${index})">📥</button>
-          <button class="btn-action btn-delete" onclick="deleteWishlistItem(${index})">✕</button>
+          <div class="actions">
+            <button class="btn-action btn-transfer" title="Acheté -> Passer en Collection" onclick="moveToCollection(${index})">📥</button>
+            <button class="btn-action btn-delete" onclick="deleteWishlistItem(${index})">✕</button>
+          </div>
         </div>
       `;
       container.appendChild(card);
     });
   }
 
-  // --- RENDU COLLECTION ---
+  // --- RENDU COLLECTION AVEC TOUS LES LIENS DU MARCHÉ ---
   function renderCollection() {
     document.getElementById('collectionCount').textContent = collection.length;
     document.getElementById('collectionItemTotal').textContent = collection.length;
@@ -535,22 +618,39 @@
       card.className = 'item-card';
       const valStr = item.price ? formatMoney(item.price) : 'Non estimé';
 
+      const query = encodeURIComponent(`${item.title} ${item.platform}`);
+      const priceChartingUrl = `https://www.pricecharting.com/search-products?type=prices&q=${query}`;
+      const ebaySoldUrl = `https://www.ebay.fr/sch/i.html?_nkw=${query}&LH_Complete=1&LH_Sold=1`;
+      const leboncoinUrl = `https://www.leboncoin.fr/recherche?text=${query}`;
+      const vintedUrl = `https://www.vinted.fr/catalog?search_text=${query}`;
+
       card.innerHTML = `
-        <div class="item-info">
-          <h3>${item.title}</h3>
-          <div class="item-meta">
-            <span class="badge">${item.platform}</span>
-            <span>${valStr}</span>
+        <div class="card-header">
+          <div class="item-info">
+            <h3>${item.title}</h3>
+            <div class="item-meta">
+              <span class="badge">${item.platform}</span>
+              <span style="font-weight:600;">${valStr}</span>
+            </div>
+          </div>
+          <div class="actions">
+            <select onchange="updateCollectionState(${index}, this.value)" style="padding:4px; font-size:0.75rem;">
+              <option value="Sous blister / Neuf" ${item.state === 'Sous blister / Neuf' ? 'selected' : ''}>✨ Neuf</option>
+              <option value="Pas encore joué / Jamais écouté / Non vu" ${item.state === 'Pas encore joué / Jamais écouté / Non vu' ? 'selected' : ''}>⏳ Non fait</option>
+              <option value="En cours / Déjà utilisé" ${item.state === 'En cours / Déjà utilisé' ? 'selected' : ''}>🎮 En cours</option>
+              <option value="Terminé / Utilisé" ${item.state === 'Terminé / Utilisé' ? 'selected' : ''}>🏆 Terminé</option>
+            </select>
+            <button class="btn-action btn-delete" onclick="deleteCollectionItem(${index})">✕</button>
           </div>
         </div>
-        <div class="actions">
-          <select onchange="updateCollectionState(${index}, this.value)" style="padding:4px; font-size:0.75rem;">
-            <option value="Sous blister / Neuf" ${item.state === 'Sous blister / Neuf' ? 'selected' : ''}>✨ Neuf</option>
-            <option value="Pas encore joué / Jamais écouté / Non vu" ${item.state === 'Pas encore joué / Jamais écouté / Non vu' ? 'selected' : ''}>⏳ Non fait</option>
-            <option value="En cours / Déjà utilisé" ${item.state === 'En cours / Déjà utilisé' ? 'selected' : ''}>🎮 En cours</option>
-            <option value="Terminé / Utilisé" ${item.state === 'Terminé / Utilisé' ? 'selected' : ''}>🏆 Terminé</option>
-          </select>
-          <button class="btn-action btn-delete" onclick="deleteCollectionItem(${index})">✕</button>
+
+        <!-- Raccourcis Argus & Marché complets -->
+        <div class="market-links">
+          <span style="font-size:0.72rem; color:var(--text-muted); margin-right:2px;">Argus :</span>
+          <a class="btn-market pricecharting" href="${priceChartingUrl}" target="_blank">📈 PriceCharting</a>
+          <a class="btn-market" href="${ebaySoldUrl}" target="_blank">📊 eBay Ventes</a>
+          <a class="btn-market" href="${leboncoinUrl}" target="_blank">🟠 Leboncoin</a>
+          <a class="btn-market" href="${vintedUrl}" target="_blank">🟢 Vinted</a>
         </div>
       `;
       container.appendChild(card);
