@@ -4,8 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Wishlist & Collection</title>
+
+  <!-- Configuration pour l'iPhone et le logo personnalisé -->
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Collection">
+
   <!-- Librairie de scan caméra -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
   <style>
     :root {
       --bg: #0f172a;
@@ -22,7 +31,15 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 15px; display: flex; justify-content: center; }
+    body { 
+      background: var(--bg); 
+      color: var(--text); 
+      padding: 15px; 
+      display: flex; 
+      justify-content: center;
+      padding-top: env(safe-area-inset-top, 15px);
+      padding-bottom: env(safe-area-inset-bottom, 15px);
+    }
     .container { max-width: 600px; width: 100%; }
 
     .header-bar {
@@ -315,9 +332,9 @@
       <input type="number" id="c-price" placeholder="Valeur estimée (€)" step="0.01">
       <select id="c-state" required class="full-width">
         <option value="Sous blister / Neuf">✨ Sous blister / Neuf</option>
-        <option value="Pas encore joué / Jamais écouté / Non vu">⏳ Pas encore fait / Non écouté</option>
+        <option value="Pas encore joué / Jamais écouté / Non vu">⏳ Non fait / Non écouté</option>
         <option value="En cours / Déjà utilisé">🎮 En cours / Utilisé</option>
-        <option value="Terminé / Utilisé">🏆 Terminé / Écouté</option>
+        <option value="Terminé / Utilisé">🏆 Terminé</option>
       </select>
       <button type="submit" class="btn-add full-width">+ Ajouter à ma collection</button>
     </form>
@@ -380,7 +397,6 @@
         stopScanner();
         document.getElementById(targetInputId).value = "Recherche en cours...";
         
-        // Recherche du code-barres dans les bases ouvertes
         try {
           const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${decodedText}`);
           const data = await res.json();
