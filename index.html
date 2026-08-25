@@ -22,7 +22,6 @@
       --text: #ffffff;
       --text-muted: #9aa4b2;
       
-      /* Couleurs Pastel Pâte à modeler (Clay) */
       --clay-pink: #ffb5e8;
       --clay-pink-text: #6b2253;
       --clay-blue: #affcff;
@@ -34,12 +33,10 @@
       --clay-purple: #e7c6ff;
       --clay-purple-text: #481d66;
 
-      /* Effet 3D Pâte à modeler (Bombé + Relief profond) */
       --clay-card: 16px 16px 35px rgba(0, 0, 0, 0.7), -10px -10px 25px rgba(45, 53, 77, 0.5), inset 4px 4px 8px rgba(255, 255, 255, 0.15), inset -4px -4px 8px rgba(0, 0, 0, 0.6);
       --clay-btn: 8px 8px 18px rgba(0, 0, 0, 0.5), -6px -6px 14px rgba(45, 53, 77, 0.4), inset 3px 3px 6px rgba(255, 255, 255, 0.2), inset -3px -3px 6px rgba(0, 0, 0, 0.5);
       --clay-inset: inset 6px 6px 12px rgba(0, 0, 0, 0.7), inset -6px -6px 12px rgba(45, 53, 77, 0.5);
       
-      /* Effet texte gonflé / embossé */
       --text-pop: 2px 2px 4px rgba(0, 0, 0, 0.9), -1px -1px 1px rgba(255, 255, 255, 0.25);
     }
 
@@ -265,7 +262,7 @@
       text-shadow: var(--text-pop);
     }
 
-    /* Formulaires 3D Pâte à modeler */
+    /* Formulaires 3D */
     form {
       background: var(--surface);
       padding: 24px;
@@ -325,52 +322,132 @@
     }
     .btn-add:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
 
-    .image-picker-bar {
+    .btn-collector-link {
+      background: var(--clay-yellow);
+      color: var(--clay-yellow-text);
+      border: none;
+      font-weight: 900;
+      cursor: pointer;
+      padding: 12px 14px;
+      border-radius: 16px;
+      text-align: center;
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: var(--bg);
-      padding: 10px;
-      border-radius: 20px;
-      box-shadow: var(--clay-inset);
-      flex-wrap: wrap;
-    }
-    .image-preview-thumb {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      object-fit: cover;
-      background: var(--surface);
-      flex-shrink: 0;
-      cursor: pointer;
-      box-shadow: var(--clay-btn);
-    }
-    .btn-img-tool {
-      padding: 9px 12px;
-      font-size: 0.78rem;
-      font-weight: 800;
-      border: none;
-      background: var(--surface);
-      color: var(--text);
-      border-radius: 14px;
-      cursor: pointer;
-      white-space: nowrap;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
       justify-content: center;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      gap: 6px;
       box-shadow: var(--clay-btn);
+      text-shadow: none;
+      font-size: 0.85rem;
       transition: transform 0.1s;
     }
-    .btn-img-tool:active { box-shadow: var(--clay-inset); }
-    .btn-img-google { background: var(--clay-blue); color: var(--clay-blue-text); text-shadow: none; flex: 1; }
+    .btn-collector-link:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
+
+    /* Zone Image Épurée et Structurée */
+    .image-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--bg);
+      padding: 14px;
+      border-radius: 22px;
+      box-shadow: var(--clay-inset);
+    }
+    .btn-google-search {
+      background: var(--clay-blue);
+      color: var(--clay-blue-text);
+      border: none;
+      font-weight: 900;
+      cursor: pointer;
+      padding: 11px 14px;
+      border-radius: 16px;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: var(--clay-btn);
+      text-shadow: none;
+    }
+    .btn-google-search:active { box-shadow: var(--clay-inset); }
+
+    .image-input-wrapper {
+      display: flex;
+      align-items: center;
+      position: relative;
+      width: 100%;
+    }
+    .image-input-wrapper input {
+      padding-right: 84px;
+      font-size: 0.85rem;
+      box-shadow: none;
+      background: var(--surface);
+      border-radius: 16px;
+    }
+    .image-input-actions {
+      position: absolute;
+      right: 6px;
+      display: flex;
+      gap: 5px;
+    }
+    .btn-input-icon {
+      background: var(--bg);
+      border: none;
+      color: var(--text);
+      padding: 6px 9px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--clay-btn);
+      width: auto;
+    }
+    .btn-input-icon:active { box-shadow: var(--clay-inset); }
+
+    .image-preview-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: fit-content;
+      margin: 4px auto 0 auto;
+    }
+    .image-preview-thumb {
+      width: 60px;
+      height: 80px;
+      border-radius: 16px;
+      object-fit: cover;
+      background: var(--surface);
+      cursor: pointer;
+      box-shadow: var(--clay-card);
+      border: 3px solid var(--surface-elevated);
+    }
+    .btn-remove-preview {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--clay-pink);
+      color: var(--clay-pink-text);
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--clay-btn);
+      padding: 0;
+    }
 
     /* Filtres */
     .controls { display: flex; gap: 8px; margin-bottom: 16px; width: 100%; }
     .controls select { flex: 1; padding: 12px; font-size: 0.85rem; background: var(--surface); border-radius: 20px; font-weight: 800; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); box-shadow: var(--clay-btn); }
 
-    /* Cartes 3D "Pâte à modeler" */
+    /* Cartes 3D */
     .item-card {
       background: var(--surface);
       border-radius: 30px;
@@ -408,7 +485,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       box-shadow: var(--clay-btn);
       color: var(--text-muted);
     }
@@ -440,7 +517,6 @@
     }
     .item-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-weight: 700; }
     
-    /* Badges 3D Bombés */
     .badge { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-purple); color: var(--clay-purple-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
     .badge-store { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-green); color: var(--clay-green-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
     .badge-state { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--bg); color: var(--text); font-weight: 800; text-shadow: 1px 1px 1px rgba(0,0,0,0.8); box-shadow: var(--clay-btn); }
@@ -588,9 +664,9 @@
       <div id="detail-cover-container"></div>
       <h2 id="detail-title" style="font-size:1.3rem; font-weight:900; margin-top:6px; text-shadow:var(--text-pop);"></h2>
       
-      <div id="detail-meta" style="font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:6px;"></div>
+      <div id="detail-meta" style="font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:4px;"></div>
 
-      <div style="text-align:left; margin-top:12px; background:var(--bg); padding:16px; border-radius:24px; display:flex; flex-direction:column; gap:8px; font-size:0.85rem; font-weight:800; box-shadow:var(--clay-inset);" id="detail-dynamic-infos"></div>
+      <div style="text-align:left; margin-top:12px; background:var(--bg); padding:16px; border-radius:24px; display:flex; flex-direction:column; gap:8px; font-size:0.82rem; font-weight:800; box-shadow:var(--clay-inset);" id="detail-dynamic-infos"></div>
       
       <div style="text-align:left; margin-top:12px; background:var(--bg); padding:16px; border-radius:24px; box-shadow:var(--clay-inset);">
         <div style="font-size:0.75rem; font-weight:900; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase;">Galerie Photos</div>
@@ -601,9 +677,9 @@
         </label>
       </div>
 
-      <div id="detail-notes-container" style="text-align:left; font-size:0.85rem; font-weight:800; background:var(--bg); padding:16px; border-radius:24px; color:var(--text-muted); box-shadow:var(--clay-inset);"></div>
+      <div id="detail-notes-container" style="text-align:left; font-size:0.82rem; font-weight:800; background:var(--bg); padding:16px; border-radius:24px; color:var(--text-muted); box-shadow:var(--clay-inset);"></div>
 
-      <div style="display:flex; gap:12px; margin-top:12px;">
+      <div style="display:flex; gap:10px; margin-top:10px;">
         <button type="button" class="btn-add" style="background:var(--clay-purple); color:var(--clay-purple-text); flex:1;" id="btnDetailEdit">✏️ Modifier</button>
         <button type="button" class="btn-add" style="background:var(--clay-pink); color:var(--clay-pink-text); flex:1;" id="btnDetailDelete">🗑️ Supprimer</button>
       </div>
@@ -659,16 +735,27 @@
         <input type="date" id="edit-releaseDate" title="Date de sortie">
       </div>
 
-      <input type="hidden" id="edit-image">
-      <div class="image-picker-bar">
-        <img id="edit-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
-        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">🔍 Google</button>
-        <button type="button" class="btn-img-tool" onclick="pasteImageToField('edit-image', 'edit-preview')">📋 Coller</button>
-        <label class="btn-img-tool" title="Choisir depuis les fichiers">
-          📁 Fichier
-          <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-image', 'edit-preview')">
-        </label>
-        <button type="button" class="btn-img-tool" style="color:var(--clay-pink);" onclick="clearImageField('edit-image', 'edit-preview')">✕</button>
+      <!-- Zone Image Structurée (Edition) -->
+      <div class="image-section">
+        <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">
+          🔍 Trouver la jaquette sur Google
+        </button>
+        
+        <div class="image-input-wrapper">
+          <input type="text" id="edit-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview')">
+          <div class="image-input-actions">
+            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('edit-image', 'edit-preview-wrap', 'edit-preview')">📋</button>
+            <label class="btn-input-icon" title="Depuis les fichiers">
+              📁
+              <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
+            </label>
+          </div>
+        </div>
+
+        <div id="edit-preview-wrap" class="image-preview-container" style="display:none;">
+          <img id="edit-preview" class="image-preview-thumb" src="" alt="" onclick="openLightbox(this.src)">
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-image', 'edit-preview-wrap', 'edit-preview')">✕</button>
+        </div>
       </div>
 
       <select id="edit-status">
@@ -746,16 +833,27 @@
         </div>
       </div>
 
-      <input type="hidden" id="edit-c-image">
-      <div class="image-picker-bar">
-        <img id="edit-c-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
-        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-c-title', 'edit-c-platform')">🔍 Google</button>
-        <button type="button" class="btn-img-tool" onclick="pasteImageToField('edit-c-image', 'edit-c-preview')">📋 Coller</button>
-        <label class="btn-img-tool" title="Choisir depuis les fichiers">
-          📁 Fichier
-          <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-c-image', 'edit-c-preview')">
-        </label>
-        <button type="button" class="btn-img-tool" style="color:var(--clay-pink);" onclick="clearImageField('edit-c-image', 'edit-c-preview')">✕</button>
+      <!-- Zone Image Structurée (Edition Collection) -->
+      <div class="image-section">
+        <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('edit-c-title', 'edit-c-platform')">
+          🔍 Trouver la jaquette sur Google
+        </button>
+        
+        <div class="image-input-wrapper">
+          <input type="text" id="edit-c-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
+          <div class="image-input-actions">
+            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">📋</button>
+            <label class="btn-input-icon" title="Depuis les fichiers">
+              📁
+              <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
+            </label>
+          </div>
+        </div>
+
+        <div id="edit-c-preview-wrap" class="image-preview-container" style="display:none;">
+          <img id="edit-c-preview" class="image-preview-thumb" src="" alt="" onclick="openLightbox(this.src)">
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕</button>
+        </div>
       </div>
 
       <textarea id="edit-c-note" placeholder="Notes & commentaires..."></textarea>
@@ -823,13 +921,16 @@
           </optgroup>
         </select>
         
-        <div class="input-with-btn btn-text">
-          <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
-        </div>
+        <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
       </div>
 
       <!-- Champs dynamiques Wishlist -->
       <div id="w-dynamic-fields"></div>
+
+      <!-- Bouton EditionCollector direct -->
+      <button type="button" class="btn-collector-link" onclick="searchEditionCollector('w-title')">
+        🏆 Rechercher sur EditionCollector
+      </button>
 
       <div class="form-row">
         <select id="w-store">
@@ -847,16 +948,27 @@
         <input type="date" id="w-releaseDate" title="Date de sortie">
       </div>
 
-      <input type="hidden" id="w-image">
-      <div class="image-picker-bar">
-        <img id="w-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
-        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">🔍 Chercher sur Google</button>
-        <button type="button" class="btn-img-tool" onclick="pasteImageToField('w-image', 'w-preview')">📋 Coller</button>
-        <label class="btn-img-tool" title="Choisir depuis les fichiers">
-          📁 Fichier
-          <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'w-image', 'w-preview')">
-        </label>
-        <button type="button" class="btn-img-tool" style="color:var(--clay-pink);" onclick="clearImageField('w-image', 'w-preview')">✕</button>
+      <!-- Zone Image Structurée (Ajout Wishlist) -->
+      <div class="image-section">
+        <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('w-title', 'w-platform')">
+          🔍 Trouver la jaquette sur Google
+        </button>
+        
+        <div class="image-input-wrapper">
+          <input type="text" id="w-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')">
+          <div class="image-input-actions">
+            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('w-image', 'w-preview-wrap', 'w-preview')">📋</button>
+            <label class="btn-input-icon" title="Depuis les fichiers">
+              📁
+              <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'w-image', 'w-preview-wrap', 'w-preview')">
+            </label>
+          </div>
+        </div>
+
+        <div id="w-preview-wrap" class="image-preview-container" style="display:none;">
+          <img id="w-preview" class="image-preview-thumb" src="" alt="" onclick="openLightbox(this.src)">
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('w-image', 'w-preview-wrap', 'w-preview')">✕</button>
+        </div>
       </div>
 
       <select id="w-status">
@@ -995,16 +1107,27 @@
         </div>
       </div>
 
-      <input type="hidden" id="c-image">
-      <div class="image-picker-bar">
-        <img id="c-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
-        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">🔍 Google</button>
-        <button type="button" class="btn-img-tool" onclick="pasteImageToField('c-image', 'c-preview')">📋 Coller</button>
-        <label class="btn-img-tool" title="Choisir depuis les fichiers">
-          📁 Fichier
-          <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'c-image', 'c-preview')">
-        </label>
-        <button type="button" class="btn-img-tool" style="color:var(--clay-pink);" onclick="clearImageField('c-image', 'c-preview')">✕</button>
+      <!-- Zone Image Structurée (Ajout Collection) -->
+      <div class="image-section">
+        <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('c-title', 'c-platform')">
+          🔍 Trouver la jaquette sur Google
+        </button>
+        
+        <div class="image-input-wrapper">
+          <input type="text" id="c-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')">
+          <div class="image-input-actions">
+            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('c-image', 'c-preview-wrap', 'c-preview')">📋</button>
+            <label class="btn-input-icon" title="Depuis les fichiers">
+              📁
+              <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'c-image', 'c-preview-wrap', 'c-preview')">
+            </label>
+          </div>
+        </div>
+
+        <div id="c-preview-wrap" class="image-preview-container" style="display:none;">
+          <img id="c-preview" class="image-preview-thumb" src="" alt="" onclick="openLightbox(this.src)">
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('c-image', 'c-preview-wrap', 'c-preview')">✕</button>
+        </div>
       </div>
 
       <textarea id="c-note" placeholder="Notes & commentaires..."></textarea>
@@ -1058,8 +1181,8 @@
 </div>
 
 <script>
-  let wishlist = JSON.parse(localStorage.getItem('app_wishlist_v11')) || [];
-  let collection = JSON.parse(localStorage.getItem('app_collection_v11')) || [];
+  let wishlist = JSON.parse(localStorage.getItem('app_wishlist_v12')) || [];
+  let collection = JSON.parse(localStorage.getItem('app_collection_v12')) || [];
   let currentDetailCollectionIndex = null;
 
   function formatMoney(amount) {
@@ -1067,8 +1190,8 @@
   }
 
   function saveData() {
-    localStorage.setItem('app_wishlist_v11', JSON.stringify(wishlist));
-    localStorage.setItem('app_collection_v11', JSON.stringify(collection));
+    localStorage.setItem('app_wishlist_v12', JSON.stringify(wishlist));
+    localStorage.setItem('app_collection_v12', JSON.stringify(collection));
     updateMonthFilterDropdowns();
     renderWishlist();
     renderCollection();
@@ -1090,6 +1213,7 @@
         </div>
       `;
     } else {
+      if (prefix === 'w-') return ``; 
       return `
         <div>
           <select id="${prefix}gameplay">
@@ -1236,47 +1360,84 @@
     window.open(`https://www.google.com/search?tbm=isch&q=${query}`, '_blank');
   }
 
-  async function pasteImageToField(imageFieldId, previewImgId) {
-    try {
-      const text = await navigator.clipboard.readText();
-      if (text && (text.startsWith('http://') || text.startsWith('https://') || text.startsWith('data:image'))) {
-        document.getElementById(imageFieldId).value = text.trim();
-        const prev = document.getElementById(previewImgId);
-        prev.src = text.trim();
-        prev.style.display = 'block';
-        return;
-      }
-      alert("Le texte copié n'est pas un lien d'image valide.");
-    } catch (err) {
-      const url = prompt("Collez l'adresse (URL) de l'image ici :");
-      if (url) {
-        document.getElementById(imageFieldId).value = url.trim();
-        const prev = document.getElementById(previewImgId);
-        prev.src = url.trim();
-        prev.style.display = 'block';
-      }
+  // --- MISE À JOUR VISUELLE AUTOMATIQUE DE L'APERÇU ---
+  function updateImagePreview(inputFieldId, wrapId, previewImgId) {
+    const val = document.getElementById(inputFieldId).value.trim();
+    const wrap = document.getElementById(wrapId);
+    const img = document.getElementById(previewImgId);
+    if (val) {
+      img.src = val;
+      wrap.style.display = 'flex';
+    } else {
+      img.src = '';
+      wrap.style.display = 'none';
     }
   }
 
-  function handleImageFile(event, imageFieldId, previewImgId) {
+  // --- COLLAGE UNIVERSEL ---
+  async function pasteImageToField(imageFieldId, wrapId, previewImgId) {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      for (const item of clipboardItems) {
+        const imageType = item.types.find(t => t.startsWith('image/'));
+        if (imageType) {
+          const blob = await item.getType(imageType);
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            document.getElementById(imageFieldId).value = e.target.result;
+            updateImagePreview(imageFieldId, wrapId, previewImgId);
+          };
+          reader.readAsDataURL(blob);
+          return;
+        }
+      }
+    } catch (e) {}
+
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        const cleanText = text.trim();
+        document.getElementById(imageFieldId).value = cleanText;
+        updateImagePreview(imageFieldId, wrapId, previewImgId);
+        return;
+      }
+    } catch (err) {}
+
+    const url = prompt("Collez l'adresse (URL) ou le lien de l'image ici :");
+    if (url) {
+      document.getElementById(imageFieldId).value = url.trim();
+      updateImagePreview(imageFieldId, wrapId, previewImgId);
+    }
+  }
+
+  function handleImageFile(event, imageFieldId, wrapId, previewImgId) {
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
       document.getElementById(imageFieldId).value = e.target.result;
-      const prev = document.getElementById(previewImgId);
-      prev.src = e.target.result;
-      prev.style.display = 'block';
+      updateImagePreview(imageFieldId, wrapId, previewImgId);
     };
     reader.readAsDataURL(file);
     event.target.value = '';
   }
 
-  function clearImageField(imageFieldId, previewImgId) {
+  function clearImageField(imageFieldId, wrapId, previewImgId) {
     document.getElementById(imageFieldId).value = '';
-    const prev = document.getElementById(previewImgId);
-    prev.src = '';
-    prev.style.display = 'none';
+    updateImagePreview(imageFieldId, wrapId, previewImgId);
+  }
+
+  function searchEditionCollector(titleFieldId) {
+    const title = document.getElementById(titleFieldId).value.trim();
+    if (!title) { alert("Veuillez d'abord saisir le nom du produit."); return; }
+    window.open(`https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}`, '_blank');
+  }
+
+  function searchUsedMarketArgus(titleFieldId, platformFieldId) {
+    const title = document.getElementById(titleFieldId).value.trim();
+    const platform = document.getElementById(platformFieldId).value;
+    if (!title) { alert("Veuillez d'abord saisir le nom du titre."); return; }
+    window.open(`https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(title + ' ' + platform)}`, '_blank');
   }
 
   function openEditModal(index) {
@@ -1293,17 +1454,12 @@
     } else if (item.platform === 'Blu-ray') {
       if(document.getElementById('edit-director')) document.getElementById('edit-director').value = item.director || '';
       if(document.getElementById('edit-actors')) document.getElementById('edit-actors').value = item.actors || '';
-    } else {
-      if(document.getElementById('edit-gameplay')) document.getElementById('edit-gameplay').value = item.gameplay || 'Non commencé';
     }
 
     document.getElementById('edit-store').value = item.store || 'Non renseigné';
     document.getElementById('edit-releaseDate').value = item.releaseDate || '';
     document.getElementById('edit-image').value = item.image || '';
-    
-    const prev = document.getElementById('edit-preview');
-    if (item.image) { prev.src = item.image; prev.style.display = 'block'; }
-    else { prev.src = ''; prev.style.display = 'none'; }
+    updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview');
 
     document.getElementById('edit-status').value = item.status || 'À prendre';
     document.getElementById('edit-modal').style.display = 'flex';
@@ -1323,8 +1479,6 @@
     } else if (platform === 'Blu-ray') {
       extraData.director = document.getElementById('edit-director').value.trim();
       extraData.actors = document.getElementById('edit-actors').value.trim();
-    } else {
-      extraData.gameplay = document.getElementById('edit-gameplay').value;
     }
 
     wishlist[index] = {
@@ -1365,10 +1519,7 @@
     document.getElementById('edit-c-releaseDate').value = item.releaseDate || '';
     document.getElementById('edit-c-buyDate').value = item.buyDate || '';
     document.getElementById('edit-c-image').value = item.image || '';
-
-    const prev = document.getElementById('edit-c-preview');
-    if (item.image) { prev.src = item.image; prev.style.display = 'block'; }
-    else { prev.src = ''; prev.style.display = 'none'; }
+    updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview');
 
     document.getElementById('edit-c-note').value = item.note || '';
     document.getElementById('edit-collection-modal').style.display = 'flex';
@@ -1760,8 +1911,6 @@
     } else if (platform === 'Blu-ray') {
       extraData.director = document.getElementById('w-director')?.value.trim() || '';
       extraData.actors = document.getElementById('w-actors')?.value.trim() || '';
-    } else {
-      extraData.gameplay = document.getElementById('w-gameplay')?.value || 'Non commencé';
     }
 
     wishlist.unshift({
@@ -1776,7 +1925,7 @@
     saveData();
     e.target.reset();
     toggleFormFields('w-', document.getElementById('w-platform').value);
-    clearImageField('w-image', 'w-preview');
+    clearImageField('w-image', 'w-preview-wrap', 'w-preview');
   });
 
   function deleteWishlistItem(index) { wishlist.splice(index, 1); saveData(); }
@@ -1801,7 +1950,7 @@
       edition: item.edition || '',
       director: item.director || '',
       actors: item.actors || '',
-      gameplay: item.gameplay || 'Non commencé'
+      gameplay: 'Non commencé'
     });
     wishlist.splice(index, 1);
     saveData();
@@ -1838,7 +1987,7 @@
     saveData();
     e.target.reset();
     toggleFormFields('c-', document.getElementById('c-platform').value);
-    clearImageField('c-image', 'c-preview');
+    clearImageField('c-image', 'c-preview-wrap', 'c-preview');
   });
 
   function deleteCollectionItem(index) { collection.splice(index, 1); saveData(); }
