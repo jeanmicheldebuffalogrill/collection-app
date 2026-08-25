@@ -21,15 +21,15 @@
       --surface: #121214;
       --surface-elevated: #1c1c1e;
       --surface-hover: #2c2c2e;
-      --accent: #0a84ff; /* Apple Blue */
+      --accent: #0a84ff;
       --accent-hover: #0071e3;
       --text: #f5f5f7;
       --text-muted: #8e8e93;
       --border: #38383a;
-      --green: #30d158; /* Apple Green */
-      --amber: #ffd60a; /* Apple Yellow */
-      --red: #ff453a;   /* Apple Red */
-      --purple: #bf5af2; /* Apple Purple */
+      --green: #30d158;
+      --amber: #ffd60a;
+      --red: #ff453a;
+      --purple: #bf5af2;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -54,7 +54,6 @@
       max-width: 480px;
     }
 
-    /* En-tête */
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -80,7 +79,7 @@
     }
     .btn-backup:hover { background: var(--surface-hover); color: var(--text); }
 
-    /* Système d'onglets (Segmented Control style iOS) */
+    /* Onglets */
     .tabs {
       display: flex;
       background: var(--surface);
@@ -112,7 +111,7 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* Sélecteur Période / Budget style iOS */
+    /* Sélecteur Période / Budget */
     .month-filter-box {
       display: flex;
       align-items: center;
@@ -162,7 +161,7 @@
     .amount-pending { color: var(--amber); }
     .amount-value { color: var(--purple); }
 
-    /* Répartition par Plateforme style Widget Apple */
+    /* Répartition par Plateforme */
     .platform-breakdown {
       background: var(--surface);
       border: 1px solid rgba(255,255,255,0.06);
@@ -217,7 +216,7 @@
     .platform-chip-value { font-size: 0.88rem; font-weight: 700; color: var(--purple); margin-top: 1px; }
     .platform-chip-count { font-size: 0.68rem; color: var(--text-muted); }
 
-    /* Modals style iOS Sheet */
+    /* Modals / Sheets */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -263,7 +262,7 @@
       cursor: pointer;
     }
 
-    /* Formulaires inspirés d'iOS Settings */
+    /* Formulaires */
     form {
       background: var(--surface);
       padding: 16px;
@@ -297,9 +296,7 @@
       outline: none;
       transition: border-color 0.2s;
     }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
     textarea {
       resize: vertical;
       min-height: 60px;
@@ -377,6 +374,7 @@
       background: var(--surface);
       border: 1px solid rgba(255,255,255,0.06);
       flex-shrink: 0;
+      cursor: pointer;
     }
     .btn-img-tool {
       padding: 7px 12px;
@@ -401,43 +399,66 @@
     .controls { display: flex; gap: 8px; margin-bottom: 14px; width: 100%; }
     .controls select { flex: 1; padding: 8px 10px; font-size: 0.82rem; background: var(--surface); border-radius: 12px; }
 
-    /* Cartes Immersives style Apple Cards */
+    /* EFFET PILE & ROULEAU (DECK / STACK SCROLLER) SANS BARRE LATERALE Moche */
+    .stack-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 60vh;
+      overflow-y: scroll; /* Scroll fonctionnel à la souris/roulette */
+      padding: 10px 4px;
+      scroll-snap-type: y mandatory; /* Effet magnétique de rouleau */
+      scrollbar-width: none; /* Cache la barre sur Firefox */
+    }
+    .stack-container::-webkit-scrollbar {
+      display: none; /* Cache la barre sur Chrome, Safari et Edge */
+    }
+
+    /* Cartes effet Tuile Empilée en Rouleau 3D */
     .item-card {
       background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 22px;
-      padding: 12px;
-      margin-bottom: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 14px;
       display: flex;
-      gap: 12px;
+      gap: 14px;
       width: 100%;
       border-left: 6px solid var(--border);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      cursor: pointer;
+      scroll-snap-align: start; /* S'aimante parfaitement à chaque cran de roulette */
+      transform: scale(0.98);
+      transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease, border-color 0.2s;
     }
-    .item-card:hover { transform: translateY(-1px); }
+    .item-card:hover {
+      transform: scale(1) translateY(-2px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+      border-color: rgba(255,255,255,0.25);
+    }
     
     .item-card.status-take { border-left-color: var(--green); }
     .item-card.status-think { border-left-color: var(--amber); }
     .item-card.status-pass { border-left-color: var(--red); }
 
-    /* Proportion parfaite des jaquettes / médias */
     .item-cover {
-      width: 72px;
-      height: 96px;
-      border-radius: 14px;
+      width: 76px;
+      height: 102px;
+      border-radius: 16px;
       object-fit: cover;
       background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
       flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: transform 0.2s;
     }
+    .item-cover:hover { transform: scale(1.04); }
     .item-cover-placeholder {
-      width: 72px;
-      height: 96px;
-      border-radius: 14px;
+      width: 76px;
+      height: 102px;
+      border-radius: 16px;
       background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -449,7 +470,7 @@
     .item-content {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
       flex: 1;
       min-width: 0;
     }
@@ -462,7 +483,7 @@
     }
     .item-info { min-width: 0; flex: 1; }
     .item-info h3 { 
-      font-size: 0.96rem; 
+      font-size: 1rem; 
       font-weight: 600;
       margin-bottom: 4px; 
       white-space: nowrap; 
@@ -472,13 +493,12 @@
     }
     .item-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
     
-    /* Badges raffinés */
-    .badge { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: rgba(99, 102, 241, 0.15); color: #a5b4fc; font-weight: 600; }
-    .badge-store { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: rgba(48, 209, 88, 0.15); color: #75fb9c; font-weight: 600; }
-    .badge-state { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: var(--surface-elevated); color: #d1d5db; border: 1px solid rgba(255,255,255,0.06); font-weight: 500; }
-    .badge-play { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: rgba(191, 90, 242, 0.15); color: #e879f9; font-weight: 600; }
+    .badge { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; background: rgba(99, 102, 241, 0.15); color: #a5b4fc; font-weight: 600; }
+    .badge-store { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; background: rgba(48, 209, 88, 0.15); color: #75fb9c; font-weight: 600; }
+    .badge-state { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; background: var(--surface-elevated); color: #d1d5db; border: 1px solid rgba(255,255,255,0.06); font-weight: 500; }
+    .badge-play { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; background: rgba(191, 90, 242, 0.15); color: #e879f9; font-weight: 600; }
 
-    .badge-status { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 600; }
+    .badge-status { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 600; }
     .badge-status.take { background: rgba(48, 209, 88, 0.18); color: var(--green); }
     .badge-status.think { background: rgba(255, 214, 10, 0.18); color: var(--amber); }
     .badge-status.pass { background: rgba(255, 69, 58, 0.18); color: var(--red); }
@@ -533,11 +553,118 @@
     .btn-edit { color: #818cf8; }
     .btn-transfer { color: var(--green); }
     .btn-delete { color: var(--red); }
+
+    /* Fiche produit détaillée & Galerie Photos */
+    .detail-cover-large {
+      width: 140px;
+      height: 186px;
+      border-radius: 18px;
+      object-fit: cover;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      margin: 0 auto;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .detail-cover-large:hover { transform: scale(1.03); }
+    .detail-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .gallery-thumb {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 10px;
+      object-fit: cover;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .gallery-thumb:hover { transform: scale(1.05); }
+    .btn-add-photo {
+      background: rgba(10, 132, 255, 0.15);
+      color: var(--accent);
+      border: 1px dashed var(--accent);
+      padding: 8px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    /* Lightbox Plein Écran */
+    #lightbox-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+    }
+    #lightbox-img {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 16px;
+      object-fit: contain;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
+
+  <!-- Lightbox Plein Écran -->
+  <div id="lightbox-modal" onclick="closeLightbox()">
+    <button type="button" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.2); border:none; color:white; width:36px; height:36px; border-radius:50%; font-size:1.1rem; cursor:pointer;" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="Agrandissement">
+  </div>
+
+  <!-- Modal Fiche Détaillée & Photos (Collection) -->
+  <div id="detail-modal" class="modal-overlay">
+    <div class="modal-box" style="text-align:center;">
+      <div class="modal-header" style="justify-content:space-between;">
+        <span id="detail-header-title" style="font-size:0.85rem; color:var(--text-muted);">Détails de l'objet</span>
+        <button type="button" class="btn-action" style="border:none;" onclick="closeDetailModal()">✕</button>
+      </div>
+      
+      <div id="detail-cover-container"></div>
+      <h2 id="detail-title" style="font-size:1.15rem; font-weight:700; margin-top:4px;"></h2>
+      
+      <div id="detail-meta" style="font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:2px;"></div>
+
+      <div style="text-align:left; margin-top:8px; background:var(--surface); padding:12px; border-radius:16px; display:flex; flex-direction:column; gap:6px; font-size:0.82rem;">
+        <div id="detail-info-store"></div>
+        <div id="detail-info-dates"></div>
+        <div id="detail-info-gameplay"></div>
+      </div>
+      
+      <div style="text-align:left; margin-top:8px; background:var(--surface); padding:12px; border-radius:16px;">
+        <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase;">Galerie Photos</div>
+        <div class="detail-gallery-grid" id="detailGalleryGrid"></div>
+        <label class="btn-add-photo" style="display:block;">
+          📷 Ajouter une photo
+          <input type="file" style="display:none;" accept="image/*" onchange="handleAddCollectionPhoto(event)">
+        </label>
+      </div>
+
+      <div id="detail-notes-container" style="text-align:left; font-size:0.82rem; background:var(--surface); padding:12px; border-radius:16px; color:#a1a1aa;"></div>
+
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button type="button" class="btn-add" style="background:var(--surface-hover); color:#818cf8; flex:1;" id="btnDetailEdit">✏️ Modifier</button>
+        <button type="button" class="btn-add" style="background:rgba(255,69,58,0.15); color:var(--red); flex:1;" id="btnDetailDelete">🗑️ Supprimer</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Modal Modification Wishlist -->
   <div id="edit-modal" class="modal-overlay">
@@ -584,7 +711,7 @@
 
       <input type="hidden" id="edit-image">
       <div class="image-picker-bar">
-        <img id="edit-preview" class="image-preview-thumb" src="" alt="" style="display:none;">
+        <img id="edit-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
         <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">🔍 Chercher la jaquette sur Google</button>
         <button type="button" class="btn-img-tool" onclick="pasteImageToField('edit-image', 'edit-preview')">📋 Coller</button>
         <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('edit-image', 'edit-preview')">✕</button>
@@ -642,9 +769,9 @@
         </select>
         <select id="edit-c-state" required>
           <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
-          <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
-          <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
-          <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
+          <option value="🟢 Occasion (Très bon état)">🟢 Occasion (Très bon état)</option>
+          <option value="🟡 Occasion (Bon état)">🟡 Occasion (Bon état)</option>
+          <option value="🟠 Occasion (Abîmé / Usé)">🟠 Occasion (Abîmé / Usé)</option>
         </select>
       </div>
 
@@ -661,7 +788,7 @@
 
       <input type="hidden" id="edit-c-image">
       <div class="image-picker-bar">
-        <img id="edit-c-preview" class="image-preview-thumb" src="" alt="" style="display:none;">
+        <img id="edit-c-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
         <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-c-title', 'edit-c-platform')">🔍 Chercher la jaquette sur Google</button>
         <button type="button" class="btn-img-tool" onclick="pasteImageToField('edit-c-image', 'edit-c-preview')">📋 Coller</button>
         <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('edit-c-image', 'edit-c-preview')">✕</button>
@@ -771,7 +898,7 @@
 
       <input type="hidden" id="w-image">
       <div class="image-picker-bar">
-        <img id="w-preview" class="image-preview-thumb" src="" alt="" style="display:none;">
+        <img id="w-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
         <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">🔍 Chercher la jaquette sur Google</button>
         <button type="button" class="btn-img-tool" onclick="pasteImageToField('w-image', 'w-preview')">📋 Coller</button>
         <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('w-image', 'w-preview')">✕</button>
@@ -819,7 +946,7 @@
       </select>
     </div>
 
-    <div id="wishlistContainer"></div>
+    <div class="stack-container" id="wishlistContainer"></div>
   </div>
 
   <!-- COLLECTION -->
@@ -893,9 +1020,9 @@
         </select>
         <select id="c-state" required>
           <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
-          <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
+          <option value="🟢 Occasion (Très bon état)">🟢 Occasion (Très bon état)</option>
           <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
-          <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
+          <option value="🟠 Occasion (Abîmé / Usé)">🟠 Occasion (Abîmé / Usé)</option>
         </select>
       </div>
 
@@ -912,7 +1039,7 @@
 
       <input type="hidden" id="c-image">
       <div class="image-picker-bar">
-        <img id="c-preview" class="image-preview-thumb" src="" alt="" style="display:none;">
+        <img id="c-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
         <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">🔍 Chercher la jaquette sur Google</button>
         <button type="button" class="btn-img-tool" onclick="pasteImageToField('c-image', 'c-preview')">📋 Coller</button>
         <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('c-image', 'c-preview')">✕</button>
@@ -973,31 +1100,131 @@
       </select>
     </div>
 
-    <div id="collectionContainer"></div>
+    <div class="stack-container" id="collectionContainer"></div>
   </div>
 
 </div>
 
 <script>
-  let wishlist = JSON.parse(localStorage.getItem('app_wishlist_v4')) || [];
-  let collection = JSON.parse(localStorage.getItem('app_collection_v4')) || [];
+  let wishlist = JSON.parse(localStorage.getItem('app_wishlist_v5')) || [];
+  let collection = JSON.parse(localStorage.getItem('app_collection_v5')) || [];
   let html5QrCode = null;
   let targetInputId = null;
   let targetImageInputId = null;
   let targetPreviewId = null;
+
+  let currentDetailCollectionIndex = null;
 
   function formatMoney(amount) {
     return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0);
   }
 
   function saveData() {
-    localStorage.setItem('app_wishlist_v4', JSON.stringify(wishlist));
-    localStorage.setItem('app_collection_v4', JSON.stringify(collection));
+    localStorage.setItem('app_wishlist_v5', JSON.stringify(wishlist));
+    localStorage.setItem('app_collection_v5', JSON.stringify(collection));
     updateMonthFilterDropdowns();
     renderWishlist();
     renderCollection();
   }
 
+  // --- LIGHTBOX PLEIN ÉCRAN ---
+  function openLightbox(imgSrc) {
+    if (!imgSrc) return;
+    document.getElementById('lightbox-img').src = imgSrc;
+    document.getElementById('lightbox-modal').style.display = 'flex';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox-modal').style.display = 'none';
+  }
+
+  // --- FICHE DÉTAILLÉE DE COLLECTION ---
+  function openCollectionDetail(index) {
+    currentDetailCollectionIndex = index;
+    const item = collection[index];
+
+    const coverContainer = document.getElementById('detail-cover-container');
+    coverContainer.innerHTML = item.image 
+      ? `<img src="${item.image}" class="detail-cover-large" alt="Jaquette" onclick="openLightbox(this.src)" onerror="this.outerHTML='<div class=\\'detail-cover-large\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:2rem;\\'>📦</div>'">`
+      : `<div class="detail-cover-large" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">📦</div>`;
+
+    document.getElementById('detail-title').textContent = item.title;
+
+    const metaEl = document.getElementById('detail-meta');
+    metaEl.innerHTML = `
+      <span class="badge">${item.platform}</span>
+      ${item.state ? `<span class="badge-state">${item.state}</span>` : ''}
+      <span style="font-weight:600; color:var(--purple);">${item.price ? formatMoney(item.price) : 'Non estimé'}</span>
+    `;
+
+    document.getElementById('detail-info-store').innerHTML = `<strong>Acheté chez :</strong> ${item.store || 'Non renseigné'}`;
+    
+    let datesDisplay = [];
+    if (item.releaseDate) datesDisplay.push(`Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
+    if (item.buyDate) datesDisplay.push(`Achat : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
+    document.getElementById('detail-info-dates').innerHTML = `<strong>Dates :</strong> ${datesDisplay.length > 0 ? datesDisplay.join(' • ') : 'Non fixées'}`;
+
+    document.getElementById('detail-info-gameplay').innerHTML = `<strong>Progression :</strong> ${item.gameplay || 'Non commencé'}`;
+
+    const notesEl = document.getElementById('detail-notes-container');
+    notesEl.innerHTML = item.note ? `<strong>Notes :</strong> ${item.note}` : '<em>Aucune note enregistrée.</em>';
+
+    document.getElementById('btnDetailEdit').onclick = () => {
+      closeDetailModal();
+      openEditCollectionModal(index);
+    };
+    document.getElementById('btnDetailDelete').onclick = () => {
+      if (confirm(`Supprimer "${item.title}" de la collection ?`)) {
+        closeDetailModal();
+        deleteCollectionItem(index);
+      }
+    };
+
+    renderDetailGallery();
+    document.getElementById('detail-modal').style.display = 'flex';
+  }
+
+  function closeDetailModal() {
+    document.getElementById('detail-modal').style.display = 'none';
+    currentDetailCollectionIndex = null;
+  }
+
+  function renderDetailGallery() {
+    if (currentDetailCollectionIndex === null) return;
+    const item = collection[currentDetailCollectionIndex];
+    if (!item.photos) item.photos = [];
+
+    const grid = document.getElementById('detailGalleryGrid');
+    grid.innerHTML = '';
+
+    item.photos.forEach((photoUrl) => {
+      const thumb = document.createElement('img');
+      thumb.src = photoUrl;
+      thumb.className = 'gallery-thumb';
+      thumb.title = "Agrandir l'image";
+      thumb.onclick = () => openLightbox(photoUrl);
+      grid.appendChild(thumb);
+    });
+  }
+
+  async function handleAddCollectionPhoto(event) {
+    if (currentDetailCollectionIndex === null) return;
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const item = collection[currentDetailCollectionIndex];
+      if (!item.photos) item.photos = [];
+      item.photos.push(e.target.result);
+      saveData();
+      renderDetailGallery();
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  // --- GOOGLE IMAGES ---
   function openGoogleImagesTab(titleFieldId, platformFieldId) {
     const title = document.getElementById(titleFieldId).value.trim();
     const platform = document.getElementById(platformFieldId).value;
@@ -1213,7 +1440,8 @@
       buyDate: document.getElementById('edit-c-buyDate').value,
       image: document.getElementById('edit-c-image').value.trim(),
       gameplay: document.getElementById('edit-c-gameplay').value,
-      note: document.getElementById('edit-c-note').value.trim()
+      note: document.getElementById('edit-c-note').value.trim(),
+      photos: collection[index].photos || []
     };
 
     closeEditCollectionModal();
@@ -1366,7 +1594,7 @@
       const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${item.store}</span>` : '';
 
       const coverHtml = item.image 
-        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>🎮</div>'">`
+        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>🎮</div>'">`
         : `<div class="item-cover-placeholder">🎮</div>`;
 
       const q = encodeURIComponent(`${item.title} ${item.platform}`);
@@ -1377,7 +1605,7 @@
 
       card.innerHTML = `
         ${coverHtml}
-        <div class="item-content">
+        <div class="item-content" style="cursor:pointer;" onclick="openEditModal(${index})">
           <div class="card-header">
             <div class="item-info">
               <h3>${item.title}</h3>
@@ -1390,14 +1618,14 @@
                 <span>${dateStr}</span>
               </div>
             </div>
-            <div class="actions">
+            <div class="actions" onclick="event.stopPropagation();">
               <button class="btn-action btn-edit" title="Modifier" onclick="openEditModal(${index})">✏️</button>
               <button class="btn-action btn-transfer" title="Transférer en collection" onclick="moveToCollection(${index})">📥</button>
-              <button class="btn-action btn-delete" onclick="deleteWishlistItem(${index})">✕</button>
+              <button class="btn-action btn-delete" title="Supprimer" onclick="deleteWishlistItem(${index})">✕</button>
             </div>
           </div>
 
-          <div class="market-links">
+          <div class="market-links" onclick="event.stopPropagation();">
             <span style="font-size:0.7rem; color:var(--text-muted);">Recherche :</span>
             <a class="btn-market collector" href="${ecUrl}" target="_blank">🏆 Collector</a>
             <a class="btn-market" href="${leclercUrl}" target="_blank">Leclerc</a>
@@ -1496,7 +1724,7 @@
       const playBadge = (item.gameplay && item.gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${item.gameplay}</span>` : '';
 
       const coverHtml = item.image 
-        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>🎮</div>'">`
+        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>🎮</div>'">`
         : `<div class="item-cover-placeholder">🎮</div>`;
 
       let datesDisplay = [];
@@ -1514,7 +1742,7 @@
 
       card.innerHTML = `
         ${coverHtml}
-        <div class="item-content">
+        <div class="item-content" onclick="openCollectionDetail(${index})" style="cursor:pointer;">
           <div class="card-header">
             <div class="item-info">
               <h3>${item.title}</h3>
@@ -1530,13 +1758,13 @@
               </div>
               ${noteHtml}
             </div>
-            <div class="actions">
+            <div class="actions" onclick="event.stopPropagation();">
               <button class="btn-action btn-edit" title="Modifier" onclick="openEditCollectionModal(${index})">✏️</button>
               <button class="btn-action btn-delete" title="Supprimer" onclick="deleteCollectionItem(${index})">✕</button>
             </div>
           </div>
 
-          <div class="market-links">
+          <div class="market-links" onclick="event.stopPropagation();">
             <span style="font-size:0.7rem; color:var(--text-muted);">Argus :</span>
             <a class="btn-market pricecharting" href="${priceChartingUrl}" target="_blank">📈 PriceCharting</a>
             <a class="btn-market" href="${ebaySoldUrl}" target="_blank">📊 eBay</a>
@@ -1568,10 +1796,10 @@
 
   function deleteWishlistItem(index) { wishlist.splice(index, 1); saveData(); }
 
-  // Transfert Wishlist -> Collection
+  // Transfert Wishlist -> Collection (Attribution de la date d'achat au jour de la sortie)
   function moveToCollection(index) {
     const item = wishlist[index];
-    const today = new Date().toISOString().slice(0, 10);
+    const acquisitionDate = item.releaseDate ? item.releaseDate : new Date().toISOString().slice(0, 10);
 
     collection.unshift({
       title: item.title,
@@ -1580,10 +1808,11 @@
       store: item.store || 'Non renseigné',
       state: '✨ Neuf sous blister',
       releaseDate: item.releaseDate || '',
-      buyDate: today,
+      buyDate: acquisitionDate,
       image: item.image || '',
       gameplay: 'Non commencé',
-      note: ''
+      note: '',
+      photos: []
     });
     wishlist.splice(index, 1);
     saveData();
@@ -1603,7 +1832,8 @@
       buyDate: document.getElementById('c-buyDate').value,
       image: document.getElementById('c-image').value.trim(),
       gameplay: document.getElementById('c-gameplay').value,
-      note: document.getElementById('c-note').value.trim()
+      note: document.getElementById('c-note').value.trim(),
+      photos: []
     });
     saveData();
     e.target.reset();
