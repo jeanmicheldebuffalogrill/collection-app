@@ -550,96 +550,75 @@
     .btn-edit { color: var(--clay-blue); }
     .btn-delete { color: var(--clay-pink); }
 
-    /* Styles pour la Frise Chronologique Horizontale en Tuiles (Swipe & Snap) */
-    .timeline-h-wrapper {
+    /* Frise Chronologique en Carrousel Horizontal (Tuiles & Swipe Snap) */
+    .timeline-h-container {
       display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin-top: 10px;
-    }
-    .timeline-h-section {
-      background: var(--surface);
-      border-radius: 28px;
-      padding: 16px;
-      box-shadow: var(--clay-card);
-    }
-    .timeline-h-year-title {
-      font-size: 0.85rem;
-      font-weight: 900;
-      color: var(--clay-yellow);
-      margin-bottom: 12px;
-      text-shadow: var(--text-pop);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .timeline-h-scroll {
-      display: flex;
-      gap: 14px;
+      gap: 16px;
       overflow-x: auto;
-      padding-bottom: 10px;
+      padding: 10px 4px 20px 4px;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
     }
-    .timeline-h-scroll::-webkit-scrollbar {
-      height: 6px;
+    .timeline-h-container::-webkit-scrollbar {
+      height: 8px;
     }
-    .timeline-h-scroll::-webkit-scrollbar-track {
-      background: var(--bg);
+    .timeline-h-container::-webkit-scrollbar-track {
+      background: var(--surface);
       border-radius: 99px;
     }
-    .timeline-h-scroll::-webkit-scrollbar-thumb {
-      background: var(--surface-elevated);
+    .timeline-h-container::-webkit-scrollbar-thumb {
+      background: var(--accent);
       border-radius: 99px;
     }
 
-    /* Carte Tuile Verticale Frise */
+    /* Carte Tuile Verticale du Carrousel */
     .tile-card {
-      background: var(--bg);
-      border-radius: 24px;
-      padding: 14px;
-      min-width: 170px;
-      max-width: 170px;
+      background: var(--surface);
+      border-radius: 30px;
+      padding: 18px;
+      min-width: 220px;
+      max-width: 220px;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      scroll-snap-align: start;
-      box-shadow: var(--clay-btn);
+      gap: 12px;
+      scroll-snap-align: center;
+      box-shadow: var(--clay-card);
       cursor: pointer;
       transition: transform 0.2s;
     }
-    .tile-card:active {
-      transform: scale(0.97);
+    .tile-card:hover {
+      transform: translateY(-4px);
     }
     .tile-cover {
       width: 100%;
-      height: 210px;
-      border-radius: 16px;
+      height: 270px;
+      border-radius: 20px;
       object-fit: cover;
-      background: var(--surface);
-      box-shadow: var(--clay-card);
+      background: var(--bg);
+      box-shadow: var(--clay-btn);
     }
     .tile-cover-placeholder {
       width: 100%;
-      height: 210px;
-      border-radius: 16px;
-      background: var(--surface);
+      height: 270px;
+      border-radius: 20px;
+      background: var(--bg);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.5rem;
-      box-shadow: var(--clay-card);
+      font-size: 3rem;
+      box-shadow: var(--clay-btn);
       color: var(--text-muted);
     }
     .tile-info {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
       min-width: 0;
+      text-align: center;
     }
     .tile-title {
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 900;
       white-space: nowrap;
       overflow: hidden;
@@ -647,12 +626,13 @@
       text-shadow: var(--text-pop);
     }
     .tile-meta {
-      font-size: 0.72rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
       font-weight: 700;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
+      gap: 8px;
     }
 
     /* Fiche détaillée & Galerie */
@@ -1108,7 +1088,7 @@
       <div class="platform-grid" id="platformBreakdownGrid"></div>
     </div>
 
-    <!-- Sélecteur de Vue (Liste vs Frise Horizontale en Tuiles) -->
+    <!-- Sélecteur de Vue (Liste vs Frise Carrousel Horizontale) -->
     <div class="month-filter-box" style="background:var(--bg); box-shadow:var(--clay-inset);">
       <label for="c-viewMode">👁️ Mode d'affichage :</label>
       <select id="c-viewMode" onchange="renderCollection()">
@@ -2068,45 +2048,36 @@
         container.appendChild(card);
       });
     } else {
-      // Mode Frise Horizontale en Tuiles (Swipe & Snap)
+      // Mode Frise Horizontale en Carrousel Unifié (Trié chronologiquement)
       const dateKey = (viewMode === 'timeline-release') ? 'releaseDate' : 'buyDate';
-      
-      const groups = {};
-      filtered.forEach(item => {
-        const d = item[dateKey];
-        const year = d ? d.substring(0, 4) : 'Non renseignée';
-        if (!groups[year]) groups[year] = [];
-        groups[year].push(item);
+
+      // Trier tous les objets filtrés par date (du plus ancien au plus récent, ou inversement)
+      filtered.sort((a, b) => {
+        const dateA = a[dateKey] || '9999-12-31';
+        const dateB = b[dateKey] || '9999-12-31';
+        return dateA.localeCompare(dateB);
       });
 
-      const sortedYears = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+      const scrollContainer = document.createElement('div');
+      scrollContainer.className = 'timeline-h-container';
 
-      const wrapper = document.createElement('div');
-      wrapper.className = 'timeline-h-wrapper';
-
-      sortedYears.forEach(year => {
-        const section = document.createElement('div');
-        section.className = 'timeline-h-section';
-
-        const title = document.createElement('div');
-        title.className = 'timeline-h-year-title';
-        title.textContent = year === 'Non renseignée' ? '📌 Sans date' : `🗓️ Année ${year}`;
-        section.appendChild(title);
-
-        const scrollContainer = document.createElement('div');
-        scrollContainer.className = 'timeline-h-scroll';
-
-        groups[year].forEach(item => {
+      if (filtered.length === 0) {
+        scrollContainer.innerHTML = '<span style="font-size:0.8rem; color:var(--text-muted); padding:20px;">Aucun objet trouvé pour cette période.</span>';
+      } else {
+        filtered.forEach(item => {
           const index = collection.indexOf(item);
           const tile = document.createElement('div');
           tile.className = 'tile-card';
-          tile.onclick = () => openCollectionDetail(index);
+          tile.onclick = () => {
+            openCollectionDetail(index);
+          };
 
           const coverHtml = item.image 
             ? `<img src="${item.image}" class="tile-cover" alt="Jaquette" onerror="this.outerHTML='<div class=\\'tile-cover-placeholder\\'>📦</div>'">`
             : `<div class="tile-cover-placeholder">📦</div>`;
 
           const priceStr = item.price ? formatMoney(item.price) : '—';
+          const itemDate = item[dateKey] ? new Date(item[dateKey]).getFullYear() : 'N/A';
 
           tile.innerHTML = `
             ${coverHtml}
@@ -2114,18 +2085,16 @@
               <div class="tile-title">${item.title}</div>
               <div class="tile-meta">
                 <span class="badge" style="font-size:0.65rem; padding:3px 8px;">${item.platform}</span>
-                <span style="font-weight:900; color:var(--clay-yellow);">${priceStr}</span>
+                <span style="font-size:0.72rem; font-weight:800; color:var(--clay-blue);">📅 ${itemDate}</span>
               </div>
+              <div style="font-size:0.85rem; font-weight:900; color:var(--clay-yellow); margin-top:2px;">${priceStr}</div>
             </div>
           `;
           scrollContainer.appendChild(tile);
         });
+      }
 
-        section.appendChild(scrollContainer);
-        wrapper.appendChild(section);
-      });
-
-      container.appendChild(wrapper);
+      container.appendChild(scrollContainer);
     }
   }
 
