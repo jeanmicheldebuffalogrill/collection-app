@@ -638,7 +638,7 @@
       <div class="image-picker-bar">
         <img id="edit-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
         <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">🔍 Google</button>
-        <button type="button" class="btn-img-tool" onclick="pasteImageToField('edit-image', 'edit-preview')">📋 Coller</button>
+        <button type="button" class="btn-img-tool" onclick="pasteImageToField('edit-image', 'edit-preview')">📋 Coller l'URL</button>
         <label class="btn-img-tool" title="Choisir depuis les fichiers">
           📁 Fichier
           <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-image', 'edit-preview')">
@@ -827,7 +827,7 @@
       <div class="image-picker-bar">
         <img id="w-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
         <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">🔍 Chercher sur Google</button>
-        <button type="button" class="btn-img-tool" onclick="pasteImageToField('w-image', 'w-preview')">📋 Coller</button>
+        <button type="button" class="btn-img-tool" onclick="pasteImageToField('w-image', 'w-preview')">📋 Coller l'URL</button>
         <label class="btn-img-tool" title="Choisir depuis les fichiers">
           📁 Fichier
           <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'w-image', 'w-preview')">
@@ -978,7 +978,7 @@
       <div class="image-picker-bar">
         <img id="c-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
         <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">🔍 Google</button>
-        <button type="button" class="btn-img-tool" onclick="pasteImageToField('c-image', 'c-preview')">📋 Coller</button>
+        <button type="button" class="btn-img-tool" onclick="pasteImageToField('c-image', 'c-preview')">📋 Coller l'URL</button>
         <label class="btn-img-tool" title="Choisir depuis les fichiers">
           📁 Fichier
           <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'c-image', 'c-preview')">
@@ -1221,22 +1221,6 @@
 
   async function pasteImageToField(imageFieldId, previewImgId) {
     try {
-      const clipboardItems = await navigator.clipboard.read();
-      for (const item of clipboardItems) {
-        const imageType = item.types.find(t => t.startsWith('image/'));
-        if (imageType) {
-          const blob = await item.getType(imageType);
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            document.getElementById(imageFieldId).value = e.target.result;
-            const prev = document.getElementById(previewImgId);
-            prev.src = e.target.result;
-            prev.style.display = 'block';
-          };
-          reader.readAsDataURL(blob);
-          return;
-        }
-      }
       const text = await navigator.clipboard.readText();
       if (text && (text.startsWith('http://') || text.startsWith('https://') || text.startsWith('data:image'))) {
         document.getElementById(imageFieldId).value = text.trim();
@@ -1245,9 +1229,9 @@
         prev.style.display = 'block';
         return;
       }
-      alert("Aucune image trouvée dans le presse-papier.");
+      alert("Le texte dans le presse-papier n'est pas un lien d'image valide. Sur iPhone, faites un appui long sur l'image sur Google, puis choisissez 'Copier le lien de l'image' (ou l'adresse de l'image).");
     } catch (err) {
-      const url = prompt("Collez l'adresse de l'image ici :");
+      const url = prompt("Collez l'adresse (URL) de l'image ici :");
       if (url) {
         document.getElementById(imageFieldId).value = url.trim();
         const prev = document.getElementById(previewImgId);
