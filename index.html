@@ -110,7 +110,7 @@
       cursor: pointer;
       font-size: 0.9rem;
       text-align: center;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
       transition: all 0.2s ease;
     }
     .tab-btn.active { 
@@ -342,7 +342,7 @@
     }
     .btn-collector-link:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
 
-    /* Zone Jaquette Claire et Épurée */
+    /* Zone Jaquette Compatible iPhone & Pellicule */
     .image-section {
       display: flex;
       flex-direction: column;
@@ -352,64 +352,48 @@
       border-radius: 24px;
       box-shadow: var(--clay-inset);
     }
-    .btn-google-search {
-      background: var(--clay-blue);
-      color: var(--clay-blue-text);
+    .image-action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .btn-image-action {
       border: none;
       font-weight: 900;
       cursor: pointer;
-      padding: 12px 16px;
-      border-radius: 18px;
-      font-size: 0.85rem;
+      padding: 11px 12px;
+      border-radius: 16px;
+      font-size: 0.78rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       box-shadow: var(--clay-btn);
       text-shadow: none;
+      text-align: center;
     }
-    .btn-google-search:active { box-shadow: var(--clay-inset); transform: scale(0.98); }
+    .btn-image-action:active { box-shadow: var(--clay-inset); transform: scale(0.98); }
+    .btn-google { background: var(--clay-blue); color: var(--clay-blue-text); }
+    .btn-photos { background: var(--clay-purple); color: var(--clay-purple-text); }
 
-    .image-input-group {
-      display: flex;
-      gap: 8px;
+    .image-input-direct {
       width: 100%;
-    }
-    .image-input-group input {
-      flex: 1;
       padding: 12px 14px;
       font-size: 0.85rem;
-    }
-    .btn-action-icon {
       background: var(--surface);
-      border: none;
-      color: var(--text);
-      padding: 0 14px;
       border-radius: 16px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      box-shadow: var(--clay-btn);
-      white-space: nowrap;
-      width: auto;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     }
-    .btn-action-icon:active { box-shadow: var(--clay-inset); }
 
     .image-preview-card {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      padding-top: 6px;
+      padding-top: 4px;
     }
     .image-preview-thumb {
-      width: 72px;
-      height: 96px;
+      width: 76px;
+      height: 102px;
       border-radius: 18px;
       object-fit: cover;
       background: var(--surface);
@@ -728,20 +712,19 @@
 
       <!-- Zone Jaquette Édition Wishlist -->
       <div class="image-section">
-        <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">
-          🔍 Trouver la jaquette sur Google Images
-        </button>
-        <div class="image-input-group">
-          <input type="text" id="edit-image" placeholder="Colle le lien ou l'image ici..." oninput="updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview')" onpaste="handleNativePaste(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
-          <button type="button" class="btn-action-icon" onclick="pasteImageToField('edit-image', 'edit-preview-wrap', 'edit-preview')">📋 Coller</button>
-          <label class="btn-action-icon">
-            📁 Fichier
+        <div class="image-action-grid">
+          <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">
+            🔍 Chercher jaquette
+          </button>
+          <label class="btn-image-action btn-photos">
+            📷 Depuis Photos
             <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
           </label>
         </div>
+        <input type="text" id="edit-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview')" onpaste="handleNativePaste(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
         <div id="edit-preview-wrap" class="image-preview-card" style="display:none;">
           <img id="edit-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-image', 'edit-preview-wrap', 'edit-preview')">✕ Retirer l'image</button>
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-image', 'edit-preview-wrap', 'edit-preview')">✕ Retirer la jaquette</button>
         </div>
       </div>
 
@@ -822,20 +805,19 @@
 
       <!-- Zone Jaquette Édition Collection -->
       <div class="image-section">
-        <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('edit-c-title', 'edit-c-platform')">
-          🔍 Trouver la jaquette sur Google Images
-        </button>
-        <div class="image-input-group">
-          <input type="text" id="edit-c-image" placeholder="Colle le lien ou l'image ici..." oninput="updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')" onpaste="handleNativePaste(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
-          <button type="button" class="btn-action-icon" onclick="pasteImageToField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">📋 Coller</button>
-          <label class="btn-action-icon">
-            📁 Fichier
+        <div class="image-action-grid">
+          <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('edit-c-title', 'edit-c-platform')">
+            🔍 Chercher jaquette
+          </button>
+          <label class="btn-image-action btn-photos">
+            📷 Depuis Photos
             <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
           </label>
         </div>
+        <input type="text" id="edit-c-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')" onpaste="handleNativePaste(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
         <div id="edit-c-preview-wrap" class="image-preview-card" style="display:none;">
           <img id="edit-c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕ Retirer l'image</button>
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕ Retirer la jaquette</button>
         </div>
       </div>
 
@@ -933,20 +915,19 @@
 
       <!-- Zone Jaquette Ajout Wishlist -->
       <div class="image-section">
-        <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('w-title', 'w-platform')">
-          🔍 Trouver la jaquette sur Google Images
-        </button>
-        <div class="image-input-group">
-          <input type="text" id="w-image" placeholder="Colle le lien ou l'image ici..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')" onpaste="handleNativePaste(event, 'w-image', 'w-preview-wrap', 'w-preview')">
-          <button type="button" class="btn-action-icon" onclick="pasteImageToField('w-image', 'w-preview-wrap', 'w-preview')">📋 Coller</button>
-          <label class="btn-action-icon">
-            📁 Fichier
+        <div class="image-action-grid">
+          <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">
+            🔍 Chercher jaquette
+          </button>
+          <label class="btn-image-action btn-photos">
+            📷 Depuis Photos
             <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'w-image', 'w-preview-wrap', 'w-preview')">
           </label>
         </div>
+        <input type="text" id="w-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')" onpaste="handleNativePaste(event, 'w-image', 'w-preview-wrap', 'w-preview')">
         <div id="w-preview-wrap" class="image-preview-card" style="display:none;">
           <img id="w-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('w-image', 'w-preview-wrap', 'w-preview')">✕ Retirer l'image</button>
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('w-image', 'w-preview-wrap', 'w-preview')">✕ Retirer la jaquette</button>
         </div>
       </div>
 
@@ -1088,20 +1069,19 @@
 
       <!-- Zone Jaquette Ajout Collection -->
       <div class="image-section">
-        <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('c-title', 'c-platform')">
-          🔍 Trouver la jaquette sur Google Images
-        </button>
-        <div class="image-input-group">
-          <input type="text" id="c-image" placeholder="Colle le lien ou l'image ici..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')" onpaste="handleNativePaste(event, 'c-image', 'c-preview-wrap', 'c-preview')">
-          <button type="button" class="btn-action-icon" onclick="pasteImageToField('c-image', 'c-preview-wrap', 'c-preview')">📋 Coller</button>
-          <label class="btn-action-icon">
-            📁 Fichier
+        <div class="image-action-grid">
+          <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">
+            🔍 Chercher jaquette
+          </button>
+          <label class="btn-image-action btn-photos">
+            📷 Depuis Photos
             <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'c-image', 'c-preview-wrap', 'c-preview')">
           </label>
         </div>
+        <input type="text" id="c-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')" onpaste="handleNativePaste(event, 'c-image', 'c-preview-wrap', 'c-preview')">
         <div id="c-preview-wrap" class="image-preview-card" style="display:none;">
           <img id="c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('c-image', 'c-preview-wrap', 'c-preview')">✕ Retirer l'image</button>
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('c-image', 'c-preview-wrap', 'c-preview')">✕ Retirer la jaquette</button>
         </div>
       </div>
 
@@ -1373,58 +1353,6 @@
       }
     }
     setTimeout(() => updateImagePreview(inputFieldId, wrapId, previewImgId), 50);
-  }
-
-  // --- COLLAGE DIRECT 100% FLUIDE (SANS POP-UP) ---
-  async function pasteImageToField(imageFieldId, wrapId, previewImgId) {
-    const input = document.getElementById(imageFieldId);
-
-    // 1. Essai direct de lecture texte (URL)
-    if (navigator.clipboard && navigator.clipboard.readText) {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text && text.trim().length > 0) {
-          input.value = extractDirectImageUrl(text);
-          updateImagePreview(imageFieldId, wrapId, previewImgId);
-          return;
-        }
-      } catch (err) {}
-    }
-
-    // 2. Essai de lecture d'image binaire
-    if (navigator.clipboard && navigator.clipboard.read) {
-      try {
-        const clipboardItems = await navigator.clipboard.read();
-        for (const item of clipboardItems) {
-          const imgType = item.types.find(t => t.startsWith('image/'));
-          if (imgType) {
-            const blob = await item.getType(imgType);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              input.value = e.target.result;
-              updateImagePreview(imageFieldId, wrapId, previewImgId);
-            };
-            reader.readAsDataURL(blob);
-            return;
-          }
-          if (item.types.includes('text/html')) {
-            const blob = await item.getType('text/html');
-            const htmlText = await blob.text();
-            const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-            const imgEl = doc.querySelector('img');
-            if (imgEl && imgEl.src) {
-              input.value = extractDirectImageUrl(imgEl.src);
-              updateImagePreview(imageFieldId, wrapId, previewImgId);
-              return;
-            }
-          }
-        }
-      } catch (err) {}
-    }
-
-    // 3. Si iOS verrouille sans prompt : focus direct dans le champ
-    input.focus();
-    input.select();
   }
 
   function handleImageFile(event, imageFieldId, wrapId, previewImgId) {
