@@ -225,7 +225,7 @@
       color: var(--clay-purple-text);
     }
     .platform-chip-name { font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 800; }
-    .platform-chip-value { font-size: 0.95rem; font-weight: 900; color: var(--clay-yellow); margin-top: 2px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+    .platform-chip-value { font-size: 0.95rem; font-weight: 900; color: var(--clay-yellow); margin-top: 2px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); }
     .platform-chip-count { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
 
     /* Modals 3D */
@@ -251,7 +251,7 @@
       gap: 16px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
     }
     .modal-header {
       display: flex;
@@ -296,7 +296,7 @@
       outline: none;
       box-shadow: var(--clay-inset);
       font-weight: 800;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     }
     input:focus, select:focus, textarea:focus {
       box-shadow: var(--clay-inset), 0 0 0 3px var(--accent);
@@ -342,14 +342,14 @@
     }
     .btn-collector-link:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
 
-    /* Zone Image Épurée avec collage direct */
+    /* Zone Jaquette Claire et Épurée */
     .image-section {
       display: flex;
       flex-direction: column;
       gap: 10px;
       background: var(--bg);
       padding: 14px;
-      border-radius: 22px;
+      border-radius: 24px;
       box-shadow: var(--clay-inset);
     }
     .btn-google-search {
@@ -358,66 +358,59 @@
       border: none;
       font-weight: 900;
       cursor: pointer;
-      padding: 11px 14px;
-      border-radius: 16px;
-      font-size: 0.82rem;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 0.85rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 8px;
       box-shadow: var(--clay-btn);
       text-shadow: none;
     }
-    .btn-google-search:active { box-shadow: var(--clay-inset); }
+    .btn-google-search:active { box-shadow: var(--clay-inset); transform: scale(0.98); }
 
-    .image-input-wrapper {
+    .image-input-group {
       display: flex;
-      align-items: center;
-      position: relative;
+      gap: 8px;
       width: 100%;
     }
-    .image-input-wrapper input {
-      padding-right: 90px;
+    .image-input-group input {
+      flex: 1;
+      padding: 12px 14px;
       font-size: 0.85rem;
-      box-shadow: none;
+    }
+    .btn-action-icon {
       background: var(--surface);
-      border-radius: 16px;
-    }
-    .image-input-actions {
-      position: absolute;
-      right: 6px;
-      display: flex;
-      gap: 5px;
-    }
-    .btn-input-icon {
-      background: var(--bg);
       border: none;
       color: var(--text);
-      padding: 6px 10px;
-      border-radius: 10px;
+      padding: 0 14px;
+      border-radius: 16px;
       font-size: 0.8rem;
       font-weight: 800;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 4px;
       box-shadow: var(--clay-btn);
+      white-space: nowrap;
       width: auto;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     }
-    .btn-input-icon:active { box-shadow: var(--clay-inset); }
+    .btn-action-icon:active { box-shadow: var(--clay-inset); }
 
-    .image-preview-container {
+    .image-preview-card {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      position: relative;
-      width: fit-content;
-      margin: 4px auto 0 auto;
+      gap: 8px;
+      padding-top: 6px;
     }
     .image-preview-thumb {
-      width: 64px;
-      height: 86px;
-      border-radius: 16px;
+      width: 72px;
+      height: 96px;
+      border-radius: 18px;
       object-fit: cover;
       background: var(--surface);
       cursor: pointer;
@@ -425,28 +418,25 @@
       border: 3px solid var(--surface-elevated);
     }
     .btn-remove-preview {
-      position: absolute;
-      top: -6px;
-      right: -6px;
       background: var(--clay-pink);
       color: var(--clay-pink-text);
       border: none;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      font-size: 0.75rem;
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 0.72rem;
       font-weight: 900;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
+      gap: 4px;
       box-shadow: var(--clay-btn);
-      padding: 0;
+      width: auto;
     }
+    .btn-remove-preview:active { box-shadow: var(--clay-inset); }
 
     /* Filtres */
     .controls { display: flex; gap: 8px; margin-bottom: 16px; width: 100%; }
-    .controls select { flex: 1; padding: 12px; font-size: 0.85rem; background: var(--surface); border-radius: 20px; font-weight: 800; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); box-shadow: var(--clay-btn); }
+    .controls select { flex: 1; padding: 12px; font-size: 0.85rem; background: var(--surface); border-radius: 20px; font-weight: 800; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); box-shadow: var(--clay-btn); }
 
     /* Cartes 3D */
     .item-card {
@@ -461,7 +451,7 @@
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .item-card:hover { transform: translateY(-4px); box-shadow: 20px 20px 40px rgba(0,0,0,0.8), -12px -12px 30px rgba(45, 53, 77, 0.6); }
+    .item-card:hover { transform: translateY(-4px); box-shadow: 20px 20px 40px rgba(0, 0, 0, 0.8), -12px -12px 30px rgba(45, 53, 77, 0.6); }
     
     .item-card.status-take { border-left: 10px solid var(--clay-green); }
     .item-card.status-think { border-left: 10px solid var(--clay-yellow); }
@@ -518,15 +508,15 @@
     }
     .item-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-weight: 700; }
     
-    .badge { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-purple); color: var(--clay-purple-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
-    .badge-store { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-green); color: var(--clay-green-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
-    .badge-state { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--bg); color: var(--text); font-weight: 800; text-shadow: 1px 1px 1px rgba(0,0,0,0.8); box-shadow: var(--clay-btn); }
-    .badge-play { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-yellow); color: var(--clay-yellow-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
+    .badge { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-purple); color: var(--clay-purple-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
+    .badge-store { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-green); color: var(--clay-green-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
+    .badge-state { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--bg); color: var(--text); font-weight: 800; text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8); box-shadow: var(--clay-btn); }
+    .badge-play { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-yellow); color: var(--clay-yellow-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
 
     .badge-status { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; font-weight: 900; text-shadow: none; }
-    .badge-status.take { background: var(--clay-green); color: var(--clay-green-text); box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
-    .badge-status.think { background: var(--clay-yellow); color: var(--clay-yellow-text); box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
-    .badge-status.pass { background: var(--clay-pink); color: var(--clay-pink-text); box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
+    .badge-status.take { background: var(--clay-green); color: var(--clay-green-text); box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
+    .badge-status.think { background: var(--clay-yellow); color: var(--clay-yellow-text); box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
+    .badge-status.pass { background: var(--clay-pink); color: var(--clay-pink-text); box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
 
     .item-note {
       font-size: 0.78rem;
@@ -537,7 +527,7 @@
       box-shadow: var(--clay-inset);
       margin-top: 4px;
       font-weight: 700;
-      text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
     }
 
     .market-links {
@@ -545,7 +535,7 @@
       gap: 6px;
       flex-wrap: wrap;
       padding-top: 8px;
-      border-top: 1px solid rgba(255,255,255,0.06);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
     .btn-market {
       font-size: 0.72rem;
@@ -557,7 +547,7 @@
       display: inline-flex;
       align-items: center;
       font-weight: 800;
-      text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
       box-shadow: var(--clay-btn);
     }
     .btn-market:active { box-shadow: var(--clay-inset); }
@@ -575,7 +565,7 @@
       font-weight: 800;
       color: var(--text-muted);
       width: auto;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
       box-shadow: var(--clay-btn);
     }
     .btn-action:active { box-shadow: var(--clay-inset); }
@@ -736,26 +726,22 @@
         <input type="date" id="edit-releaseDate" title="Date de sortie">
       </div>
 
-      <!-- Zone Image Structurée (Edition) -->
+      <!-- Zone Jaquette Édition Wishlist -->
       <div class="image-section">
         <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">
-          🔍 Trouver la jaquette sur Google
+          🔍 Trouver la jaquette sur Google Images
         </button>
-        
-        <div class="image-input-wrapper">
-          <input type="text" id="edit-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview')">
-          <div class="image-input-actions">
-            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('edit-image', 'edit-preview-wrap', 'edit-preview')">📋 Coller</button>
-            <label class="btn-input-icon" title="Depuis les fichiers">
-              📁
-              <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
-            </label>
-          </div>
+        <div class="image-input-group">
+          <input type="text" id="edit-image" placeholder="Colle le lien ou l'image ici..." oninput="updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview')" onpaste="handleNativePaste(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
+          <button type="button" class="btn-action-icon" onclick="pasteImageToField('edit-image', 'edit-preview-wrap', 'edit-preview')">📋 Coller</button>
+          <label class="btn-action-icon">
+            📁 Fichier
+            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
+          </label>
         </div>
-
-        <div id="edit-preview-wrap" class="image-preview-container" style="display:none;">
-          <img id="edit-preview" class="image-preview-thumb" src="" alt="" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-image', 'edit-preview-wrap', 'edit-preview')">✕</button>
+        <div id="edit-preview-wrap" class="image-preview-card" style="display:none;">
+          <img id="edit-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-image', 'edit-preview-wrap', 'edit-preview')">✕ Retirer l'image</button>
         </div>
       </div>
 
@@ -834,26 +820,22 @@
         </div>
       </div>
 
-      <!-- Zone Image Structurée (Edition Collection) -->
+      <!-- Zone Jaquette Édition Collection -->
       <div class="image-section">
         <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('edit-c-title', 'edit-c-platform')">
-          🔍 Trouver la jaquette sur Google
+          🔍 Trouver la jaquette sur Google Images
         </button>
-        
-        <div class="image-input-wrapper">
-          <input type="text" id="edit-c-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
-          <div class="image-input-actions">
-            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">📋 Coller</button>
-            <label class="btn-input-icon" title="Depuis les fichiers">
-              📁
-              <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
-            </label>
-          </div>
+        <div class="image-input-group">
+          <input type="text" id="edit-c-image" placeholder="Colle le lien ou l'image ici..." oninput="updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')" onpaste="handleNativePaste(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
+          <button type="button" class="btn-action-icon" onclick="pasteImageToField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">📋 Coller</button>
+          <label class="btn-action-icon">
+            📁 Fichier
+            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
+          </label>
         </div>
-
-        <div id="edit-c-preview-wrap" class="image-preview-container" style="display:none;">
-          <img id="edit-c-preview" class="image-preview-thumb" src="" alt="" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕</button>
+        <div id="edit-c-preview-wrap" class="image-preview-card" style="display:none;">
+          <img id="edit-c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕ Retirer l'image</button>
         </div>
       </div>
 
@@ -949,26 +931,22 @@
         <input type="date" id="w-releaseDate" title="Date de sortie">
       </div>
 
-      <!-- Zone Image Structurée (Ajout Wishlist) -->
+      <!-- Zone Jaquette Ajout Wishlist -->
       <div class="image-section">
         <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('w-title', 'w-platform')">
-          🔍 Trouver la jaquette sur Google
+          🔍 Trouver la jaquette sur Google Images
         </button>
-        
-        <div class="image-input-wrapper">
-          <input type="text" id="w-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')">
-          <div class="image-input-actions">
-            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('w-image', 'w-preview-wrap', 'w-preview')">📋 Coller</button>
-            <label class="btn-input-icon" title="Depuis les fichiers">
-              📁
-              <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'w-image', 'w-preview-wrap', 'w-preview')">
-            </label>
-          </div>
+        <div class="image-input-group">
+          <input type="text" id="w-image" placeholder="Colle le lien ou l'image ici..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')" onpaste="handleNativePaste(event, 'w-image', 'w-preview-wrap', 'w-preview')">
+          <button type="button" class="btn-action-icon" onclick="pasteImageToField('w-image', 'w-preview-wrap', 'w-preview')">📋 Coller</button>
+          <label class="btn-action-icon">
+            📁 Fichier
+            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'w-image', 'w-preview-wrap', 'w-preview')">
+          </label>
         </div>
-
-        <div id="w-preview-wrap" class="image-preview-container" style="display:none;">
-          <img id="w-preview" class="image-preview-thumb" src="" alt="" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('w-image', 'w-preview-wrap', 'w-preview')">✕</button>
+        <div id="w-preview-wrap" class="image-preview-card" style="display:none;">
+          <img id="w-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('w-image', 'w-preview-wrap', 'w-preview')">✕ Retirer l'image</button>
         </div>
       </div>
 
@@ -1108,26 +1086,22 @@
         </div>
       </div>
 
-      <!-- Zone Image Structurée (Ajout Collection) -->
+      <!-- Zone Jaquette Ajout Collection -->
       <div class="image-section">
         <button type="button" class="btn-google-search" onclick="openGoogleImagesTab('c-title', 'c-platform')">
-          🔍 Trouver la jaquette sur Google
+          🔍 Trouver la jaquette sur Google Images
         </button>
-        
-        <div class="image-input-wrapper">
-          <input type="text" id="c-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')">
-          <div class="image-input-actions">
-            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('c-image', 'c-preview-wrap', 'c-preview')">📋 Coller</button>
-            <label class="btn-input-icon" title="Depuis les fichiers">
-              📁
-              <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'c-image', 'c-preview-wrap', 'c-preview')">
-            </label>
-          </div>
+        <div class="image-input-group">
+          <input type="text" id="c-image" placeholder="Colle le lien ou l'image ici..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')" onpaste="handleNativePaste(event, 'c-image', 'c-preview-wrap', 'c-preview')">
+          <button type="button" class="btn-action-icon" onclick="pasteImageToField('c-image', 'c-preview-wrap', 'c-preview')">📋 Coller</button>
+          <label class="btn-action-icon">
+            📁 Fichier
+            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'c-image', 'c-preview-wrap', 'c-preview')">
+          </label>
         </div>
-
-        <div id="c-preview-wrap" class="image-preview-container" style="display:none;">
-          <img id="c-preview" class="image-preview-thumb" src="" alt="" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('c-image', 'c-preview-wrap', 'c-preview')">✕</button>
+        <div id="c-preview-wrap" class="image-preview-card" style="display:none;">
+          <img id="c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
+          <button type="button" class="btn-remove-preview" onclick="clearImageField('c-image', 'c-preview-wrap', 'c-preview')">✕ Retirer l'image</button>
         </div>
       </div>
 
@@ -1214,17 +1188,7 @@
         </div>
       `;
     } else {
-      if (prefix === 'w-') return ``; 
-      return `
-        <div>
-          <select id="${prefix}gameplay">
-            <option value="Non commencé" ${data.gameplay === 'Non commencé' ? 'selected' : ''}>⏳ Non commencé</option>
-            <option value="En cours" ${data.gameplay === 'En cours' ? 'selected' : ''}>🎮 En cours</option>
-            <option value="Terminé" ${data.gameplay === 'Terminé' ? 'selected' : ''}>🏆 Terminé</option>
-            <option value="Non applicable" ${data.gameplay === 'Non applicable' ? 'selected' : ''}>⚪ Non applicable</option>
-          </select>
-        </div>
-      `;
+      return ``;
     }
   }
 
@@ -1294,7 +1258,7 @@
       openEditCollectionModal(index);
     };
     document.getElementById('btnDetailDelete').onclick = () => {
-      if (confirm(`Supprimer "${item.title}" de la collection ?`)) {
+      if (confirm(`Supprimer « ${item.title} » de la collection ?`)) {
         closeDetailModal();
         deleteCollectionItem(index);
       }
@@ -1392,18 +1356,36 @@
     }
   }
 
-  // --- COLLAGE DIRECT SUR IPHONE ET PC ---
+  function handleNativePaste(e, inputFieldId, wrapId, previewImgId) {
+    if (e.clipboardData && e.clipboardData.items) {
+      for (const item of e.clipboardData.items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            document.getElementById(inputFieldId).value = event.target.result;
+            updateImagePreview(inputFieldId, wrapId, previewImgId);
+          };
+          reader.readAsDataURL(file);
+          return;
+        }
+      }
+    }
+    setTimeout(() => updateImagePreview(inputFieldId, wrapId, previewImgId), 50);
+  }
+
   async function pasteImageToField(imageFieldId, wrapId, previewImgId) {
     const input = document.getElementById(imageFieldId);
     
-    // 1. Tente de lire directement une image binaire (Safari/iOS)
-    try {
-      if (navigator.clipboard && navigator.clipboard.read) {
+    // 1. Image binaire dans le presse-papier
+    if (navigator.clipboard && navigator.clipboard.read) {
+      try {
         const clipboardItems = await navigator.clipboard.read();
         for (const item of clipboardItems) {
-          const imageType = item.types.find(t => t.startsWith('image/'));
-          if (imageType) {
-            const blob = await item.getType(imageType);
+          const imgType = item.types.find(t => t.startsWith('image/'));
+          if (imgType) {
+            const blob = await item.getType(imgType);
             const reader = new FileReader();
             reader.onload = (e) => {
               input.value = e.target.result;
@@ -1412,27 +1394,37 @@
             reader.readAsDataURL(blob);
             return;
           }
+          if (item.types.includes('text/html')) {
+            const blob = await item.getType('text/html');
+            const htmlText = await blob.text();
+            const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+            const imgEl = doc.querySelector('img');
+            if (imgEl && imgEl.src) {
+              input.value = extractDirectImageUrl(imgEl.src);
+              updateImagePreview(imageFieldId, wrapId, previewImgId);
+              return;
+            }
+          }
         }
-      }
-    } catch (e) {}
+      } catch (err) {}
+    }
 
-    // 2. Tente de lire le texte (URL)
-    try {
-      if (navigator.clipboard && navigator.clipboard.readText) {
+    // 2. Texte / URL
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      try {
         const text = await navigator.clipboard.readText();
-        if (text) {
-          const cleanText = extractDirectImageUrl(text);
-          input.value = cleanText;
+        if (text && text.trim().length > 0) {
+          input.value = extractDirectImageUrl(text);
           updateImagePreview(imageFieldId, wrapId, previewImgId);
           return;
         }
-      }
-    } catch (err) {}
+      } catch (err) {}
+    }
 
-    // 3. Fallback immédiat avec focus iOS
+    // 3. Fallback direct avec focus
     input.focus();
     input.select();
-    const manualUrl = prompt("Collez l'adresse ou le lien de l'image ici :", input.value);
+    const manualUrl = prompt("Collez l'image ou son adresse ici :", input.value);
     if (manualUrl) {
       input.value = extractDirectImageUrl(manualUrl);
       updateImagePreview(imageFieldId, wrapId, previewImgId);
