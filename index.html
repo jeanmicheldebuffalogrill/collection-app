@@ -342,7 +342,7 @@
     }
     .btn-collector-link:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
 
-    /* Zone Image Épurée et Structurée */
+    /* Zone Image Épurée avec collage direct */
     .image-section {
       display: flex;
       flex-direction: column;
@@ -377,7 +377,7 @@
       width: 100%;
     }
     .image-input-wrapper input {
-      padding-right: 84px;
+      padding-right: 90px;
       font-size: 0.85rem;
       box-shadow: none;
       background: var(--surface);
@@ -393,9 +393,10 @@
       background: var(--bg);
       border: none;
       color: var(--text);
-      padding: 6px 9px;
+      padding: 6px 10px;
       border-radius: 10px;
       font-size: 0.8rem;
+      font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -414,8 +415,8 @@
       margin: 4px auto 0 auto;
     }
     .image-preview-thumb {
-      width: 60px;
-      height: 80px;
+      width: 64px;
+      height: 86px;
       border-radius: 16px;
       object-fit: cover;
       background: var(--surface);
@@ -744,7 +745,7 @@
         <div class="image-input-wrapper">
           <input type="text" id="edit-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview')">
           <div class="image-input-actions">
-            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('edit-image', 'edit-preview-wrap', 'edit-preview')">📋</button>
+            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('edit-image', 'edit-preview-wrap', 'edit-preview')">📋 Coller</button>
             <label class="btn-input-icon" title="Depuis les fichiers">
               📁
               <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
@@ -842,7 +843,7 @@
         <div class="image-input-wrapper">
           <input type="text" id="edit-c-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
           <div class="image-input-actions">
-            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">📋</button>
+            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">📋 Coller</button>
             <label class="btn-input-icon" title="Depuis les fichiers">
               📁
               <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
@@ -957,7 +958,7 @@
         <div class="image-input-wrapper">
           <input type="text" id="w-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')">
           <div class="image-input-actions">
-            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('w-image', 'w-preview-wrap', 'w-preview')">📋</button>
+            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('w-image', 'w-preview-wrap', 'w-preview')">📋 Coller</button>
             <label class="btn-input-icon" title="Depuis les fichiers">
               📁
               <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'w-image', 'w-preview-wrap', 'w-preview')">
@@ -1116,7 +1117,7 @@
         <div class="image-input-wrapper">
           <input type="text" id="c-image" placeholder="Adresse (URL) de l'image..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')">
           <div class="image-input-actions">
-            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('c-image', 'c-preview-wrap', 'c-preview')">📋</button>
+            <button type="button" class="btn-input-icon" title="Coller" onclick="pasteImageToField('c-image', 'c-preview-wrap', 'c-preview')">📋 Coller</button>
             <label class="btn-input-icon" title="Depuis les fichiers">
               📁
               <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'c-image', 'c-preview-wrap', 'c-preview')">
@@ -1360,11 +1361,28 @@
     window.open(`https://www.google.com/search?tbm=isch&q=${query}`, '_blank');
   }
 
-  // --- MISE À JOUR VISUELLE AUTOMATIQUE DE L'APERÇU ---
+  function extractDirectImageUrl(rawText) {
+    if (!rawText) return '';
+    try {
+      if (rawText.includes('imgurl=')) {
+        const urlParams = new URLSearchParams(rawText.split('?')[1]);
+        const imgUrl = urlParams.get('imgurl');
+        if (imgUrl) return decodeURIComponent(imgUrl);
+      }
+    } catch (e) {}
+    return rawText.trim();
+  }
+
   function updateImagePreview(inputFieldId, wrapId, previewImgId) {
-    const val = document.getElementById(inputFieldId).value.trim();
+    const rawVal = document.getElementById(inputFieldId).value.trim();
+    const val = extractDirectImageUrl(rawVal);
     const wrap = document.getElementById(wrapId);
     const img = document.getElementById(previewImgId);
+    
+    if (val !== rawVal) {
+      document.getElementById(inputFieldId).value = val;
+    }
+
     if (val) {
       img.src = val;
       wrap.style.display = 'flex';
@@ -1374,38 +1392,49 @@
     }
   }
 
-  // --- COLLAGE UNIVERSEL ---
+  // --- COLLAGE DIRECT SUR IPHONE ET PC ---
   async function pasteImageToField(imageFieldId, wrapId, previewImgId) {
+    const input = document.getElementById(imageFieldId);
+    
+    // 1. Tente de lire directement une image binaire (Safari/iOS)
     try {
-      const clipboardItems = await navigator.clipboard.read();
-      for (const item of clipboardItems) {
-        const imageType = item.types.find(t => t.startsWith('image/'));
-        if (imageType) {
-          const blob = await item.getType(imageType);
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            document.getElementById(imageFieldId).value = e.target.result;
-            updateImagePreview(imageFieldId, wrapId, previewImgId);
-          };
-          reader.readAsDataURL(blob);
-          return;
+      if (navigator.clipboard && navigator.clipboard.read) {
+        const clipboardItems = await navigator.clipboard.read();
+        for (const item of clipboardItems) {
+          const imageType = item.types.find(t => t.startsWith('image/'));
+          if (imageType) {
+            const blob = await item.getType(imageType);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              input.value = e.target.result;
+              updateImagePreview(imageFieldId, wrapId, previewImgId);
+            };
+            reader.readAsDataURL(blob);
+            return;
+          }
         }
       }
     } catch (e) {}
 
+    // 2. Tente de lire le texte (URL)
     try {
-      const text = await navigator.clipboard.readText();
-      if (text) {
-        const cleanText = text.trim();
-        document.getElementById(imageFieldId).value = cleanText;
-        updateImagePreview(imageFieldId, wrapId, previewImgId);
-        return;
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          const cleanText = extractDirectImageUrl(text);
+          input.value = cleanText;
+          updateImagePreview(imageFieldId, wrapId, previewImgId);
+          return;
+        }
       }
     } catch (err) {}
 
-    const url = prompt("Collez l'adresse (URL) ou le lien de l'image ici :");
-    if (url) {
-      document.getElementById(imageFieldId).value = url.trim();
+    // 3. Fallback immédiat avec focus iOS
+    input.focus();
+    input.select();
+    const manualUrl = prompt("Collez l'adresse ou le lien de l'image ici :", input.value);
+    if (manualUrl) {
+      input.value = extractDirectImageUrl(manualUrl);
       updateImagePreview(imageFieldId, wrapId, previewImgId);
     }
   }
