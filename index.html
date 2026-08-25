@@ -1375,10 +1375,23 @@
     setTimeout(() => updateImagePreview(inputFieldId, wrapId, previewImgId), 50);
   }
 
+  // --- COLLAGE DIRECT 100% FLUIDE (SANS POP-UP) ---
   async function pasteImageToField(imageFieldId, wrapId, previewImgId) {
     const input = document.getElementById(imageFieldId);
-    
-    // 1. Image binaire dans le presse-papier
+
+    // 1. Essai direct de lecture texte (URL)
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text && text.trim().length > 0) {
+          input.value = extractDirectImageUrl(text);
+          updateImagePreview(imageFieldId, wrapId, previewImgId);
+          return;
+        }
+      } catch (err) {}
+    }
+
+    // 2. Essai de lecture d'image binaire
     if (navigator.clipboard && navigator.clipboard.read) {
       try {
         const clipboardItems = await navigator.clipboard.read();
@@ -1409,26 +1422,9 @@
       } catch (err) {}
     }
 
-    // 2. Texte / URL
-    if (navigator.clipboard && navigator.clipboard.readText) {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text && text.trim().length > 0) {
-          input.value = extractDirectImageUrl(text);
-          updateImagePreview(imageFieldId, wrapId, previewImgId);
-          return;
-        }
-      } catch (err) {}
-    }
-
-    // 3. Fallback direct avec focus
+    // 3. Si iOS verrouille sans prompt : focus direct dans le champ
     input.focus();
     input.select();
-    const manualUrl = prompt("Collez l'image ou son adresse ici :", input.value);
-    if (manualUrl) {
-      input.value = extractDirectImageUrl(manualUrl);
-      updateImagePreview(imageFieldId, wrapId, previewImgId);
-    }
   }
 
   function handleImageFile(event, imageFieldId, wrapId, previewImgId) {
