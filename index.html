@@ -422,7 +422,7 @@
     .controls { display: flex; gap: 8px; margin-bottom: 16px; width: 100%; }
     .controls select { flex: 1; padding: 12px; font-size: 0.85rem; background: var(--surface); border-radius: 20px; font-weight: 800; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); box-shadow: var(--clay-btn); }
 
-    /* Cartes 3D */
+    /* Cartes 3D Classiques */
     .item-card {
       background: var(--surface);
       border-radius: 30px;
@@ -497,11 +497,6 @@
     .badge-state { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--bg); color: var(--text); font-weight: 800; text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8); box-shadow: var(--clay-btn); }
     .badge-play { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-yellow); color: var(--clay-yellow-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
 
-    .badge-status { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; font-weight: 900; text-shadow: none; }
-    .badge-status.take { background: var(--clay-green); color: var(--clay-green-text); box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
-    .badge-status.think { background: var(--clay-yellow); color: var(--clay-yellow-text); box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
-    .badge-status.pass { background: var(--clay-pink); color: var(--clay-pink-text); box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); }
-
     .item-note {
       font-size: 0.78rem;
       background: var(--bg);
@@ -535,8 +530,6 @@
       box-shadow: var(--clay-btn);
     }
     .btn-market:active { box-shadow: var(--clay-inset); }
-    .btn-market.collector { color: var(--clay-yellow); }
-    .btn-market.discogs { color: var(--clay-purple); }
     .btn-market.pricecharting { color: var(--clay-purple); }
     
     .actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -555,8 +548,112 @@
     }
     .btn-action:active { box-shadow: var(--clay-inset); }
     .btn-edit { color: var(--clay-blue); }
-    .btn-transfer { color: var(--clay-green); }
     .btn-delete { color: var(--clay-pink); }
+
+    /* Styles pour la Frise Chronologique Horizontale en Tuiles (Swipe & Snap) */
+    .timeline-h-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 10px;
+    }
+    .timeline-h-section {
+      background: var(--surface);
+      border-radius: 28px;
+      padding: 16px;
+      box-shadow: var(--clay-card);
+    }
+    .timeline-h-year-title {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: var(--clay-yellow);
+      margin-bottom: 12px;
+      text-shadow: var(--text-pop);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .timeline-h-scroll {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .timeline-h-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    .timeline-h-scroll::-webkit-scrollbar-track {
+      background: var(--bg);
+      border-radius: 99px;
+    }
+    .timeline-h-scroll::-webkit-scrollbar-thumb {
+      background: var(--surface-elevated);
+      border-radius: 99px;
+    }
+
+    /* Carte Tuile Verticale Frise */
+    .tile-card {
+      background: var(--bg);
+      border-radius: 24px;
+      padding: 14px;
+      min-width: 170px;
+      max-width: 170px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-snap-align: start;
+      box-shadow: var(--clay-btn);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .tile-card:active {
+      transform: scale(0.97);
+    }
+    .tile-cover {
+      width: 100%;
+      height: 210px;
+      border-radius: 16px;
+      object-fit: cover;
+      background: var(--surface);
+      box-shadow: var(--clay-card);
+    }
+    .tile-cover-placeholder {
+      width: 100%;
+      height: 210px;
+      border-radius: 16px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      box-shadow: var(--clay-card);
+      color: var(--text-muted);
+    }
+    .tile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .tile-title {
+      font-size: 0.9rem;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: var(--text-pop);
+    }
+    .tile-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
     /* Fiche détaillée & Galerie */
     .detail-cover-large {
@@ -724,7 +821,7 @@
           </button>
           <label class="btn-image-action btn-photos">
             📷 Depuis Photos
-            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
+            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFileCompressed(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
           </label>
         </div>
         <input type="text" id="edit-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview')" onpaste="handleNativePaste(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
@@ -817,7 +914,7 @@
           </button>
           <label class="btn-image-action btn-photos">
             📷 Depuis Photos
-            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
+            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFileCompressed(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
           </label>
         </div>
         <input type="text" id="edit-c-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')" onpaste="handleNativePaste(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
@@ -927,7 +1024,7 @@
           </button>
           <label class="btn-image-action btn-photos">
             📷 Depuis Photos
-            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'w-image', 'w-preview-wrap', 'w-preview')">
+            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFileCompressed(event, 'w-image', 'w-preview-wrap', 'w-preview')">
           </label>
         </div>
         <input type="text" id="w-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')" onpaste="handleNativePaste(event, 'w-image', 'w-preview-wrap', 'w-preview')">
@@ -1011,6 +1108,16 @@
       <div class="platform-grid" id="platformBreakdownGrid"></div>
     </div>
 
+    <!-- Sélecteur de Vue (Liste vs Frise Horizontale en Tuiles) -->
+    <div class="month-filter-box" style="background:var(--bg); box-shadow:var(--clay-inset);">
+      <label for="c-viewMode">👁️ Mode d'affichage :</label>
+      <select id="c-viewMode" onchange="renderCollection()">
+        <option value="list">📋 Vue Liste classique</option>
+        <option value="timeline-release">🎞️ Frise Horizontale (Par Sortie)</option>
+        <option value="timeline-buy">🎞️ Frise Horizontale (Par Achat)</option>
+      </select>
+    </div>
+
     <form id="collectionForm">
       <div class="form-row">
         <input type="text" id="c-title" placeholder="Nom de l'objet possédé" required>
@@ -1081,7 +1188,7 @@
           </button>
           <label class="btn-image-action btn-photos">
             📷 Depuis Photos
-            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'c-image', 'c-preview-wrap', 'c-preview')">
+            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFileCompressed(event, 'c-image', 'c-preview-wrap', 'c-preview')">
           </label>
         </div>
         <input type="text" id="c-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')" onpaste="handleNativePaste(event, 'c-image', 'c-preview-wrap', 'c-preview')">
@@ -1096,7 +1203,7 @@
       <button type="submit" class="btn-add">+ Ajouter à la collection</button>
     </form>
 
-    <div class="controls">
+    <div class="controls" id="collectionFiltersBar">
       <select id="c-filterPlatform">
         <option value="all">Tous supports</option>
         <option value="PS5">PS5</option>
@@ -1104,8 +1211,8 @@
         <option value="Switch 2">Switch 2</option>
         <option value="3DS">3DS</option>
         <option value="DS">DS</option>
-        <option value="GBA">GBA</option>
-        <option value="GBC">GBC</option>
+        <option value="GBA">Game Boy Advance</option>
+        <option value="GBC">Game Boy Color</option>
         <option value="Vinyle">Vinyles</option>
         <option value="Blu-ray">Blu-ray</option>
         <option value="Vêtement">Vêtements</option>
@@ -1156,6 +1263,39 @@
     updateMonthFilterDropdowns();
     renderWishlist();
     renderCollection();
+  }
+
+  function handleImageFileCompressed(event, imageFieldId, wrapId, previewImgId) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_HEIGHT = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (height > MAX_HEIGHT) {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        document.getElementById(imageFieldId).value = compressedDataUrl;
+        updateImagePreview(imageFieldId, wrapId, previewImgId);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
   }
 
   function updateSearchButton(prefix, platform) {
@@ -1329,11 +1469,29 @@
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      const item = collection[currentDetailCollectionIndex];
-      if (!item.photos) item.photos = [];
-      item.photos.push(e.target.result);
-      saveData();
-      renderDetailGallery();
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_HEIGHT = 500;
+        let width = img.width;
+        let height = img.height;
+        if (height > MAX_HEIGHT) {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+        const item = collection[currentDetailCollectionIndex];
+        if (!item.photos) item.photos = [];
+        item.photos.push(compressedDataUrl);
+        saveData();
+        renderDetailGallery();
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
     event.target.value = '';
@@ -1395,8 +1553,24 @@
           const file = item.getAsFile();
           const reader = new FileReader();
           reader.onload = (event) => {
-            document.getElementById(inputFieldId).value = event.target.result;
-            updateImagePreview(inputFieldId, wrapId, previewImgId);
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const MAX_HEIGHT = 400;
+              let width = img.width;
+              let height = img.height;
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              document.getElementById(inputFieldId).value = canvas.toDataURL('image/jpeg', 0.8);
+              updateImagePreview(inputFieldId, wrapId, previewImgId);
+            };
+            img.src = event.target.result;
           };
           reader.readAsDataURL(file);
           return;
@@ -1406,28 +1580,9 @@
     setTimeout(() => updateImagePreview(inputFieldId, wrapId, previewImgId), 50);
   }
 
-  function handleImageFile(event, imageFieldId, wrapId, previewImgId) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      document.getElementById(imageFieldId).value = e.target.result;
-      updateImagePreview(imageFieldId, wrapId, previewImgId);
-    };
-    reader.readAsDataURL(file);
-    event.target.value = '';
-  }
-
   function clearImageField(imageFieldId, wrapId, previewImgId) {
     document.getElementById(imageFieldId).value = '';
     updateImagePreview(imageFieldId, wrapId, previewImgId);
-  }
-
-  function searchUsedMarketArgus(titleFieldId, platformFieldId) {
-    const title = document.getElementById(titleFieldId).value.trim();
-    const platform = document.getElementById(platformFieldId).value;
-    if (!title) { alert("Veuillez d'abord saisir le nom du titre."); return; }
-    window.open(`https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(title + ' ' + platform)}`, '_blank');
   }
 
   function openEditModal(index) {
@@ -1765,6 +1920,14 @@
     const storeF = document.getElementById('c-filterStore').value;
     const stateF = document.getElementById('c-filterState').value;
     const playF = document.getElementById('c-filterGameplay').value;
+    const viewMode = document.getElementById('c-viewMode').value;
+
+    const filtersBar = document.getElementById('collectionFiltersBar');
+    if (viewMode.startsWith('timeline')) {
+      filtersBar.style.display = 'none';
+    } else {
+      filtersBar.style.display = 'flex';
+    }
 
     const monthItems = collection.filter(i => {
       const itemYM = i.buyDate ? i.buyDate.substring(0, 7) : 'nodate';
@@ -1818,6 +1981,9 @@
       const matchState = (stateF === 'all' || i.state === stateF);
       const matchPlay = (playF === 'all' || i.gameplay === playF);
 
+      if (viewMode.startsWith('timeline')) {
+        return matchMonth;
+      }
       return matchMonth && matchPlat && matchStore && matchState && matchPlay;
     });
 
@@ -1833,72 +1999,134 @@
     const container = document.getElementById('collectionContainer');
     container.innerHTML = '';
 
-    filtered.forEach(item => {
-      const index = collection.indexOf(item);
-      const card = document.createElement('div');
-      card.className = 'item-card';
-      const valStr = item.price ? formatMoney(item.price) : 'Non estimé';
-      const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${item.store}</span>` : '';
-      const stateBadge = item.state ? `<span class="badge-state">${item.state}</span>` : '';
-      const playBadge = (item.gameplay && item.gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${item.gameplay}</span>` : '';
+    if (viewMode === 'list') {
+      filtered.forEach(item => {
+        const index = collection.indexOf(item);
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        
+        const valStr = item.price ? formatMoney(item.price) : 'Non estimé';
+        const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${item.store}</span>` : '';
+        const stateBadge = item.state ? `<span class="badge-state">${item.state}</span>` : '';
+        const playBadge = (item.gameplay && item.gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${item.gameplay}</span>` : '';
 
-      const coverHtml = item.image 
-        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">`
-        : `<div class="item-cover-placeholder">📦</div>`;
+        const coverHtml = item.image 
+          ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">`
+          : `<div class="item-cover-placeholder">📦</div>`;
 
-      let subtitle = '';
-      if (item.platform === 'Vinyle' && item.artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${item.artist}</div>`;
-      if (item.platform === 'Blu-ray' && item.director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">De ${item.director}</div>`;
+        let subtitle = '';
+        if (item.platform === 'Vinyle' && item.artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${item.artist}</div>`;
+        if (item.platform === 'Blu-ray' && item.director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">De ${item.director}</div>`;
 
-      let datesDisplay = [];
-      if (item.releaseDate) datesDisplay.push(`📅 Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
-      if (item.buyDate) datesDisplay.push(`🛒 Acheté : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
-      const datesStr = datesDisplay.length > 0 ? datesDisplay.join(' • ') : '📅 Dates non fixées';
+        let datesDisplay = [];
+        if (item.releaseDate) datesDisplay.push(`📅 Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
+        if (item.buyDate) datesDisplay.push(`🛒 Acheté : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
+        const datesStr = datesDisplay.length > 0 ? datesDisplay.join(' • ') : '📅 Dates non fixées';
 
-      const noteHtml = item.note ? `<div class="item-note">📝 ${item.note}</div>` : '';
+        const noteHtml = item.note ? `<div class="item-note">📝 ${item.note}</div>` : '';
 
-      const query = encodeURIComponent(`${item.title} ${item.platform}`);
-      const priceChartingUrl = `https://www.pricecharting.com/search-products?type=prices&q=${query}`;
-      const ebaySoldUrl = `https://www.ebay.fr/sch/i.html?_nkw=${query}&LH_Complete=1&LH_Sold=1`;
-      const leboncoinUrl = `https://www.leboncoin.fr/recherche?text=${query}`;
-      const vintedUrl = `https://www.vinted.fr/catalog?search_text=${query}`;
+        const query = encodeURIComponent(`${item.title} ${item.platform}`);
+        const priceChartingUrl = `https://www.pricecharting.com/search-products?type=prices&q=${query}`;
+        const ebaySoldUrl = `https://www.ebay.fr/sch/i.html?_nkw=${query}&LH_Complete=1&LH_Sold=1`;
+        const leboncoinUrl = `https://www.leboncoin.fr/recherche?text=${query}`;
+        const vintedUrl = `https://www.vinted.fr/catalog?search_text=${query}`;
 
-      card.innerHTML = `
-        ${coverHtml}
-        <div class="item-content" onclick="openCollectionDetail(${index})" style="cursor:pointer;">
-          <div class="card-header">
-            <div class="item-info">
-              <h3>${item.title}</h3>
-              ${subtitle}
-              <div class="item-meta">
-                <span class="badge">${item.platform}</span>
-                ${stateBadge}
-                ${playBadge}
-                ${storeBadge}
-                <span style="font-weight:900; color:var(--clay-yellow); text-shadow:var(--text-pop);">${valStr}</span>
+        card.innerHTML = `
+          ${coverHtml}
+          <div class="item-content" onclick="openCollectionDetail(${index})" style="cursor:pointer;">
+            <div class="card-header">
+              <div class="item-info">
+                <h3>${item.title}</h3>
+                ${subtitle}
+                <div class="item-meta">
+                  <span class="badge">${item.platform}</span>
+                  ${stateBadge}
+                  ${playBadge}
+                  ${storeBadge}
+                  <span style="font-weight:900; color:var(--clay-yellow); text-shadow:var(--text-pop);">${valStr}</span>
+                </div>
+                <div class="item-meta" style="margin-top:2px;">
+                  <span>${datesStr}</span>
+                </div>
+                ${noteHtml}
               </div>
-              <div class="item-meta" style="margin-top:2px;">
-                <span>${datesStr}</span>
+              <div class="actions" onclick="event.stopPropagation();">
+                <button class="btn-action btn-edit" title="Modifier" onclick="openEditCollectionModal(${index})">✏️</button>
+                <button class="btn-action btn-delete" title="Supprimer" onclick="deleteCollectionItem(${index})">✕</button>
               </div>
-              ${noteHtml}
             </div>
-            <div class="actions" onclick="event.stopPropagation();">
-              <button class="btn-action btn-edit" title="Modifier" onclick="openEditCollectionModal(${index})">✏️</button>
-              <button class="btn-action btn-delete" title="Supprimer" onclick="deleteCollectionItem(${index})">✕</button>
+
+            <div class="market-links" onclick="event.stopPropagation();">
+              <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Argus :</span>
+              <a class="btn-market pricecharting" href="${priceChartingUrl}" target="_blank">📈 PriceCharting</a>
+              <a class="btn-market" href="${ebaySoldUrl}" target="_blank">📊 eBay</a>
+              <a class="btn-market" href="${leboncoinUrl}" target="_blank">🟠 LBC</a>
+              <a class="btn-market" href="${vintedUrl}" target="_blank">🟢 Vinted</a>
             </div>
           </div>
+        `;
+        container.appendChild(card);
+      });
+    } else {
+      // Mode Frise Horizontale en Tuiles (Swipe & Snap)
+      const dateKey = (viewMode === 'timeline-release') ? 'releaseDate' : 'buyDate';
+      
+      const groups = {};
+      filtered.forEach(item => {
+        const d = item[dateKey];
+        const year = d ? d.substring(0, 4) : 'Non renseignée';
+        if (!groups[year]) groups[year] = [];
+        groups[year].push(item);
+      });
 
-          <div class="market-links" onclick="event.stopPropagation();">
-            <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Argus :</span>
-            <a class="btn-market pricecharting" href="${priceChartingUrl}" target="_blank">📈 PriceCharting</a>
-            <a class="btn-market" href="${ebaySoldUrl}" target="_blank">📊 eBay</a>
-            <a class="btn-market" href="${leboncoinUrl}" target="_blank">🟠 LBC</a>
-            <a class="btn-market" href="${vintedUrl}" target="_blank">🟢 Vinted</a>
-          </div>
-        </div>
-      `;
-      container.appendChild(card);
-    });
+      const sortedYears = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'timeline-h-wrapper';
+
+      sortedYears.forEach(year => {
+        const section = document.createElement('div');
+        section.className = 'timeline-h-section';
+
+        const title = document.createElement('div');
+        title.className = 'timeline-h-year-title';
+        title.textContent = year === 'Non renseignée' ? '📌 Sans date' : `🗓️ Année ${year}`;
+        section.appendChild(title);
+
+        const scrollContainer = document.createElement('div');
+        scrollContainer.className = 'timeline-h-scroll';
+
+        groups[year].forEach(item => {
+          const index = collection.indexOf(item);
+          const tile = document.createElement('div');
+          tile.className = 'tile-card';
+          tile.onclick = () => openCollectionDetail(index);
+
+          const coverHtml = item.image 
+            ? `<img src="${item.image}" class="tile-cover" alt="Jaquette" onerror="this.outerHTML='<div class=\\'tile-cover-placeholder\\'>📦</div>'">`
+            : `<div class="tile-cover-placeholder">📦</div>`;
+
+          const priceStr = item.price ? formatMoney(item.price) : '—';
+
+          tile.innerHTML = `
+            ${coverHtml}
+            <div class="tile-info">
+              <div class="tile-title">${item.title}</div>
+              <div class="tile-meta">
+                <span class="badge" style="font-size:0.65rem; padding:3px 8px;">${item.platform}</span>
+                <span style="font-weight:900; color:var(--clay-yellow);">${priceStr}</span>
+              </div>
+            </div>
+          `;
+          scrollContainer.appendChild(tile);
+        });
+
+        section.appendChild(scrollContainer);
+        wrapper.appendChild(section);
+      });
+
+      container.appendChild(wrapper);
+    }
   }
 
   // Wishlist Form Submit
@@ -1961,6 +2189,13 @@
   // Collection Form Submit
   document.getElementById('collectionForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    
+    const title = document.getElementById('c-title').value.trim();
+    if (!title) {
+      alert("Veuillez saisir un nom pour l'objet.");
+      return;
+    }
+
     const platform = document.getElementById('c-platform').value;
     let extraData = { platform };
     if (platform === 'Vinyle') {
@@ -1973,22 +2208,30 @@
       extraData.gameplay = document.getElementById('c-gameplay')?.value || 'Non commencé';
     }
 
-    collection.unshift({
-      title: document.getElementById('c-title').value.trim(),
+    const imageVal = document.getElementById('c-image').value.trim();
+
+    const newItem = {
+      title: title,
       price: document.getElementById('c-price').value,
       store: document.getElementById('c-store').value,
       state: document.getElementById('c-state').value,
       releaseDate: document.getElementById('c-releaseDate').value,
       buyDate: document.getElementById('c-buyDate').value,
-      image: document.getElementById('c-image').value.trim(),
+      image: imageVal,
       note: document.getElementById('c-note').value.trim(),
       photos: [],
       ...extraData
-    });
+    };
+
+    collection.unshift(newItem);
     saveData();
+
     e.target.reset();
     toggleFormFields('c-', document.getElementById('c-platform').value);
     clearImageField('c-image', 'c-preview-wrap', 'c-preview');
+    
+    document.getElementById('c-viewMode').value = 'list';
+    renderCollection();
   });
 
   function deleteCollectionItem(index) { collection.splice(index, 1); saveData(); }
