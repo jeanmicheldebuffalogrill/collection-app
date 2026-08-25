@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wishlist & Collection</title>
+  <title>Wishlist & Collection Multimédia</title>
 
   <!-- PWA & Icône iPhone -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -11,9 +11,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Collection">
-
-  <!-- Scanner de code-barres -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
     :root {
@@ -250,17 +247,6 @@
       font-weight: 700;
       font-size: 1.05rem;
     }
-    #scanner-container { width: 100%; max-width: 380px; background: #000; border-radius: 16px; overflow: hidden; }
-    .btn-close-scan {
-      margin-top: 16px;
-      background: var(--red);
-      color: white;
-      border: none;
-      padding: 11px 22px;
-      border-radius: 99px;
-      font-weight: 600;
-      cursor: pointer;
-    }
 
     /* Formulaires */
     form {
@@ -303,49 +289,7 @@
       font-family: inherit;
     }
 
-    .input-with-btn {
-      position: relative;
-      display: flex;
-      align-items: center;
-      width: 100%;
-    }
-    .input-with-btn input {
-      padding-right: 44px;
-      width: 100%;
-    }
-    .input-with-btn .btn-inside {
-      position: absolute;
-      right: 5px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 34px;
-      height: 32px;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 9px;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-
-    .input-with-btn.btn-text input {
-      padding-right: 85px;
-    }
-    .input-with-btn.btn-text .btn-inside {
-      width: auto;
-      padding: 0 10px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      background: #ff5e3a;
-      color: #fff;
-      border: none;
-      border-radius: 9px;
-    }
-
-    button.btn-add {
+    .btn-add {
       background: var(--accent);
       border: none;
       font-weight: 600;
@@ -355,16 +299,17 @@
       margin-top: 4px;
       transition: background 0.2s, transform 0.1s;
     }
-    button.btn-add:active { transform: scale(0.98); background: var(--accent-hover); }
+    .btn-add:active { transform: scale(0.98); background: var(--accent-hover); }
 
     .image-picker-bar {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: var(--surface-elevated);
       padding: 6px;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,0.08);
+      flex-wrap: wrap;
     }
     .image-preview-thumb {
       width: 40px;
@@ -377,8 +322,8 @@
       cursor: pointer;
     }
     .btn-img-tool {
-      padding: 7px 12px;
-      font-size: 0.76rem;
+      padding: 7px 10px;
+      font-size: 0.74rem;
       font-weight: 600;
       border: none;
       background: rgba(255,255,255,0.06);
@@ -393,13 +338,13 @@
       transition: background 0.2s;
     }
     .btn-img-tool:hover { background: rgba(255,255,255,0.12); }
-    .btn-img-google { background: rgba(10, 132, 255, 0.2); color: #64b5f6; }
+    .btn-img-google { background: rgba(10, 132, 255, 0.2); color: #64b5f6; flex: 1; }
 
     /* Filtres */
     .controls { display: flex; gap: 8px; margin-bottom: 14px; width: 100%; }
     .controls select { flex: 1; padding: 8px 10px; font-size: 0.82rem; background: var(--surface); border-radius: 12px; }
 
-    /* Cartes - Système Traditionnel Épuré */
+    /* Cartes */
     .item-card {
       background: var(--surface);
       border: 1px solid rgba(255,255,255,0.06);
@@ -620,11 +565,7 @@
       
       <div id="detail-meta" style="font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:2px;"></div>
 
-      <div style="text-align:left; margin-top:8px; background:var(--surface); padding:12px; border-radius:16px; display:flex; flex-direction:column; gap:6px; font-size:0.82rem;">
-        <div id="detail-info-store"></div>
-        <div id="detail-info-dates"></div>
-        <div id="detail-info-gameplay"></div>
-      </div>
+      <div style="text-align:left; margin-top:8px; background:var(--surface); padding:12px; border-radius:16px; display:flex; flex-direction:column; gap:6px; font-size:0.82rem;" id="detail-dynamic-infos"></div>
       
       <div style="text-align:left; margin-top:8px; background:var(--surface); padding:12px; border-radius:16px;">
         <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase;">Galerie Photos</div>
@@ -655,21 +596,27 @@
       <input type="text" id="edit-title" placeholder="Nom du produit" required>
       
       <div class="form-row">
-        <select id="edit-platform">
-          <option value="PS5">PlayStation 5</option>
-          <option value="Switch">Nintendo Switch</option>
-          <option value="Switch 2">Nintendo Switch 2</option>
-          <option value="3DS">3DS</option>
-          <option value="DS">DS</option>
-          <option value="GBA">Game Boy Advance</option>
-          <option value="GBC">Game Boy Color</option>
-          <option value="Vinyle">🎵 Vinyle</option>
-          <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-          <option value="Vêtement">👕 Vêtement</option>
-          <option value="Autre">📦 Autre</option>
+        <select id="edit-platform" onchange="toggleFormFields('edit-', this.value)">
+          <optgroup label="Jeux Vidéo">
+            <option value="PS5">PlayStation 5</option>
+            <option value="Switch">Nintendo Switch</option>
+            <option value="Switch 2">Nintendo Switch 2</option>
+            <option value="3DS">3DS</option>
+            <option value="DS">DS</option>
+            <option value="GBA">Game Boy Advance</option>
+            <option value="GBC">Game Boy Color</option>
+          </optgroup>
+          <optgroup label="Autres Médias">
+            <option value="Vinyle">🎵 Vinyle</option>
+            <option value="Blu-ray">🎬 Blu-ray / 4K</option>
+            <option value="Vêtement">👕 Vêtement</option>
+            <option value="Autre">📦 Autre</option>
+          </optgroup>
         </select>
         <input type="number" id="edit-price" placeholder="Prix (€)" step="0.01">
       </div>
+
+      <div id="edit-dynamic-fields"></div>
 
       <div class="form-row">
         <select id="edit-store">
@@ -690,8 +637,12 @@
       <input type="hidden" id="edit-image">
       <div class="image-picker-bar">
         <img id="edit-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
-        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">🔍 Chercher la jaquette sur Google</button>
+        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">🔍 Google</button>
         <button type="button" class="btn-img-tool" onclick="pasteImageToField('edit-image', 'edit-preview')">📋 Coller</button>
+        <label class="btn-img-tool" title="Choisir depuis les fichiers">
+          📁 Fichier
+          <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-image', 'edit-preview')">
+        </label>
         <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('edit-image', 'edit-preview')">✕</button>
       </div>
 
@@ -716,21 +667,27 @@
       <input type="text" id="edit-c-title" placeholder="Nom du produit" required>
       
       <div class="form-row">
-        <select id="edit-c-platform">
-          <option value="PS5">PlayStation 5</option>
-          <option value="Switch">Nintendo Switch</option>
-          <option value="Switch 2">Nintendo Switch 2</option>
-          <option value="3DS">3DS</option>
-          <option value="DS">DS</option>
-          <option value="GBA">Game Boy Advance</option>
-          <option value="GBC">Game Boy Color</option>
-          <option value="Vinyle">🎵 Vinyle</option>
-          <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-          <option value="Vêtement">👕 Vêtement</option>
-          <option value="Autre">📦 Autre</option>
+        <select id="edit-c-platform" onchange="toggleFormFields('edit-c-', this.value)">
+          <optgroup label="Jeux Vidéo">
+            <option value="PS5">PlayStation 5</option>
+            <option value="Switch">Nintendo Switch</option>
+            <option value="Switch 2">Nintendo Switch 2</option>
+            <option value="3DS">3DS</option>
+            <option value="DS">DS</option>
+            <option value="GBA">Game Boy Advance</option>
+            <option value="GBC">Game Boy Color</option>
+          </optgroup>
+          <optgroup label="Autres Médias">
+            <option value="Vinyle">🎵 Vinyle</option>
+            <option value="Blu-ray">🎬 Blu-ray / 4K</option>
+            <option value="Vêtement">👕 Vêtement</option>
+            <option value="Autre">📦 Autre</option>
+          </optgroup>
         </select>
         <input type="number" id="edit-c-price" placeholder="Valeur (€)" step="0.01">
       </div>
+
+      <div id="edit-c-dynamic-fields"></div>
 
       <div class="form-row">
         <select id="edit-c-store">
@@ -767,33 +724,19 @@
       <input type="hidden" id="edit-c-image">
       <div class="image-picker-bar">
         <img id="edit-c-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
-        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-c-title', 'edit-c-platform')">🔍 Chercher la jaquette sur Google</button>
+        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-c-title', 'edit-c-platform')">🔍 Google</button>
         <button type="button" class="btn-img-tool" onclick="pasteImageToField('edit-c-image', 'edit-c-preview')">📋 Coller</button>
+        <label class="btn-img-tool" title="Choisir depuis les fichiers">
+          📁 Fichier
+          <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-c-image', 'edit-c-preview')">
+        </label>
         <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('edit-c-image', 'edit-c-preview')">✕</button>
-      </div>
-
-      <div>
-        <label style="font-size:0.7rem; color:var(--text-muted);">Progression :</label>
-        <select id="edit-c-gameplay">
-          <option value="Non commencé">⏳ Non commencé</option>
-          <option value="En cours">🎮 En cours</option>
-          <option value="Terminé">🏆 Terminé</option>
-          <option value="Non applicable">⚪ Non applicable</option>
-        </select>
       </div>
 
       <textarea id="edit-c-note" placeholder="Notes & commentaires..."></textarea>
 
       <button type="button" class="btn-add" onclick="saveCollectionEdit()">Enregistrer</button>
     </div>
-  </div>
-
-  <!-- Modal Scanner -->
-  <div id="scanner-modal" class="modal-overlay" style="flex-direction: column;">
-    <div id="scanner-container">
-      <div id="reader"></div>
-    </div>
-    <button class="btn-close-scan" onclick="stopScanner()">Fermer le scan</button>
   </div>
 
   <div class="header-bar">
@@ -832,24 +775,27 @@
     </div>
 
     <form id="wishlistForm">
-      <div class="input-with-btn">
-        <input type="text" id="w-title" placeholder="Nom du jeu, vinyle, vêtement..." required>
-        <button type="button" class="btn-inside" title="Scanner le code-barres" onclick="startScanner('w-title', 'w-image', 'w-preview')">📷</button>
+      <div class="form-row">
+        <input type="text" id="w-title" placeholder="Nom du produit..." required>
       </div>
 
       <div class="form-row">
-        <select id="w-platform" required>
-          <option value="PS5">PlayStation 5</option>
-          <option value="Switch">Nintendo Switch</option>
-          <option value="Switch 2">Nintendo Switch 2</option>
-          <option value="3DS">3DS</option>
-          <option value="DS">DS</option>
-          <option value="GBA">Game Boy Advance</option>
-          <option value="GBC">Game Boy Color</option>
-          <option value="Vinyle">🎵 Vinyle</option>
-          <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-          <option value="Vêtement">👕 Vêtement</option>
-          <option value="Autre">📦 Autre</option>
+        <select id="w-platform" onchange="toggleFormFields('w-', this.value)">
+          <optgroup label="Jeux Vidéo">
+            <option value="PS5">PlayStation 5</option>
+            <option value="Switch">Nintendo Switch</option>
+            <option value="Switch 2">Nintendo Switch 2</option>
+            <option value="3DS">3DS</option>
+            <option value="DS">DS</option>
+            <option value="GBA">Game Boy Advance</option>
+            <option value="GBC">Game Boy Color</option>
+          </optgroup>
+          <optgroup label="Autres Médias">
+            <option value="Vinyle">🎵 Vinyle</option>
+            <option value="Blu-ray">🎬 Blu-ray / 4K</option>
+            <option value="Vêtement">👕 Vêtement</option>
+            <option value="Autre">📦 Autre</option>
+          </optgroup>
         </select>
         
         <div class="input-with-btn btn-text">
@@ -857,6 +803,9 @@
           <button type="button" class="btn-inside" onclick="searchEditionCollector('w-title')">🏆 Préco</button>
         </div>
       </div>
+
+      <!-- Champs dynamiques Wishlist -->
+      <div id="w-dynamic-fields"></div>
 
       <div class="form-row">
         <select id="w-store">
@@ -877,8 +826,12 @@
       <input type="hidden" id="w-image">
       <div class="image-picker-bar">
         <img id="w-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
-        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">🔍 Chercher la jaquette sur Google</button>
+        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">🔍 Chercher sur Google</button>
         <button type="button" class="btn-img-tool" onclick="pasteImageToField('w-image', 'w-preview')">📋 Coller</button>
+        <label class="btn-img-tool" title="Choisir depuis les fichiers">
+          📁 Fichier
+          <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'w-image', 'w-preview')">
+        </label>
         <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('w-image', 'w-preview')">✕</button>
       </div>
 
@@ -957,24 +910,27 @@
     </div>
 
     <form id="collectionForm">
-      <div class="input-with-btn">
+      <div class="form-row">
         <input type="text" id="c-title" placeholder="Nom de l'objet possédé" required>
-        <button type="button" class="btn-inside" title="Scanner le code-barres" onclick="startScanner('c-title', 'c-image', 'c-preview')">📷</button>
       </div>
 
       <div class="form-row">
-        <select id="c-platform" required>
-          <option value="PS5">PlayStation 5</option>
-          <option value="Switch">Nintendo Switch</option>
-          <option value="Switch 2">Nintendo Switch 2</option>
-          <option value="3DS">3DS</option>
-          <option value="DS">DS</option>
-          <option value="GBA">Game Boy Advance</option>
-          <option value="GBC">Game Boy Color</option>
-          <option value="Vinyle">🎵 Vinyle</option>
-          <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-          <option value="Vêtement">👕 Vêtement</option>
-          <option value="Autre">📦 Autre</option>
+        <select id="c-platform" onchange="toggleFormFields('c-', this.value)">
+          <optgroup label="Jeux Vidéo">
+            <option value="PS5">PlayStation 5</option>
+            <option value="Switch">Nintendo Switch</option>
+            <option value="Switch 2">Nintendo Switch 2</option>
+            <option value="3DS">3DS</option>
+            <option value="DS">DS</option>
+            <option value="GBA">Game Boy Advance</option>
+            <option value="GBC">Game Boy Color</option>
+          </optgroup>
+          <optgroup label="Autres Médias">
+            <option value="Vinyle">🎵 Vinyle</option>
+            <option value="Blu-ray">🎬 Blu-ray / 4K</option>
+            <option value="Vêtement">👕 Vêtement</option>
+            <option value="Autre">📦 Autre</option>
+          </optgroup>
         </select>
         
         <div class="input-with-btn btn-text" style="--accent:#4338ca;">
@@ -982,6 +938,9 @@
           <button type="button" class="btn-inside" style="background:#312e81; color:#c7d2fe;" onclick="searchUsedMarketArgus('c-title', 'c-platform')">🔍 Argus</button>
         </div>
       </div>
+
+      <!-- Champs dynamiques Collection -->
+      <div id="c-dynamic-fields"></div>
 
       <div class="form-row">
         <select id="c-store">
@@ -1018,19 +977,13 @@
       <input type="hidden" id="c-image">
       <div class="image-picker-bar">
         <img id="c-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
-        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">🔍 Chercher la jaquette sur Google</button>
+        <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">🔍 Google</button>
         <button type="button" class="btn-img-tool" onclick="pasteImageToField('c-image', 'c-preview')">📋 Coller</button>
+        <label class="btn-img-tool" title="Choisir depuis les fichiers">
+          📁 Fichier
+          <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'c-image', 'c-preview')">
+        </label>
         <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('c-image', 'c-preview')">✕</button>
-      </div>
-
-      <div>
-        <label style="font-size:0.7rem; color:var(--text-muted);">Progression :</label>
-        <select id="c-gameplay">
-          <option value="Non commencé">⏳ Non commencé</option>
-          <option value="En cours">🎮 En cours</option>
-          <option value="Terminé">🏆 Terminé</option>
-          <option value="Non applicable">⚪ Non applicable</option>
-        </select>
       </div>
 
       <textarea id="c-note" placeholder="Notes & commentaires..."></textarea>
@@ -1084,13 +1037,8 @@
 </div>
 
 <script>
-  let wishlist = JSON.parse(localStorage.getItem('app_wishlist_v5')) || [];
-  let collection = JSON.parse(localStorage.getItem('app_collection_v5')) || [];
-  let html5QrCode = null;
-  let targetInputId = null;
-  let targetImageInputId = null;
-  let targetPreviewId = null;
-
+  let wishlist = JSON.parse(localStorage.getItem('app_wishlist_v7')) || [];
+  let collection = JSON.parse(localStorage.getItem('app_collection_v7')) || [];
   let currentDetailCollectionIndex = null;
 
   function formatMoney(amount) {
@@ -1098,14 +1046,56 @@
   }
 
   function saveData() {
-    localStorage.setItem('app_wishlist_v5', JSON.stringify(wishlist));
-    localStorage.setItem('app_collection_v5', JSON.stringify(collection));
+    localStorage.setItem('app_wishlist_v7', JSON.stringify(wishlist));
+    localStorage.setItem('app_collection_v7', JSON.stringify(collection));
     updateMonthFilterDropdowns();
     renderWishlist();
     renderCollection();
   }
 
-  // --- LIGHTBOX PLEIN ÉCRAN ---
+  // --- GESTION DES CHAMPS DYNAMIQUES ---
+  function getDynamicFieldsHtml(prefix, platform, data = {}) {
+    if (platform === 'Vinyle') {
+      return `
+        <div class="form-row">
+          <input type="text" id="${prefix}artist" placeholder="Artiste / Groupe" value="${data.artist || ''}">
+          <input type="text" id="${prefix}edition" placeholder="Édition (ex. Gatefold, Coloré...)" value="${data.edition || ''}">
+        </div>
+      `;
+    } else if (platform === 'Blu-ray') {
+      return `
+        <div class="form-row">
+          <input type="text" id="${prefix}director" placeholder="Réalisateur" value="${data.director || ''}">
+          <input type="text" id="${prefix}actors" placeholder="Acteurs principaux" value="${data.actors || ''}">
+        </div>
+      `;
+    } else {
+      return `
+        <div>
+          <select id="${prefix}gameplay">
+            <option value="Non commencé" ${data.gameplay === 'Non commencé' ? 'selected' : ''}>⏳ Non commencé</option>
+            <option value="En cours" ${data.gameplay === 'En cours' ? 'selected' : ''}>🎮 En cours</option>
+            <option value="Terminé" ${data.gameplay === 'Terminé' ? 'selected' : ''}>🏆 Terminé</option>
+            <option value="Non applicable" ${data.gameplay === 'Non applicable' ? 'selected' : ''}>⚪ Non applicable</option>
+          </select>
+        </div>
+      `;
+    }
+  }
+
+  function toggleFormFields(prefix, platform) {
+    const container = document.getElementById(prefix + 'dynamic-fields');
+    if (container) {
+      container.innerHTML = getDynamicFieldsHtml(prefix, platform);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    toggleFormFields('w-', document.getElementById('w-platform').value);
+    toggleFormFields('c-', document.getElementById('c-platform').value);
+  });
+
+  // --- LIGHTBOX ---
   function openLightbox(imgSrc) {
     if (!imgSrc) return;
     document.getElementById('lightbox-img').src = imgSrc;
@@ -1135,14 +1125,23 @@
       <span style="font-weight:600; color:var(--purple);">${item.price ? formatMoney(item.price) : 'Non estimé'}</span>
     `;
 
-    document.getElementById('detail-info-store').innerHTML = `<strong>Acheté chez :</strong> ${item.store || 'Non renseigné'}`;
-    
+    let specificInfoHtml = `<div><strong>Acheté chez :</strong> ${item.store || 'Non renseigné'}</div>`;
+    if (item.platform === 'Vinyle') {
+      if (item.artist) specificInfoHtml += `<div><strong>Artiste :</strong> ${item.artist}</div>`;
+      if (item.edition) specificInfoHtml += `<div><strong>Édition :</strong> ${item.edition}</div>`;
+    } else if (item.platform === 'Blu-ray') {
+      if (item.director) specificInfoHtml += `<div><strong>Réalisateur :</strong> ${item.director}</div>`;
+      if (item.actors) specificInfoHtml += `<div><strong>Acteurs :</strong> ${item.actors}</div>`;
+    } else {
+      if (item.gameplay) specificInfoHtml += `<div><strong>Progression :</strong> ${item.gameplay}</div>`;
+    }
+
     let datesDisplay = [];
     if (item.releaseDate) datesDisplay.push(`Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
     if (item.buyDate) datesDisplay.push(`Achat : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
-    document.getElementById('detail-info-dates').innerHTML = `<strong>Dates :</strong> ${datesDisplay.length > 0 ? datesDisplay.join(' • ') : 'Non fixées'}`;
+    specificInfoHtml += `<div><strong>Dates :</strong> ${datesDisplay.length > 0 ? datesDisplay.join(' • ') : 'Non fixées'}</div>`;
 
-    document.getElementById('detail-info-gameplay').innerHTML = `<strong>Progression :</strong> ${item.gameplay || 'Non commencé'}`;
+    document.getElementById('detail-dynamic-infos').innerHTML = specificInfoHtml;
 
     const notesEl = document.getElementById('detail-notes-container');
     notesEl.innerHTML = item.note ? `<strong>Notes :</strong> ${item.note}` : '<em>Aucune note enregistrée.</em>';
@@ -1202,7 +1201,7 @@
     event.target.value = '';
   }
 
-  // --- GOOGLE IMAGES ---
+  // --- GOOGLE IMAGES & FICHIERS ---
   function openGoogleImagesTab(titleFieldId, platformFieldId) {
     const title = document.getElementById(titleFieldId).value.trim();
     const platform = document.getElementById(platformFieldId).value;
@@ -1212,7 +1211,11 @@
       return;
     }
 
-    const query = encodeURIComponent(`jaquette ${title} ${platform !== 'Autre' ? platform : ''}`);
+    let keyword = 'jaquette';
+    if (platform === 'Vinyle') keyword = 'pochette vinyle';
+    if (platform === 'Blu-ray') keyword = 'jaquette blu-ray';
+
+    const query = encodeURIComponent(`${keyword} ${title} ${platform !== 'Autre' ? platform : ''}`);
     window.open(`https://www.google.com/search?tbm=isch&q=${query}`, '_blank');
   }
 
@@ -1242,7 +1245,7 @@
         prev.style.display = 'block';
         return;
       }
-      alert("Aucune image trouvée dans le presse-papier. Assurez-vous d'avoir fait 'Copier l'image' sur Google.");
+      alert("Aucune image trouvée dans le presse-papier.");
     } catch (err) {
       const url = prompt("Collez l'adresse de l'image ici :");
       if (url) {
@@ -1252,6 +1255,20 @@
         prev.style.display = 'block';
       }
     }
+  }
+
+  function handleImageFile(event, imageFieldId, previewImgId) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById(imageFieldId).value = e.target.result;
+      const prev = document.getElementById(previewImgId);
+      prev.src = e.target.result;
+      prev.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
   }
 
   function clearImageField(imageFieldId, previewImgId) {
@@ -1274,81 +1291,24 @@
     window.open(`https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(title + ' ' + platform)}`, '_blank');
   }
 
-  function startScanner(targetField, imageField, previewField) {
-    targetInputId = targetField;
-    targetImageInputId = imageField;
-    targetPreviewId = previewField;
-    document.getElementById('scanner-modal').style.display = 'flex';
-
-    html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 250, height: 150 } },
-      async (decodedText) => {
-        stopScanner();
-        const inputField = document.getElementById(targetInputId);
-        const imageFieldEl = targetImageInputId ? document.getElementById(targetImageInputId) : null;
-        const previewEl = targetPreviewId ? document.getElementById(targetPreviewId) : null;
-
-        inputField.value = "Recherche...";
-
-        const cleanCode = decodedText.trim();
-        let foundTitle = null;
-        let foundImage = null;
-
-        try {
-          const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${cleanCode}.json`);
-          const data = await res.json();
-          if (data.status === 1 && data.product && data.product.product_name) {
-            foundTitle = data.product.product_name;
-            foundImage = data.product.image_url;
-          }
-        } catch (e) {}
-
-        if (!foundTitle) {
-          try {
-            const resMusic = await fetch(`https://musicbrainz.org/ws/2/release/?query=barcode:${cleanCode}&fmt=json`);
-            const dataMusic = await resMusic.json();
-            if (dataMusic.releases && dataMusic.releases.length > 0) {
-              const rel = dataMusic.releases[0];
-              foundTitle = `${rel['artist-credit']?.[0]?.name || ''} - ${rel.title}`;
-              foundImage = `https://coverartarchive.org/release/${rel.id}/front-250`;
-            }
-          } catch (e) {}
-        }
-
-        inputField.value = foundTitle || cleanCode;
-        if (foundImage && imageFieldEl) {
-          imageFieldEl.value = foundImage;
-          if (previewEl) { previewEl.src = foundImage; previewEl.style.display = 'block'; }
-        }
-      },
-      () => {}
-    ).catch(() => {
-      alert("Erreur accès caméra.");
-      stopScanner();
-    });
-  }
-
-  function stopScanner() {
-    if (html5QrCode) {
-      html5QrCode.stop().then(() => {
-        html5QrCode.clear();
-        document.getElementById('scanner-modal').style.display = 'none';
-      }).catch(() => {
-        document.getElementById('scanner-modal').style.display = 'none';
-      });
-    } else {
-      document.getElementById('scanner-modal').style.display = 'none';
-    }
-  }
-
   function openEditModal(index) {
     const item = wishlist[index];
     document.getElementById('edit-index').value = index;
     document.getElementById('edit-title').value = item.title;
     document.getElementById('edit-platform').value = item.platform;
     document.getElementById('edit-price').value = item.price || '';
+
+    toggleFormFields('edit-', item.platform);
+    if (item.platform === 'Vinyle') {
+      if(document.getElementById('edit-artist')) document.getElementById('edit-artist').value = item.artist || '';
+      if(document.getElementById('edit-edition')) document.getElementById('edit-edition').value = item.edition || '';
+    } else if (item.platform === 'Blu-ray') {
+      if(document.getElementById('edit-director')) document.getElementById('edit-director').value = item.director || '';
+      if(document.getElementById('edit-actors')) document.getElementById('edit-actors').value = item.actors || '';
+    } else {
+      if(document.getElementById('edit-gameplay')) document.getElementById('edit-gameplay').value = item.gameplay || 'Non commencé';
+    }
+
     document.getElementById('edit-store').value = item.store || 'Non renseigné';
     document.getElementById('edit-releaseDate').value = item.releaseDate || '';
     document.getElementById('edit-image').value = item.image || '';
@@ -1367,14 +1327,27 @@
     const index = parseInt(document.getElementById('edit-index').value, 10);
     if (isNaN(index) || !wishlist[index]) return;
 
+    const platform = document.getElementById('edit-platform').value;
+    let extraData = { platform };
+    if (platform === 'Vinyle') {
+      extraData.artist = document.getElementById('edit-artist').value.trim();
+      extraData.edition = document.getElementById('edit-edition').value.trim();
+    } else if (platform === 'Blu-ray') {
+      extraData.director = document.getElementById('edit-director').value.trim();
+      extraData.actors = document.getElementById('edit-actors').value.trim();
+    } else {
+      extraData.gameplay = document.getElementById('edit-gameplay').value;
+    }
+
     wishlist[index] = {
+      ...wishlist[index],
       title: document.getElementById('edit-title').value.trim(),
-      platform: document.getElementById('edit-platform').value,
       price: document.getElementById('edit-price').value,
       store: document.getElementById('edit-store').value,
       releaseDate: document.getElementById('edit-releaseDate').value,
       image: document.getElementById('edit-image').value.trim(),
-      status: document.getElementById('edit-status').value
+      status: document.getElementById('edit-status').value,
+      ...extraData
     };
 
     closeEditModal();
@@ -1387,6 +1360,18 @@
     document.getElementById('edit-c-title').value = item.title;
     document.getElementById('edit-c-platform').value = item.platform;
     document.getElementById('edit-c-price').value = item.price || '';
+
+    toggleFormFields('edit-c-', item.platform);
+    if (item.platform === 'Vinyle') {
+      if(document.getElementById('edit-c-artist')) document.getElementById('edit-c-artist').value = item.artist || '';
+      if(document.getElementById('edit-c-edition')) document.getElementById('edit-c-edition').value = item.edition || '';
+    } else if (item.platform === 'Blu-ray') {
+      if(document.getElementById('edit-c-director')) document.getElementById('edit-c-director').value = item.director || '';
+      if(document.getElementById('edit-c-actors')) document.getElementById('edit-c-actors').value = item.actors || '';
+    } else {
+      if(document.getElementById('edit-c-gameplay')) document.getElementById('edit-c-gameplay').value = item.gameplay || 'Non commencé';
+    }
+
     document.getElementById('edit-c-store').value = item.store || 'Non renseigné';
     document.getElementById('edit-c-state').value = item.state || '✨ Neuf sous blister';
     document.getElementById('edit-c-releaseDate').value = item.releaseDate || '';
@@ -1397,7 +1382,6 @@
     if (item.image) { prev.src = item.image; prev.style.display = 'block'; }
     else { prev.src = ''; prev.style.display = 'none'; }
 
-    document.getElementById('edit-c-gameplay').value = item.gameplay || 'Non commencé';
     document.getElementById('edit-c-note').value = item.note || '';
     document.getElementById('edit-collection-modal').style.display = 'flex';
   }
@@ -1408,18 +1392,30 @@
     const index = parseInt(document.getElementById('edit-c-index').value, 10);
     if (isNaN(index) || !collection[index]) return;
 
+    const platform = document.getElementById('edit-c-platform').value;
+    let extraData = { platform };
+    if (platform === 'Vinyle') {
+      extraData.artist = document.getElementById('edit-c-artist').value.trim();
+      extraData.edition = document.getElementById('edit-c-edition').value.trim();
+    } else if (platform === 'Blu-ray') {
+      extraData.director = document.getElementById('edit-c-director').value.trim();
+      extraData.actors = document.getElementById('edit-c-actors').value.trim();
+    } else {
+      extraData.gameplay = document.getElementById('edit-c-gameplay').value;
+    }
+
     collection[index] = {
+      ...collection[index],
       title: document.getElementById('edit-c-title').value.trim(),
-      platform: document.getElementById('edit-c-platform').value,
       price: document.getElementById('edit-c-price').value,
       store: document.getElementById('edit-c-store').value,
       state: document.getElementById('edit-c-state').value,
       releaseDate: document.getElementById('edit-c-releaseDate').value,
       buyDate: document.getElementById('edit-c-buyDate').value,
       image: document.getElementById('edit-c-image').value.trim(),
-      gameplay: document.getElementById('edit-c-gameplay').value,
       note: document.getElementById('edit-c-note').value.trim(),
-      photos: collection[index].photos || []
+      photos: collection[index].photos || [],
+      ...extraData
     };
 
     closeEditCollectionModal();
@@ -1575,6 +1571,10 @@
         ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>🎮</div>'">`
         : `<div class="item-cover-placeholder">🎮</div>`;
 
+      let subtitle = '';
+      if (item.platform === 'Vinyle' && item.artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted);">${item.artist}</div>`;
+      if (item.platform === 'Blu-ray' && item.director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted);">De ${item.director}</div>`;
+
       const q = encodeURIComponent(`${item.title} ${item.platform}`);
       const ecUrl = `https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + item.title)}`;
       const leclercUrl = `https://www.e.leclerc/recherche?q=${q}`;
@@ -1587,6 +1587,7 @@
           <div class="card-header">
             <div class="item-info">
               <h3>${item.title}</h3>
+              ${subtitle}
               <div class="item-meta">
                 <span class="badge">${item.platform}</span>
                 <span class="badge-status ${badgeStatusClass}">${statusText}</span>
@@ -1705,6 +1706,10 @@
         ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>🎮</div>'">`
         : `<div class="item-cover-placeholder">🎮</div>`;
 
+      let subtitle = '';
+      if (item.platform === 'Vinyle' && item.artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted);">${item.artist}</div>`;
+      if (item.platform === 'Blu-ray' && item.director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted);">De ${item.director}</div>`;
+
       let datesDisplay = [];
       if (item.releaseDate) datesDisplay.push(`📅 Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
       if (item.buyDate) datesDisplay.push(`🛒 Acheté : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
@@ -1724,6 +1729,7 @@
           <div class="card-header">
             <div class="item-info">
               <h3>${item.title}</h3>
+              ${subtitle}
               <div class="item-meta">
                 <span class="badge">${item.platform}</span>
                 ${stateBadge}
@@ -1758,23 +1764,36 @@
   // Wishlist Form Submit
   document.getElementById('wishlistForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    const platform = document.getElementById('w-platform').value;
+    let extraData = { platform };
+    if (platform === 'Vinyle') {
+      extraData.artist = document.getElementById('w-artist')?.value.trim() || '';
+      extraData.edition = document.getElementById('w-edition')?.value.trim() || '';
+    } else if (platform === 'Blu-ray') {
+      extraData.director = document.getElementById('w-director')?.value.trim() || '';
+      extraData.actors = document.getElementById('w-actors')?.value.trim() || '';
+    } else {
+      extraData.gameplay = document.getElementById('w-gameplay')?.value || 'Non commencé';
+    }
+
     wishlist.unshift({
       title: document.getElementById('w-title').value.trim(),
-      platform: document.getElementById('w-platform').value,
       price: document.getElementById('w-price').value,
       store: document.getElementById('w-store').value,
       releaseDate: document.getElementById('w-releaseDate').value,
       image: document.getElementById('w-image').value.trim(),
-      status: document.getElementById('w-status').value
+      status: document.getElementById('w-status').value,
+      ...extraData
     });
     saveData();
     e.target.reset();
+    toggleFormFields('w-', document.getElementById('w-platform').value);
     clearImageField('w-image', 'w-preview');
   });
 
   function deleteWishlistItem(index) { wishlist.splice(index, 1); saveData(); }
 
-  // Transfert Wishlist -> Collection (Attribution de la date d'achat au jour de la sortie)
+  // Transfert Wishlist -> Collection
   function moveToCollection(index) {
     const item = wishlist[index];
     const acquisitionDate = item.releaseDate ? item.releaseDate : new Date().toISOString().slice(0, 10);
@@ -1788,9 +1807,13 @@
       releaseDate: item.releaseDate || '',
       buyDate: acquisitionDate,
       image: item.image || '',
-      gameplay: 'Non commencé',
       note: '',
-      photos: []
+      photos: [],
+      artist: item.artist || '',
+      edition: item.edition || '',
+      director: item.director || '',
+      actors: item.actors || '',
+      gameplay: item.gameplay || 'Non commencé'
     });
     wishlist.splice(index, 1);
     saveData();
@@ -1800,21 +1823,33 @@
   // Collection Form Submit
   document.getElementById('collectionForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    const platform = document.getElementById('c-platform').value;
+    let extraData = { platform };
+    if (platform === 'Vinyle') {
+      extraData.artist = document.getElementById('c-artist')?.value.trim() || '';
+      extraData.edition = document.getElementById('c-edition')?.value.trim() || '';
+    } else if (platform === 'Blu-ray') {
+      extraData.director = document.getElementById('c-director')?.value.trim() || '';
+      extraData.actors = document.getElementById('c-actors')?.value.trim() || '';
+    } else {
+      extraData.gameplay = document.getElementById('c-gameplay')?.value || 'Non commencé';
+    }
+
     collection.unshift({
       title: document.getElementById('c-title').value.trim(),
-      platform: document.getElementById('c-platform').value,
       price: document.getElementById('c-price').value,
       store: document.getElementById('c-store').value,
       state: document.getElementById('c-state').value,
       releaseDate: document.getElementById('c-releaseDate').value,
       buyDate: document.getElementById('c-buyDate').value,
       image: document.getElementById('c-image').value.trim(),
-      gameplay: document.getElementById('c-gameplay').value,
       note: document.getElementById('c-note').value.trim(),
-      photos: []
+      photos: [],
+      ...extraData
     });
     saveData();
     e.target.reset();
+    toggleFormFields('c-', document.getElementById('c-platform').value);
     clearImageField('c-image', 'c-preview');
   });
 
