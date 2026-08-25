@@ -399,76 +399,44 @@
     .controls { display: flex; gap: 8px; margin-bottom: 14px; width: 100%; }
     .controls select { flex: 1; padding: 8px 10px; font-size: 0.82rem; background: var(--surface); border-radius: 12px; }
 
-    /* EFFET PILE EN CASCADE (DECK STACK 3D) */
-    .stack-container {
-      display: flex;
-      flex-direction: column;
-      /* Remonte chaque carte de 30px pour les faire se chevaucher en cascade */
-      gap: 0;
-      max-height: 60vh;
-      overflow-y: auto;
-      padding: 10px 4px 40px 4px;
-      perspective: 1000px;
-    }
-    .stack-container::-webkit-scrollbar {
-      width: 4px;
-    }
-    .stack-container::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 99px;
-    }
-
-    /* Cartes effet Tuile Empilée */
+    /* Cartes - Système Traditionnel Épuré */
     .item-card {
       background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: 22px;
-      padding: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
       display: flex;
-      gap: 14px;
+      gap: 12px;
       width: 100%;
       border-left: 6px solid var(--border);
-      box-shadow: 0 -8px 20px rgba(0,0,0,0.6); /* Ombre vers le haut pour simuler la pile */
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
       cursor: pointer;
-      margin-top: -30px; /* Effet cascade magique : chaque carte glisse sous la précédente */
-      position: relative;
-      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), z-index 0.3s, box-shadow 0.3s;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    /* La toute première carte n'a pas besoin de remonter */
-    .item-card:first-child {
-      margin-top: 0;
-    }
-    /* Au survol, la carte se détache de la pile et passe au premier plan avec effet 3D */
-    .item-card:hover {
-      transform: translateY(-12px) scale(1.02);
-      z-index: 50;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.9);
-      border-color: rgba(255,255,255,0.3);
-    }
+    .item-card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
     
     .item-card.status-take { border-left-color: var(--green); }
     .item-card.status-think { border-left-color: var(--amber); }
     .item-card.status-pass { border-left-color: var(--red); }
 
     .item-cover {
-      width: 76px;
-      height: 102px;
-      border-radius: 16px;
+      width: 72px;
+      height: 96px;
+      border-radius: 14px;
       object-fit: cover;
       background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.08);
       flex-shrink: 0;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       cursor: pointer;
-      transition: transform 0.2s;
     }
-    .item-cover:hover { transform: scale(1.04); }
     .item-cover-placeholder {
-      width: 76px;
-      height: 102px;
-      border-radius: 16px;
+      width: 72px;
+      height: 96px;
+      border-radius: 14px;
       background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.08);
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -480,7 +448,7 @@
     .item-content {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       flex: 1;
       min-width: 0;
     }
@@ -493,7 +461,7 @@
     }
     .item-info { min-width: 0; flex: 1; }
     .item-info h3 { 
-      font-size: 1rem; 
+      font-size: 0.96rem; 
       font-weight: 600;
       margin-bottom: 4px; 
       white-space: nowrap; 
@@ -503,12 +471,12 @@
     }
     .item-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
     
-    .badge { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; background: rgba(99, 102, 241, 0.15); color: #a5b4fc; font-weight: 600; }
-    .badge-store { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; background: rgba(48, 209, 88, 0.15); color: #75fb9c; font-weight: 600; }
-    .badge-state { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; background: var(--surface-elevated); color: #d1d5db; border: 1px solid rgba(255,255,255,0.06); font-weight: 500; }
-    .badge-play { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; background: rgba(191, 90, 242, 0.15); color: #e879f9; font-weight: 600; }
+    .badge { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: rgba(99, 102, 241, 0.15); color: #a5b4fc; font-weight: 600; }
+    .badge-store { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: rgba(48, 209, 88, 0.15); color: #75fb9c; font-weight: 600; }
+    .badge-state { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: var(--surface-elevated); color: #d1d5db; border: 1px solid rgba(255,255,255,0.06); font-weight: 500; }
+    .badge-play { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: rgba(191, 90, 242, 0.15); color: #e879f9; font-weight: 600; }
 
-    .badge-status { padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 600; }
+    .badge-status { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 600; }
     .badge-status.take { background: rgba(48, 209, 88, 0.18); color: var(--green); }
     .badge-status.think { background: rgba(255, 214, 10, 0.18); color: var(--amber); }
     .badge-status.pass { background: rgba(255, 69, 58, 0.18); color: var(--red); }
@@ -956,7 +924,7 @@
       </select>
     </div>
 
-    <div class="stack-container" id="wishlistContainer"></div>
+    <div id="wishlistContainer"></div>
   </div>
 
   <!-- COLLECTION -->
@@ -1110,7 +1078,7 @@
       </select>
     </div>
 
-    <div class="stack-container" id="collectionContainer"></div>
+    <div id="collectionContainer"></div>
   </div>
 
 </div>
@@ -1806,7 +1774,7 @@
 
   function deleteWishlistItem(index) { wishlist.splice(index, 1); saveData(); }
 
-  // Transfert Wishlist -> Collection
+  // Transfert Wishlist -> Collection (Attribution de la date d'achat au jour de la sortie)
   function moveToCollection(index) {
     const item = wishlist[index];
     const acquisitionDate = item.releaseDate ? item.releaseDate : new Date().toISOString().slice(0, 10);
