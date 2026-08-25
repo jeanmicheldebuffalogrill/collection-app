@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wishlist & Collection Multimédia</title>
+  <title>Wishlist & Collection Clay 3D</title>
 
   <!-- PWA & Icône iPhone -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -14,22 +14,36 @@
 
   <style>
     :root {
-      --bg: #000000;
-      --surface: #121214;
-      --surface-elevated: #1c1c1e;
-      --surface-hover: #2c2c2e;
-      --accent: #0a84ff;
-      --accent-hover: #0071e3;
-      --text: #f5f5f7;
-      --text-muted: #8e8e93;
-      --border: #38383a;
-      --green: #30d158;
-      --amber: #ffd60a;
-      --red: #ff453a;
-      --purple: #bf5af2;
+      --bg: #161922;
+      --surface: #202534;
+      --surface-elevated: #293043;
+      --accent: #9d7fe5;
+      --accent-hover: #b39af3;
+      --text: #ffffff;
+      --text-muted: #9aa4b2;
+      
+      /* Couleurs Pastel Pâte à modeler (Clay) */
+      --clay-pink: #ffb5e8;
+      --clay-pink-text: #6b2253;
+      --clay-blue: #affcff;
+      --clay-blue-text: #0d5c63;
+      --clay-yellow: #fdfd96;
+      --clay-yellow-text: #615a07;
+      --clay-green: #bbf9af;
+      --clay-green-text: #1d5214;
+      --clay-purple: #e7c6ff;
+      --clay-purple-text: #481d66;
+
+      /* Effet 3D Pâte à modeler (Bombé + Relief profond) */
+      --clay-card: 16px 16px 35px rgba(0, 0, 0, 0.7), -10px -10px 25px rgba(45, 53, 77, 0.5), inset 4px 4px 8px rgba(255, 255, 255, 0.15), inset -4px -4px 8px rgba(0, 0, 0, 0.6);
+      --clay-btn: 8px 8px 18px rgba(0, 0, 0, 0.5), -6px -6px 14px rgba(45, 53, 77, 0.4), inset 3px 3px 6px rgba(255, 255, 255, 0.2), inset -3px -3px 6px rgba(0, 0, 0, 0.5);
+      --clay-inset: inset 6px 6px 12px rgba(0, 0, 0, 0.7), inset -6px -6px 12px rgba(45, 53, 77, 0.5);
+      
+      /* Effet texte gonflé / embossé */
+      --text-pop: 2px 2px 4px rgba(0, 0, 0, 0.9), -1px -1px 1px rgba(255, 255, 255, 0.25);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
     
     html, body {
       max-width: 100%;
@@ -39,11 +53,9 @@
     }
 
     body { 
-      padding: 16px; 
+      padding: 24px 16px; 
       display: flex; 
       justify-content: center;
-      padding-top: env(safe-area-inset-top, 16px);
-      padding-bottom: env(safe-area-inset-bottom, 16px);
     }
     
     .container { 
@@ -55,210 +67,215 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
       padding: 0 4px;
     }
     .header-bar h1 { 
-      font-size: 1.35rem; 
-      font-weight: 700; 
-      letter-spacing: -0.01em; 
+      font-size: 1.5rem; 
+      font-weight: 900; 
+      color: var(--text);
+      text-shadow: var(--text-pop);
+      letter-spacing: -0.02em; 
     }
     .btn-backup {
-      padding: 6px 12px;
-      font-size: 0.78rem;
-      background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: var(--text-muted);
+      padding: 10px 16px;
+      font-size: 0.8rem;
+      background: var(--surface);
+      border: none;
+      color: var(--text);
       border-radius: 99px;
       cursor: pointer;
-      font-weight: 500;
-      transition: background 0.2s;
+      font-weight: 800;
+      text-shadow: var(--text-pop);
+      box-shadow: var(--clay-btn);
+      transition: transform 0.15s;
     }
-    .btn-backup:hover { background: var(--surface-hover); color: var(--text); }
+    .btn-backup:active { box-shadow: var(--clay-inset); transform: scale(0.96); }
 
-    /* Onglets */
+    /* Onglets 3D */
     .tabs {
       display: flex;
-      background: var(--surface);
-      padding: 3px;
-      border-radius: 14px;
-      gap: 4px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(255,255,255,0.06);
+      background: #12151d;
+      padding: 8px;
+      border-radius: 30px;
+      gap: 12px;
+      margin-bottom: 24px;
+      box-shadow: var(--clay-inset);
     }
     .tab-btn {
       flex: 1;
-      padding: 9px 6px;
+      padding: 12px 10px;
       background: transparent;
       border: none;
       color: var(--text-muted);
-      border-radius: 11px;
-      font-weight: 600;
+      border-radius: 22px;
+      font-weight: 800;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       text-align: center;
-      transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      transition: all 0.2s ease;
     }
     .tab-btn.active { 
-      background: var(--surface-elevated); 
-      color: var(--text); 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      background: var(--surface); 
+      color: var(--clay-yellow); 
+      text-shadow: var(--text-pop);
+      box-shadow: var(--clay-btn);
     }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* Sélecteur Période / Budget */
+    /* Sélecteur Période / Budget 3D */
     .month-filter-box {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 12px;
+      margin-bottom: 16px;
       background: var(--surface);
-      padding: 10px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.06);
+      padding: 14px 18px;
+      border-radius: 26px;
+      box-shadow: var(--clay-card);
     }
     .month-filter-box label {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
       white-space: nowrap;
-      font-weight: 600;
+      font-weight: 800;
     }
     .month-filter-box select {
-      padding: 6px 10px;
-      font-size: 0.82rem;
-      background: var(--surface-elevated);
-      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      background: var(--bg);
+      border-radius: 16px;
       border: none;
       color: var(--text);
-      font-weight: 500;
+      font-weight: 800;
+      text-shadow: var(--text-pop);
+      box-shadow: var(--clay-inset);
     }
 
-    /* Résumés */
+    /* Résumés 3D */
     .summary-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 14px;
+      margin-bottom: 16px;
     }
     .summary-card {
       background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 20px;
-      padding: 12px;
+      border-radius: 30px;
+      padding: 18px;
       text-align: center;
+      box-shadow: var(--clay-card);
     }
-    .summary-card.confirmed { border-color: rgba(48, 209, 88, 0.25); }
-    .summary-card.pending { border-color: rgba(255, 214, 10, 0.25); }
-    .summary-card.value { border-color: rgba(191, 90, 242, 0.25); }
-    .summary-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 3px; font-weight: 500; }
-    .summary-amount { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
-    .amount-confirmed { color: var(--green); }
-    .amount-pending { color: var(--amber); }
-    .amount-value { color: var(--purple); }
+    .summary-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+    .summary-amount { font-size: 1.35rem; font-weight: 900; letter-spacing: -0.01em; text-shadow: var(--text-pop); }
+    .amount-confirmed { color: var(--clay-green); }
+    .amount-pending { color: var(--clay-yellow); }
+    .amount-value { color: var(--clay-purple); }
 
     /* Répartition par Plateforme */
     .platform-breakdown {
       background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 20px;
-      padding: 12px;
-      margin-bottom: 16px;
+      border-radius: 30px;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: var(--clay-card);
     }
     .platform-breakdown-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .platform-breakdown-title {
-      font-size: 0.72rem;
-      font-weight: 700;
+      font-size: 0.75rem;
+      font-weight: 900;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
     .btn-reset-chip {
-      font-size: 0.7rem;
-      background: var(--surface-elevated);
+      font-size: 0.72rem;
+      background: var(--bg);
       border: none;
-      color: var(--accent);
-      padding: 3px 8px;
+      color: var(--clay-blue);
+      padding: 5px 12px;
       border-radius: 99px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 800;
+      box-shadow: var(--clay-btn);
     }
     .platform-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 8px;
+      gap: 10px;
     }
     .platform-chip {
-      background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.04);
-      border-radius: 14px;
-      padding: 8px 10px;
+      background: var(--bg);
+      border-radius: 20px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: transform 0.15s ease, background 0.2s;
+      box-shadow: var(--clay-btn);
+      transition: transform 0.15s;
     }
-    .platform-chip:active { transform: scale(0.97); }
+    .platform-chip:active { box-shadow: var(--clay-inset); }
     .platform-chip.active {
-      border-color: var(--purple);
-      background: rgba(191, 90, 242, 0.12);
+      background: var(--clay-purple);
+      color: var(--clay-purple-text);
     }
-    .platform-chip-name { font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-    .platform-chip-value { font-size: 0.88rem; font-weight: 700; color: var(--purple); margin-top: 1px; }
-    .platform-chip-count { font-size: 0.68rem; color: var(--text-muted); }
+    .platform-chip-name { font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 800; }
+    .platform-chip-value { font-size: 0.95rem; font-weight: 900; color: var(--clay-yellow); margin-top: 2px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+    .platform-chip-count { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
 
-    /* Modals / Sheets */
+    /* Modals 3D */
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: rgba(10, 12, 18, 0.85);
+      backdrop-filter: blur(10px);
       z-index: 1000;
       align-items: center;
       justify-content: center;
       padding: 16px;
     }
     .modal-box {
-      background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 28px;
+      background: var(--surface);
+      border-radius: 36px;
       width: 100%;
       max-width: 440px;
-      padding: 20px;
+      padding: 26px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.9);
     }
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-weight: 700;
-      font-size: 1.05rem;
+      font-weight: 900;
+      font-size: 1.15rem;
+      text-shadow: var(--text-pop);
     }
 
-    /* Formulaires */
+    /* Formulaires 3D Pâte à modeler */
     form {
       background: var(--surface);
-      padding: 16px;
-      border-radius: 24px;
-      border: 1px solid rgba(255,255,255,0.06);
+      padding: 24px;
+      border-radius: 32px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 14px;
+      margin-bottom: 20px;
       width: 100%;
+      box-shadow: var(--clay-card);
     }
 
     .form-row {
@@ -272,128 +289,134 @@
     }
 
     input, select, textarea, button {
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: var(--surface-elevated);
+      padding: 14px 16px;
+      border-radius: 20px;
+      border: none;
+      background: var(--bg);
       color: var(--text);
-      font-size: 0.88rem;
+      font-size: 0.95rem;
       width: 100%;
       outline: none;
-      transition: border-color 0.2s;
+      box-shadow: var(--clay-inset);
+      font-weight: 800;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    input:focus, select:focus, textarea:focus {
+      box-shadow: var(--clay-inset), 0 0 0 3px var(--accent);
+    }
     textarea {
       resize: vertical;
-      min-height: 60px;
+      min-height: 75px;
       font-family: inherit;
     }
 
     .btn-add {
       background: var(--accent);
+      color: white;
       border: none;
-      font-weight: 600;
+      font-weight: 900;
       cursor: pointer;
-      padding: 12px;
-      border-radius: 14px;
-      margin-top: 4px;
-      transition: background 0.2s, transform 0.1s;
+      padding: 16px;
+      border-radius: 22px;
+      margin-top: 6px;
+      text-shadow: var(--text-pop);
+      box-shadow: var(--clay-btn);
+      transition: transform 0.1s;
     }
-    .btn-add:active { transform: scale(0.98); background: var(--accent-hover); }
+    .btn-add:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
 
     .image-picker-bar {
       display: flex;
       align-items: center;
-      gap: 6px;
-      background: var(--surface-elevated);
-      padding: 6px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.08);
+      gap: 8px;
+      background: var(--bg);
+      padding: 10px;
+      border-radius: 20px;
+      box-shadow: var(--clay-inset);
       flex-wrap: wrap;
     }
     .image-preview-thumb {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
       object-fit: cover;
       background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.06);
       flex-shrink: 0;
       cursor: pointer;
+      box-shadow: var(--clay-btn);
     }
     .btn-img-tool {
-      padding: 7px 10px;
-      font-size: 0.74rem;
-      font-weight: 600;
+      padding: 9px 12px;
+      font-size: 0.78rem;
+      font-weight: 800;
       border: none;
-      background: rgba(255,255,255,0.06);
+      background: var(--surface);
       color: var(--text);
-      border-radius: 10px;
+      border-radius: 14px;
       cursor: pointer;
       white-space: nowrap;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      box-shadow: var(--clay-btn);
+      transition: transform 0.1s;
     }
-    .btn-img-tool:hover { background: rgba(255,255,255,0.12); }
-    .btn-img-google { background: rgba(10, 132, 255, 0.2); color: #64b5f6; flex: 1; }
+    .btn-img-tool:active { box-shadow: var(--clay-inset); }
+    .btn-img-google { background: var(--clay-blue); color: var(--clay-blue-text); text-shadow: none; flex: 1; }
 
     /* Filtres */
-    .controls { display: flex; gap: 8px; margin-bottom: 14px; width: 100%; }
-    .controls select { flex: 1; padding: 8px 10px; font-size: 0.82rem; background: var(--surface); border-radius: 12px; }
+    .controls { display: flex; gap: 8px; margin-bottom: 16px; width: 100%; }
+    .controls select { flex: 1; padding: 12px; font-size: 0.85rem; background: var(--surface); border-radius: 20px; font-weight: 800; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); box-shadow: var(--clay-btn); }
 
-    /* Cartes */
+    /* Cartes 3D "Pâte à modeler" */
     .item-card {
       background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 22px;
-      padding: 12px;
-      margin-bottom: 10px;
+      border-radius: 30px;
+      padding: 16px;
+      margin-bottom: 16px;
       display: flex;
-      gap: 12px;
+      gap: 16px;
       width: 100%;
-      border-left: 6px solid var(--border);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      box-shadow: var(--clay-card);
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .item-card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
+    .item-card:hover { transform: translateY(-4px); box-shadow: 20px 20px 40px rgba(0,0,0,0.8), -12px -12px 30px rgba(45, 53, 77, 0.6); }
     
-    .item-card.status-take { border-left-color: var(--green); }
-    .item-card.status-think { border-left-color: var(--amber); }
-    .item-card.status-pass { border-left-color: var(--red); }
+    .item-card.status-take { border-left: 10px solid var(--clay-green); }
+    .item-card.status-think { border-left: 10px solid var(--clay-yellow); }
+    .item-card.status-pass { border-left: 10px solid var(--clay-pink); }
 
     .item-cover {
-      width: 72px;
-      height: 96px;
-      border-radius: 14px;
+      width: 80px;
+      height: 108px;
+      border-radius: 20px;
       object-fit: cover;
-      background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--bg);
       flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      box-shadow: var(--clay-btn);
       cursor: pointer;
     }
     .item-cover-placeholder {
-      width: 72px;
-      height: 96px;
-      border-radius: 14px;
-      background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.08);
+      width: 80px;
+      height: 108px;
+      border-radius: 20px;
+      background: var(--bg);
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
+      box-shadow: var(--clay-btn);
       color: var(--text-muted);
     }
 
     .item-content {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
       flex: 1;
       min-width: 0;
     }
@@ -406,91 +429,94 @@
     }
     .item-info { min-width: 0; flex: 1; }
     .item-info h3 { 
-      font-size: 0.96rem; 
-      font-weight: 600;
+      font-size: 1.1rem; 
+      font-weight: 900;
       margin-bottom: 4px; 
       white-space: nowrap; 
       overflow: hidden; 
       text-overflow: ellipsis; 
       letter-spacing: -0.01em;
+      text-shadow: var(--text-pop);
     }
-    .item-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .item-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-weight: 700; }
     
-    .badge { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: rgba(99, 102, 241, 0.15); color: #a5b4fc; font-weight: 600; }
-    .badge-store { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: rgba(48, 209, 88, 0.15); color: #75fb9c; font-weight: 600; }
-    .badge-state { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: var(--surface-elevated); color: #d1d5db; border: 1px solid rgba(255,255,255,0.06); font-weight: 500; }
-    .badge-play { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; background: rgba(191, 90, 242, 0.15); color: #e879f9; font-weight: 600; }
+    /* Badges 3D Bombés */
+    .badge { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-purple); color: var(--clay-purple-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
+    .badge-store { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-green); color: var(--clay-green-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
+    .badge-state { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--bg); color: var(--text); font-weight: 800; text-shadow: 1px 1px 1px rgba(0,0,0,0.8); box-shadow: var(--clay-btn); }
+    .badge-play { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-yellow); color: var(--clay-yellow-text); font-weight: 900; text-shadow: none; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
 
-    .badge-status { padding: 3px 7px; border-radius: 6px; font-size: 0.68rem; font-weight: 600; }
-    .badge-status.take { background: rgba(48, 209, 88, 0.18); color: var(--green); }
-    .badge-status.think { background: rgba(255, 214, 10, 0.18); color: var(--amber); }
-    .badge-status.pass { background: rgba(255, 69, 58, 0.18); color: var(--red); }
+    .badge-status { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; font-weight: 900; text-shadow: none; }
+    .badge-status.take { background: var(--clay-green); color: var(--clay-green-text); box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
+    .badge-status.think { background: var(--clay-yellow); color: var(--clay-yellow-text); box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
+    .badge-status.pass { background: var(--clay-pink); color: var(--clay-pink-text); box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
 
     .item-note {
-      font-size: 0.75rem;
-      background: var(--surface-elevated);
-      padding: 6px 10px;
-      border-radius: 10px;
-      color: #a1a1aa;
-      border-left: 2px solid var(--accent);
-      margin-top: 3px;
+      font-size: 0.78rem;
+      background: var(--bg);
+      padding: 10px 14px;
+      border-radius: 14px;
+      color: var(--text-muted);
+      box-shadow: var(--clay-inset);
+      margin-top: 4px;
+      font-weight: 700;
+      text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
     }
 
     .market-links {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
-      padding-top: 6px;
-      border-top: 1px solid rgba(255,255,255,0.04);
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.06);
     }
     .btn-market {
-      font-size: 0.7rem;
-      padding: 4px 8px;
-      border-radius: 8px;
-      background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.04);
-      color: #93c5fd;
+      font-size: 0.72rem;
+      padding: 6px 12px;
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--clay-blue);
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      font-weight: 500;
-      transition: background 0.15s;
+      font-weight: 800;
+      text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+      box-shadow: var(--clay-btn);
     }
-    .btn-market:hover { background: var(--surface-hover); }
-    .btn-market.collector { color: var(--amber); border-color: rgba(255, 214, 10, 0.2); }
-    .btn-market.pricecharting { color: var(--purple); border-color: rgba(191, 90, 242, 0.2); }
+    .btn-market:active { box-shadow: var(--clay-inset); }
+    .btn-market.collector { color: var(--clay-yellow); }
+    .btn-market.pricecharting { color: var(--clay-purple); }
     
     .actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
     .btn-action {
-      background: var(--surface-elevated);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: var(--bg);
+      border: none;
       cursor: pointer;
-      padding: 6px 9px;
-      border-radius: 10px;
-      font-size: 0.78rem;
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 0.8rem;
+      font-weight: 800;
       color: var(--text-muted);
       width: auto;
-      transition: background 0.15s, color 0.15s;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      box-shadow: var(--clay-btn);
     }
-    .btn-action:hover { background: var(--surface-hover); color: var(--text); }
-    .btn-edit { color: #818cf8; }
-    .btn-transfer { color: var(--green); }
-    .btn-delete { color: var(--red); }
+    .btn-action:active { box-shadow: var(--clay-inset); }
+    .btn-edit { color: var(--clay-blue); }
+    .btn-transfer { color: var(--clay-green); }
+    .btn-delete { color: var(--clay-pink); }
 
-    /* Fiche produit détaillée & Galerie Photos */
+    /* Fiche détaillée & Galerie */
     .detail-cover-large {
-      width: 140px;
-      height: 186px;
-      border-radius: 18px;
+      width: 150px;
+      height: 200px;
+      border-radius: 26px;
       object-fit: cover;
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      background: var(--bg);
       margin: 0 auto;
       cursor: pointer;
-      transition: transform 0.2s;
+      box-shadow: var(--clay-card);
     }
-    .detail-cover-large:hover { transform: scale(1.03); }
     .detail-gallery-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -500,25 +526,24 @@
     .gallery-thumb {
       width: 100%;
       aspect-ratio: 1;
-      border-radius: 10px;
+      border-radius: 16px;
       object-fit: cover;
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--bg);
       cursor: pointer;
-      transition: transform 0.15s;
+      box-shadow: var(--clay-btn);
     }
-    .gallery-thumb:hover { transform: scale(1.05); }
     .btn-add-photo {
-      background: rgba(10, 132, 255, 0.15);
-      color: var(--accent);
-      border: 1px dashed var(--accent);
-      padding: 8px;
-      border-radius: 12px;
-      font-size: 0.78rem;
-      font-weight: 600;
+      background: var(--clay-blue);
+      color: var(--clay-blue-text);
+      border: none;
+      padding: 12px;
+      border-radius: 18px;
+      font-size: 0.82rem;
+      font-weight: 900;
       cursor: pointer;
       text-align: center;
-      margin-top: 6px;
+      margin-top: 10px;
+      box-shadow: var(--clay-btn);
     }
 
     /* Lightbox Plein Écran */
@@ -526,19 +551,19 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.92);
+      background: rgba(0, 0, 0, 0.92);
       z-index: 2000;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
     }
     #lightbox-img {
       max-width: 100%;
       max-height: 85vh;
-      border-radius: 16px;
+      border-radius: 30px;
       object-fit: contain;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      box-shadow: var(--clay-card);
     }
   </style>
 </head>
@@ -548,7 +573,7 @@
 
   <!-- Lightbox Plein Écran -->
   <div id="lightbox-modal" onclick="closeLightbox()">
-    <button type="button" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.2); border:none; color:white; width:36px; height:36px; border-radius:50%; font-size:1.1rem; cursor:pointer;" onclick="closeLightbox()">✕</button>
+    <button type="button" style="position:absolute; top:24px; right:24px; background:var(--surface); border:none; color:var(--text); width:44px; height:44px; border-radius:50%; font-size:1.2rem; cursor:pointer; box-shadow:var(--clay-btn);" onclick="closeLightbox()">✕</button>
     <img id="lightbox-img" src="" alt="Agrandissement">
   </div>
 
@@ -556,19 +581,19 @@
   <div id="detail-modal" class="modal-overlay">
     <div class="modal-box" style="text-align:center;">
       <div class="modal-header" style="justify-content:space-between;">
-        <span id="detail-header-title" style="font-size:0.85rem; color:var(--text-muted);">Détails de l'objet</span>
+        <span id="detail-header-title" style="font-size:0.85rem; color:var(--text-muted); font-weight:800;">Détails de l'objet</span>
         <button type="button" class="btn-action" style="border:none;" onclick="closeDetailModal()">✕</button>
       </div>
       
       <div id="detail-cover-container"></div>
-      <h2 id="detail-title" style="font-size:1.15rem; font-weight:700; margin-top:4px;"></h2>
+      <h2 id="detail-title" style="font-size:1.3rem; font-weight:900; margin-top:6px; text-shadow:var(--text-pop);"></h2>
       
-      <div id="detail-meta" style="font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:2px;"></div>
+      <div id="detail-meta" style="font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:6px;"></div>
 
-      <div style="text-align:left; margin-top:8px; background:var(--surface); padding:12px; border-radius:16px; display:flex; flex-direction:column; gap:6px; font-size:0.82rem;" id="detail-dynamic-infos"></div>
+      <div style="text-align:left; margin-top:12px; background:var(--bg); padding:16px; border-radius:24px; display:flex; flex-direction:column; gap:8px; font-size:0.85rem; font-weight:800; box-shadow:var(--clay-inset);" id="detail-dynamic-infos"></div>
       
-      <div style="text-align:left; margin-top:8px; background:var(--surface); padding:12px; border-radius:16px;">
-        <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase;">Galerie Photos</div>
+      <div style="text-align:left; margin-top:12px; background:var(--bg); padding:16px; border-radius:24px; box-shadow:var(--clay-inset);">
+        <div style="font-size:0.75rem; font-weight:900; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase;">Galerie Photos</div>
         <div class="detail-gallery-grid" id="detailGalleryGrid"></div>
         <label class="btn-add-photo" style="display:block;">
           📷 Ajouter une photo
@@ -576,11 +601,11 @@
         </label>
       </div>
 
-      <div id="detail-notes-container" style="text-align:left; font-size:0.82rem; background:var(--surface); padding:12px; border-radius:16px; color:#a1a1aa;"></div>
+      <div id="detail-notes-container" style="text-align:left; font-size:0.85rem; font-weight:800; background:var(--bg); padding:16px; border-radius:24px; color:var(--text-muted); box-shadow:var(--clay-inset);"></div>
 
-      <div style="display:flex; gap:8px; margin-top:8px;">
-        <button type="button" class="btn-add" style="background:var(--surface-hover); color:#818cf8; flex:1;" id="btnDetailEdit">✏️ Modifier</button>
-        <button type="button" class="btn-add" style="background:rgba(255,69,58,0.15); color:var(--red); flex:1;" id="btnDetailDelete">🗑️ Supprimer</button>
+      <div style="display:flex; gap:12px; margin-top:12px;">
+        <button type="button" class="btn-add" style="background:var(--clay-purple); color:var(--clay-purple-text); flex:1;" id="btnDetailEdit">✏️ Modifier</button>
+        <button type="button" class="btn-add" style="background:var(--clay-pink); color:var(--clay-pink-text); flex:1;" id="btnDetailDelete">🗑️ Supprimer</button>
       </div>
     </div>
   </div>
@@ -638,12 +663,12 @@
       <div class="image-picker-bar">
         <img id="edit-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
         <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">🔍 Google</button>
-        <button type="button" class="btn-img-tool" onclick="pasteImageToField('edit-image', 'edit-preview')">📋 Coller l'URL</button>
+        <button type="button" class="btn-img-tool" onclick="pasteImageToField('edit-image', 'edit-preview')">📋 Coller</button>
         <label class="btn-img-tool" title="Choisir depuis les fichiers">
           📁 Fichier
           <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-image', 'edit-preview')">
         </label>
-        <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('edit-image', 'edit-preview')">✕</button>
+        <button type="button" class="btn-img-tool" style="color:var(--clay-pink);" onclick="clearImageField('edit-image', 'edit-preview')">✕</button>
       </div>
 
       <select id="edit-status">
@@ -730,7 +755,7 @@
           📁 Fichier
           <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'edit-c-image', 'edit-c-preview')">
         </label>
-        <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('edit-c-image', 'edit-c-preview')">✕</button>
+        <button type="button" class="btn-img-tool" style="color:var(--clay-pink);" onclick="clearImageField('edit-c-image', 'edit-c-preview')">✕</button>
       </div>
 
       <textarea id="edit-c-note" placeholder="Notes & commentaires..."></textarea>
@@ -740,7 +765,7 @@
   </div>
 
   <div class="header-bar">
-    <h1>Bibliothèque</h1>
+    <h1>Bibliothèque Clay 3D</h1>
     <div style="display: flex; gap: 8px;">
       <button class="btn-backup" onclick="exportData()">💾 Sauvegarder</button>
       <button class="btn-backup" onclick="document.getElementById('importFile').click()">📥 Charger</button>
@@ -800,7 +825,6 @@
         
         <div class="input-with-btn btn-text">
           <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
-          <button type="button" class="btn-inside" onclick="searchEditionCollector('w-title')">🏆 Préco</button>
         </div>
       </div>
 
@@ -827,12 +851,12 @@
       <div class="image-picker-bar">
         <img id="w-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
         <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">🔍 Chercher sur Google</button>
-        <button type="button" class="btn-img-tool" onclick="pasteImageToField('w-image', 'w-preview')">📋 Coller l'URL</button>
+        <button type="button" class="btn-img-tool" onclick="pasteImageToField('w-image', 'w-preview')">📋 Coller</button>
         <label class="btn-img-tool" title="Choisir depuis les fichiers">
           📁 Fichier
           <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'w-image', 'w-preview')">
         </label>
-        <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('w-image', 'w-preview')">✕</button>
+        <button type="button" class="btn-img-tool" style="color:var(--clay-pink);" onclick="clearImageField('w-image', 'w-preview')">✕</button>
       </div>
 
       <select id="w-status">
@@ -933,10 +957,7 @@
           </optgroup>
         </select>
         
-        <div class="input-with-btn btn-text" style="--accent:#4338ca;">
-          <input type="number" id="c-price" placeholder="Valeur (€)" step="0.01">
-          <button type="button" class="btn-inside" style="background:#312e81; color:#c7d2fe;" onclick="searchUsedMarketArgus('c-title', 'c-platform')">🔍 Argus</button>
-        </div>
+        <input type="number" id="c-price" placeholder="Valeur (€)" step="0.01">
       </div>
 
       <!-- Champs dynamiques Collection -->
@@ -978,12 +999,12 @@
       <div class="image-picker-bar">
         <img id="c-preview" class="image-preview-thumb" src="" alt="" style="display:none;" onclick="openLightbox(this.src)">
         <button type="button" class="btn-img-tool btn-img-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">🔍 Google</button>
-        <button type="button" class="btn-img-tool" onclick="pasteImageToField('c-image', 'c-preview')">📋 Coller l'URL</button>
+        <button type="button" class="btn-img-tool" onclick="pasteImageToField('c-image', 'c-preview')">📋 Coller</button>
         <label class="btn-img-tool" title="Choisir depuis les fichiers">
           📁 Fichier
           <input type="file" style="display:none;" accept="image/*" onchange="handleImageFile(event, 'c-image', 'c-preview')">
         </label>
-        <button type="button" class="btn-img-tool" style="color:var(--red);" onclick="clearImageField('c-image', 'c-preview')">✕</button>
+        <button type="button" class="btn-img-tool" style="color:var(--clay-pink);" onclick="clearImageField('c-image', 'c-preview')">✕</button>
       </div>
 
       <textarea id="c-note" placeholder="Notes & commentaires..."></textarea>
@@ -1037,8 +1058,8 @@
 </div>
 
 <script>
-  let wishlist = JSON.parse(localStorage.getItem('app_wishlist_v7')) || [];
-  let collection = JSON.parse(localStorage.getItem('app_collection_v7')) || [];
+  let wishlist = JSON.parse(localStorage.getItem('app_wishlist_v11')) || [];
+  let collection = JSON.parse(localStorage.getItem('app_collection_v11')) || [];
   let currentDetailCollectionIndex = null;
 
   function formatMoney(amount) {
@@ -1046,14 +1067,13 @@
   }
 
   function saveData() {
-    localStorage.setItem('app_wishlist_v7', JSON.stringify(wishlist));
-    localStorage.setItem('app_collection_v7', JSON.stringify(collection));
+    localStorage.setItem('app_wishlist_v11', JSON.stringify(wishlist));
+    localStorage.setItem('app_collection_v11', JSON.stringify(collection));
     updateMonthFilterDropdowns();
     renderWishlist();
     renderCollection();
   }
 
-  // --- GESTION DES CHAMPS DYNAMIQUES ---
   function getDynamicFieldsHtml(prefix, platform, data = {}) {
     if (platform === 'Vinyle') {
       return `
@@ -1095,7 +1115,6 @@
     toggleFormFields('c-', document.getElementById('c-platform').value);
   });
 
-  // --- LIGHTBOX ---
   function openLightbox(imgSrc) {
     if (!imgSrc) return;
     document.getElementById('lightbox-img').src = imgSrc;
@@ -1106,7 +1125,6 @@
     document.getElementById('lightbox-modal').style.display = 'none';
   }
 
-  // --- FICHE DÉTAILLÉE DE COLLECTION ---
   function openCollectionDetail(index) {
     currentDetailCollectionIndex = index;
     const item = collection[index];
@@ -1122,7 +1140,7 @@
     metaEl.innerHTML = `
       <span class="badge">${item.platform}</span>
       ${item.state ? `<span class="badge-state">${item.state}</span>` : ''}
-      <span style="font-weight:600; color:var(--purple);">${item.price ? formatMoney(item.price) : 'Non estimé'}</span>
+      <span style="font-weight:900; color:var(--clay-yellow); text-shadow:var(--text-pop);">${item.price ? formatMoney(item.price) : 'Non estimé'}</span>
     `;
 
     let specificInfoHtml = `<div><strong>Acheté chez :</strong> ${item.store || 'Non renseigné'}</div>`;
@@ -1201,7 +1219,6 @@
     event.target.value = '';
   }
 
-  // --- GOOGLE IMAGES & FICHIERS ---
   function openGoogleImagesTab(titleFieldId, platformFieldId) {
     const title = document.getElementById(titleFieldId).value.trim();
     const platform = document.getElementById(platformFieldId).value;
@@ -1229,7 +1246,7 @@
         prev.style.display = 'block';
         return;
       }
-      alert("Le texte dans le presse-papier n'est pas un lien d'image valide. Sur iPhone, faites un appui long sur l'image sur Google, puis choisissez 'Copier le lien de l'image' (ou l'adresse de l'image).");
+      alert("Le texte copié n'est pas un lien d'image valide.");
     } catch (err) {
       const url = prompt("Collez l'adresse (URL) de l'image ici :");
       if (url) {
@@ -1260,19 +1277,6 @@
     const prev = document.getElementById(previewImgId);
     prev.src = '';
     prev.style.display = 'none';
-  }
-
-  function searchEditionCollector(titleFieldId) {
-    const title = document.getElementById(titleFieldId).value.trim();
-    if (!title) { alert("Veuillez d'abord saisir le nom du jeu."); return; }
-    window.open(`https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}`, '_blank');
-  }
-
-  function searchUsedMarketArgus(titleFieldId, platformFieldId) {
-    const title = document.getElementById(titleFieldId).value.trim();
-    const platform = document.getElementById(platformFieldId).value;
-    if (!title) { alert("Veuillez d'abord saisir le nom du titre."); return; }
-    window.open(`https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(title + ' ' + platform)}`, '_blank');
   }
 
   function openEditModal(index) {
@@ -1552,12 +1556,12 @@
       const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${item.store}</span>` : '';
 
       const coverHtml = item.image 
-        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>🎮</div>'">`
-        : `<div class="item-cover-placeholder">🎮</div>`;
+        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">`
+        : `<div class="item-cover-placeholder">📦</div>`;
 
       let subtitle = '';
-      if (item.platform === 'Vinyle' && item.artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted);">${item.artist}</div>`;
-      if (item.platform === 'Blu-ray' && item.director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted);">De ${item.director}</div>`;
+      if (item.platform === 'Vinyle' && item.artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${item.artist}</div>`;
+      if (item.platform === 'Blu-ray' && item.director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">De ${item.director}</div>`;
 
       const q = encodeURIComponent(`${item.title} ${item.platform}`);
       const ecUrl = `https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + item.title)}`;
@@ -1589,7 +1593,7 @@
           </div>
 
           <div class="market-links" onclick="event.stopPropagation();">
-            <span style="font-size:0.7rem; color:var(--text-muted);">Recherche :</span>
+            <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Recherche :</span>
             <a class="btn-market collector" href="${ecUrl}" target="_blank">🏆 Collector</a>
             <a class="btn-market" href="${leclercUrl}" target="_blank">Leclerc</a>
             <a class="btn-market" href="${fnacUrl}" target="_blank">Fnac</a>
@@ -1687,12 +1691,12 @@
       const playBadge = (item.gameplay && item.gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${item.gameplay}</span>` : '';
 
       const coverHtml = item.image 
-        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>🎮</div>'">`
-        : `<div class="item-cover-placeholder">🎮</div>`;
+        ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">`
+        : `<div class="item-cover-placeholder">📦</div>`;
 
       let subtitle = '';
-      if (item.platform === 'Vinyle' && item.artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted);">${item.artist}</div>`;
-      if (item.platform === 'Blu-ray' && item.director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted);">De ${item.director}</div>`;
+      if (item.platform === 'Vinyle' && item.artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${item.artist}</div>`;
+      if (item.platform === 'Blu-ray' && item.director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">De ${item.director}</div>`;
 
       let datesDisplay = [];
       if (item.releaseDate) datesDisplay.push(`📅 Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
@@ -1719,7 +1723,7 @@
                 ${stateBadge}
                 ${playBadge}
                 ${storeBadge}
-                <span style="font-weight:600;">${valStr}</span>
+                <span style="font-weight:900; color:var(--clay-yellow); text-shadow:var(--text-pop);">${valStr}</span>
               </div>
               <div class="item-meta" style="margin-top:2px;">
                 <span>${datesStr}</span>
@@ -1733,7 +1737,7 @@
           </div>
 
           <div class="market-links" onclick="event.stopPropagation();">
-            <span style="font-size:0.7rem; color:var(--text-muted);">Argus :</span>
+            <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Argus :</span>
             <a class="btn-market pricecharting" href="${priceChartingUrl}" target="_blank">📈 PriceCharting</a>
             <a class="btn-market" href="${ebaySoldUrl}" target="_blank">📊 eBay</a>
             <a class="btn-market" href="${leboncoinUrl}" target="_blank">🟠 LBC</a>
