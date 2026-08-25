@@ -536,6 +536,7 @@
     }
     .btn-market:active { box-shadow: var(--clay-inset); }
     .btn-market.collector { color: var(--clay-yellow); }
+    .btn-market.discogs { color: var(--clay-purple); }
     .btn-market.pricecharting { color: var(--clay-purple); }
     
     .actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -669,7 +670,7 @@
         <button type="button" class="btn-action" style="border:none;" onclick="closeEditModal()">✕</button>
       </div>
       <input type="hidden" id="edit-index">
-      <input type="text" id="edit-title" placeholder="Nom du produit" required>
+      <input type="text" id="edit-title" placeholder="Nom du produit" required oninput="updateSearchButton('edit-', document.getElementById('edit-platform').value)">
       
       <div class="form-row">
         <select id="edit-platform" onchange="toggleFormFields('edit-', this.value)">
@@ -693,6 +694,11 @@
       </div>
 
       <div id="edit-dynamic-fields"></div>
+
+      <!-- Bouton dynamique Collector / Discogs -->
+      <button type="button" class="btn-collector-link" id="edit-searchBtn" onclick="handleCustomSearch('edit-')">
+        🏆 Rechercher sur EditionCollector
+      </button>
 
       <div class="form-row">
         <select id="edit-store">
@@ -864,7 +870,7 @@
 
     <form id="wishlistForm">
       <div class="form-row">
-        <input type="text" id="w-title" placeholder="Nom du produit..." required>
+        <input type="text" id="w-title" placeholder="Nom du produit..." required oninput="updateSearchButton('w-', document.getElementById('w-platform').value)">
       </div>
 
       <div class="form-row">
@@ -892,8 +898,8 @@
       <!-- Champs dynamiques Wishlist -->
       <div id="w-dynamic-fields"></div>
 
-      <!-- Bouton EditionCollector direct -->
-      <button type="button" class="btn-collector-link" onclick="searchEditionCollector('w-title')">
+      <!-- Bouton dynamique Collector / Discogs -->
+      <button type="button" class="btn-collector-link" id="w-searchBtn" onclick="handleCustomSearch('w-')">
         🏆 Rechercher sur EditionCollector
       </button>
 
@@ -1152,6 +1158,38 @@
     renderCollection();
   }
 
+  function updateSearchButton(prefix, platform) {
+    const btn = document.getElementById(prefix + 'searchBtn');
+    if (!btn) return;
+    if (platform === 'Vinyle') {
+      btn.textContent = '🎵 Rechercher sur Discogs';
+      btn.style.background = 'var(--clay-purple)';
+      btn.style.color = 'var(--clay-purple-text)';
+    } else {
+      btn.textContent = '🏆 Rechercher sur EditionCollector';
+      btn.style.background = 'var(--clay-yellow)';
+      btn.style.color = 'var(--clay-yellow-text)';
+    }
+  }
+
+  function handleCustomSearch(prefix) {
+    const title = document.getElementById(prefix + 'title')?.value.trim() || '';
+    const platform = document.getElementById(prefix + 'platform')?.value || '';
+    const artist = document.getElementById(prefix + 'artist')?.value.trim() || '';
+
+    if (!title && !artist) {
+      alert("Veuillez d'abord saisir le nom ou l'artiste.");
+      return;
+    }
+
+    if (platform === 'Vinyle') {
+      const query = encodeURIComponent([artist, title].filter(Boolean).join(' '));
+      window.open(`https://www.discogs.com/fr/search/?q=${query}&type=release&format_exact=Vinyl`, '_blank');
+    } else {
+      window.open(`https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}`, '_blank');
+    }
+  }
+
   function getDynamicFieldsHtml(prefix, platform, data = {}) {
     if (platform === 'Vinyle') {
       return `
@@ -1168,7 +1206,17 @@
         </div>
       `;
     } else {
-      return ``;
+      if (prefix === 'w-' || prefix === 'edit-') return ``; 
+      return `
+        <div>
+          <select id="${prefix}gameplay">
+            <option value="Non commencé" ${data.gameplay === 'Non commencé' ? 'selected' : ''}>⏳ Non commencé</option>
+            <option value="En cours" ${data.gameplay === 'En cours' ? 'selected' : ''}>🎮 En cours</option>
+            <option value="Terminé" ${data.gameplay === 'Terminé' ? 'selected' : ''}>🏆 Terminé</option>
+            <option value="Non applicable" ${data.gameplay === 'Non applicable' ? 'selected' : ''}>⚪ Non applicable</option>
+          </select>
+        </div>
+      `;
     }
   }
 
@@ -1176,6 +1224,9 @@
     const container = document.getElementById(prefix + 'dynamic-fields');
     if (container) {
       container.innerHTML = getDynamicFieldsHtml(prefix, platform);
+    }
+    if (prefix === 'w-' || prefix === 'edit-') {
+      updateSearchButton(prefix, platform);
     }
   }
 
@@ -1372,12 +1423,6 @@
     updateImagePreview(imageFieldId, wrapId, previewImgId);
   }
 
-  function searchEditionCollector(titleFieldId) {
-    const title = document.getElementById(titleFieldId).value.trim();
-    if (!title) { alert("Veuillez d'abord saisir le nom du produit."); return; }
-    window.open(`https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}`, '_blank');
-  }
-
   function searchUsedMarketArgus(titleFieldId, platformFieldId) {
     const title = document.getElementById(titleFieldId).value.trim();
     const platform = document.getElementById(platformFieldId).value;
@@ -1400,6 +1445,8 @@
       if(document.getElementById('edit-director')) document.getElementById('edit-director').value = item.director || '';
       if(document.getElementById('edit-actors')) document.getElementById('edit-actors').value = item.actors || '';
     }
+
+    updateSearchButton('edit-', item.platform);
 
     document.getElementById('edit-store').value = item.store || 'Non renseigné';
     document.getElementById('edit-releaseDate').value = item.releaseDate || '';
@@ -1660,10 +1707,19 @@
       if (item.platform === 'Blu-ray' && item.director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">De ${item.director}</div>`;
 
       const q = encodeURIComponent(`${item.title} ${item.platform}`);
-      const ecUrl = `https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + item.title)}`;
       const leclercUrl = `https://www.e.leclerc/recherche?q=${q}`;
       const fnacUrl = `https://www.fnac.com/SearchResult/ResultList.aspx?Search=${q}`;
       const amazonUrl = `https://www.amazon.fr/s?k=${q}`;
+
+      let collectorOrDiscogsHtml = '';
+      if (item.platform === 'Vinyle') {
+        const discogsQuery = encodeURIComponent([item.artist, item.title].filter(Boolean).join(' '));
+        const discogsUrl = `https://www.discogs.com/fr/search/?q=${discogsQuery}&type=release&format_exact=Vinyl`;
+        collectorOrDiscogsHtml = `<a class="btn-market discogs" href="${discogsUrl}" target="_blank">🎵 Discogs</a>`;
+      } else {
+        const ecUrl = `https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + item.title)}`;
+        collectorOrDiscogsHtml = `<a class="btn-market collector" href="${ecUrl}" target="_blank">🏆 Collector</a>`;
+      }
 
       card.innerHTML = `
         ${coverHtml}
@@ -1690,7 +1746,7 @@
 
           <div class="market-links" onclick="event.stopPropagation();">
             <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Recherche :</span>
-            <a class="btn-market collector" href="${ecUrl}" target="_blank">🏆 Collector</a>
+            ${collectorOrDiscogsHtml}
             <a class="btn-market" href="${leclercUrl}" target="_blank">Leclerc</a>
             <a class="btn-market" href="${fnacUrl}" target="_blank">Fnac</a>
             <a class="btn-market" href="${amazonUrl}" target="_blank">Amazon</a>
