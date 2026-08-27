@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Wishlist & Collection Clay 3D</title>
 
+  <!-- Anti-cache pour forcer l'iPhone à prendre les nouveautés -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" href="apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1298,10 +1303,10 @@
         supabaseClient.from('collection_items').select('data')
       ]);
 
-      if (wRes.data && wRes.data.length > 0) {
+      if (wRes.data) {
         wishlist = wRes.data.map(row => row.data);
       }
-      if (cRes.data && cRes.data.length > 0) {
+      if (cRes.data) {
         collection = cRes.data.map(row => row.data);
       }
 
@@ -1954,6 +1959,11 @@
   }
 
   function switchTab(tab) {
+    // Forcer une synchro rapide avec le Cloud à chaque changement d'onglet
+    if (supabaseClient) {
+      fetchCloudDataBackground();
+    }
+
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     
