@@ -143,7 +143,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       background: var(--surface);
       padding: 14px 18px;
       border-radius: 26px;
@@ -1104,6 +1104,14 @@
       </select>
     </div>
 
+    <!-- NOUVEAU : Filtre par période de sortie -->
+    <div class="month-filter-box">
+      <label for="c-releaseFilter">📅 Période de sortie :</label>
+      <select id="c-releaseFilter" onchange="renderCollection()">
+        <option value="all">Toutes les sorties</option>
+      </select>
+    </div>
+
     <div class="summary-grid">
       <div class="summary-card value">
         <div class="summary-label" id="c-labelValue">Valeur totale</div>
@@ -1890,41 +1898,65 @@
   }
 
   function updateMonthFilterDropdowns() {
-    const wMonthSelect = document.getElementById('w-monthFilter');
-    if(!wMonthSelect) return;
-    const wCurrentVal = wMonthSelect.value;
-    const wMonthsSet = new Set();
-    wishlist.forEach(i => { if (i.releaseDate) wMonthsSet.add(i.releaseDate.substring(0, 7)); });
-    
-    wMonthSelect.innerHTML = '<option value="all">Tout le calendrier</option><option value="nodate">📅 Sans date fixée</option>';
-    Array.from(wMonthsSet).sort().forEach(ym => {
-      const [year, month] = ym.split('-');
-      const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
-      const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-      const opt = document.createElement('option');
-      opt.value = ym;
-      opt.textContent = `📅 ${label.charAt(0).toUpperCase() + label.slice(1)}`;
-      wMonthSelect.appendChild(opt);
-    });
-    wMonthSelect.value = Array.from(wMonthSelect.options).some(o => o.value === wCurrentVal) ? wCurrentVal : 'all';
-
+    // Filtre Période d'achat (Collection)
     const cMonthSelect = document.getElementById('c-monthFilter');
-    if(!cMonthSelect) return;
-    const cCurrentVal = cMonthSelect.value;
-    const cMonthsSet = new Set();
-    collection.forEach(i => { if (i.buyDate) cMonthsSet.add(i.buyDate.substring(0, 7)); });
+    if(cMonthSelect) {
+      const cCurrentVal = cMonthSelect.value;
+      const cMonthsSet = new Set();
+      collection.forEach(i => { if (i.buyDate) cMonthsSet.add(i.buyDate.substring(0, 7)); });
 
-    cMonthSelect.innerHTML = '<option value="all">Tout l\'historique</option><option value="nodate">📅 Sans date d\'achat</option>';
-    Array.from(cMonthsSet).sort().forEach(ym => {
-      const [year, month] = ym.split('-');
-      const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
-      const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-      const opt = document.createElement('option');
-      opt.value = ym;
-      opt.textContent = `📅 ${label.charAt(0).toUpperCase() + label.slice(1)}`;
-      cMonthSelect.appendChild(opt);
-    });
-    cMonthSelect.value = Array.from(cMonthSelect.options).some(o => o.value === cCurrentVal) ? cCurrentVal : 'all';
+      cMonthSelect.innerHTML = '<option value="all">Tout l\'historique</option><option value="nodate">📅 Sans date d\'achat</option>';
+      Array.from(cMonthsSet).sort().forEach(ym => {
+        const [year, month] = ym.split('-');
+        const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+        const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        const opt = document.createElement('option');
+        opt.value = ym;
+        opt.textContent = `📅 ${label.charAt(0).toUpperCase() + label.slice(1)}`;
+        cMonthSelect.appendChild(opt);
+      });
+      cMonthSelect.value = Array.from(cMonthSelect.options).some(o => o.value === cCurrentVal) ? cCurrentVal : 'all';
+    }
+
+    // NOUVEAU : Filtre Période de sortie (Collection)
+    const cReleaseSelect = document.getElementById('c-releaseFilter');
+    if(cReleaseSelect) {
+      const cReleaseVal = cReleaseSelect.value;
+      const cReleaseSet = new Set();
+      collection.forEach(i => { if (i.releaseDate) cReleaseSet.add(i.releaseDate.substring(0, 7)); });
+
+      cReleaseSelect.innerHTML = '<option value="all">Toutes les sorties</option><option value="nodate">📅 Sans date de sortie</option>';
+      Array.from(cReleaseSet).sort().forEach(ym => {
+        const [year, month] = ym.split('-');
+        const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+        const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        const opt = document.createElement('option');
+        opt.value = ym;
+        opt.textContent = `📅 ${label.charAt(0).toUpperCase() + label.slice(1)}`;
+        cReleaseSelect.appendChild(opt);
+      });
+      cReleaseSelect.value = Array.from(cReleaseSelect.options).some(o => o.value === cReleaseVal) ? cReleaseVal : 'all';
+    }
+
+    // Filtre Wishlist
+    const wMonthSelect = document.getElementById('w-monthFilter');
+    if(wMonthSelect) {
+      const wCurrentVal = wMonthSelect.value;
+      const wMonthsSet = new Set();
+      wishlist.forEach(i => { if (i.releaseDate) wMonthsSet.add(i.releaseDate.substring(0, 7)); });
+      
+      wMonthSelect.innerHTML = '<option value="all">Tout le calendrier</option><option value="nodate">📅 Sans date fixée</option>';
+      Array.from(wMonthsSet).sort().forEach(ym => {
+        const [year, month] = ym.split('-');
+        const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+        const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        const opt = document.createElement('option');
+        opt.value = ym;
+        opt.textContent = `📅 ${label.charAt(0).toUpperCase() + label.slice(1)}`;
+        wMonthSelect.appendChild(opt);
+      });
+      wMonthSelect.value = Array.from(wMonthSelect.options).some(o => o.value === wCurrentVal) ? wCurrentVal : 'all';
+    }
   }
 
   function resetPlatformFilter() {
@@ -2087,6 +2119,7 @@
     if (countEl) countEl.textContent = collection.length;
 
     const monthFilter = document.getElementById('c-monthFilter')?.value || 'all';
+    const releaseFilter = document.getElementById('c-releaseFilter')?.value || 'all';
     const currentPlatformFilter = document.getElementById('c-filterPlatform')?.value || 'all';
     const storeF = document.getElementById('c-filterStore')?.value || 'all';
     const stateF = document.getElementById('c-filterState')?.value || 'all';
@@ -2099,8 +2132,13 @@
     }
 
     const monthItems = collection.filter(i => {
-      const itemYM = i.buyDate ? i.buyDate.substring(0, 7) : 'nodate';
-      return (monthFilter === 'all') || (monthFilter === 'nodate' && !i.buyDate) || (monthFilter === itemYM);
+      const buyYM = i.buyDate ? i.buyDate.substring(0, 7) : 'nodate';
+      const releaseYM = i.releaseDate ? i.releaseDate.substring(0, 7) : 'nodate';
+
+      const matchBuy = (monthFilter === 'all') || (monthFilter === 'nodate' && !i.buyDate) || (monthFilter === buyYM);
+      const matchRelease = (releaseFilter === 'all') || (releaseFilter === 'nodate' && !i.releaseDate) || (releaseFilter === releaseYM);
+
+      return matchBuy && matchRelease;
     });
 
     const platformStats = {};
@@ -2142,14 +2180,17 @@
     }
 
     const filtered = collection.filter(i => {
-      const itemYM = i.buyDate ? i.buyDate.substring(0, 7) : 'nodate';
-      const matchMonth = (monthFilter === 'all') || (monthFilter === 'nodate' && !i.buyDate) || (monthFilter === itemYM);
+      const buyYM = i.buyDate ? i.buyDate.substring(0, 7) : 'nodate';
+      const releaseYM = i.releaseDate ? i.releaseDate.substring(0, 7) : 'nodate';
+
+      const matchBuy = (monthFilter === 'all') || (monthFilter === 'nodate' && !i.buyDate) || (monthFilter === buyYM);
+      const matchRelease = (releaseFilter === 'all') || (releaseFilter === 'nodate' && !i.releaseDate) || (releaseFilter === releaseYM);
       const matchPlat = (currentPlatformFilter === 'all' || i.platform === currentPlatformFilter);
       const matchStore = (storeF === 'all' || i.store === storeF);
       const matchState = (stateF === 'all' || i.state === stateF);
       const matchPlay = (playF === 'all' || i.gameplay === playF);
 
-      return viewMode.startsWith('timeline') ? matchMonth : (matchMonth && matchPlat && matchStore && matchState && matchPlay);
+      return viewMode.startsWith('timeline') ? (matchBuy && matchRelease) : (matchBuy && matchRelease && matchPlat && matchStore && matchState && matchPlay);
     });
 
     let totalVal = 0;
@@ -2158,7 +2199,7 @@
     if(document.getElementById('collectionTotalValue')) document.getElementById('collectionTotalValue').textContent = formatMoney(totalVal);
     if(document.getElementById('collectionItemTotal')) document.getElementById('collectionItemTotal').textContent = filtered.length;
 
-    const isFiltered = (monthFilter !== 'all' || currentPlatformFilter !== 'all' || storeF !== 'all' || stateF !== 'all' || playF !== 'all');
+    const isFiltered = (monthFilter !== 'all' || releaseFilter !== 'all' || currentPlatformFilter !== 'all' || storeF !== 'all' || stateF !== 'all' || playF !== 'all');
     if(document.getElementById('c-labelValue')) document.getElementById('c-labelValue').textContent = isFiltered ? 'Valeur (sélection)' : 'Valeur totale';
     if(document.getElementById('c-labelCount')) document.getElementById('c-labelCount').textContent = isFiltered ? 'Objets (sélection)' : 'Objets possédés';
 
