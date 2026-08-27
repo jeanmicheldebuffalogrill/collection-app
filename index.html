@@ -796,7 +796,7 @@
     </div>
   </div>
 
-  <!-- NOUVEAU : Modal d'Ajout Wishlist -->
+  <!-- Modal d'Ajout Wishlist -->
   <div id="add-wishlist-modal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-header">
@@ -1160,12 +1160,10 @@
   <!-- WISHLIST -->
   <div id="tab-wishlist" class="tab-content active">
     
-    <!-- BOUTON D'OUVERTURE DE LA MODALE D'AJOUT -->
     <button type="button" class="btn-open-add" onclick="openAddWishlistModal()">
       ➕ Ajouter un article à la wishlist
     </button>
 
-    <!-- HUB DE STATS & FILTRES UNIFIÉ -->
     <div class="summary-grid">
       <div class="summary-card confirmed">
         <div class="summary-label" id="labelConfirmed">Total prévu</div>
@@ -1223,12 +1221,10 @@
   <!-- COLLECTION -->
   <div id="tab-collection" class="tab-content">
     
-    <!-- BOUTON D'OUVERTURE DE LA MODALE D'AJOUT -->
     <button type="button" class="btn-open-add" onclick="openAddCollectionModal()">
       ➕ Ajouter un objet à la collection
     </button>
 
-    <!-- HUB DE STATS & FILTRES UNIFIÉ -->
     <div class="summary-grid">
       <div class="summary-card value">
         <div class="summary-label" id="c-labelValue">Valeur totale</div>
@@ -1963,65 +1959,74 @@
     saveData();
   }
 
+  function populateHierarchicalDropdown(selectElement, datesList, defaultLabel) {
+    const currentVal = selectElement.value;
+    const yearsMap = {};
+
+    datesList.forEach(fullDateStr => {
+      if (!fullDateStr) return;
+      const [year, month] = fullDateStr.split('-');
+      if (!year || !month) return;
+      if (!yearsMap[year]) yearsMap[year] = new Set();
+      yearsMap[year].add(month);
+    });
+
+    let html = `<option value="all">${defaultLabel}</option>`;
+    html += `<option value="nodate">📅 Sans date fixée</option>`;
+
+    const sortedYears = Object.keys(yearsMap).sort().reverse();
+    sortedYears.forEach(year => {
+      html += `<option value="year_${year}">📅 ANNÉE ${year} (Toute l'année)</option>`;
+      const sortedMonths = Array.from(yearsMap[year]).sort();
+      sortedMonths.forEach(month => {
+        const ym = `${year}-${month}`;
+        const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+        const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+        html += `<option value="${ym}">&nbsp;&nbsp;&nbsp;&nbsp;↳ ${capitalizedLabel}</option>`;
+      });
+    });
+
+    selectElement.innerHTML = html;
+    selectElement.value = Array.from(selectElement.options).some(o => o.value === currentVal) ? currentVal : 'all';
+  }
+
   function updateMonthFilterDropdowns() {
-    // Filtre Période d'achat (Collection)
+    // 1. Période d'achat (Collection)
     const cMonthSelect = document.getElementById('c-monthFilter');
     if(cMonthSelect) {
-      const cCurrentVal = cMonthSelect.value;
-      const cMonthsSet = new Set();
-      collection.forEach(i => { if (i.buyDate) cMonthsSet.add(i.buyDate.substring(0, 7)); });
-
-      cMonthSelect.innerHTML = '<option value="all">Tout l\'historique</option><option value="nodate">📅 Sans date d\'achat</option>';
-      Array.from(cMonthsSet).sort().forEach(ym => {
-        const [year, month] = ym.split('-');
-        const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
-        const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-        const opt = document.createElement('option');
-        opt.value = ym;
-        opt.textContent = `📅 ${label.charAt(0).toUpperCase() + label.slice(1)}`;
-        cMonthSelect.appendChild(opt);
-      });
-      cMonthSelect.value = Array.from(cMonthSelect.options).some(o => o.value === cCurrentVal) ? cCurrentVal : 'all';
+      const buyDates = [];
+      collection.forEach(i => { if (i.buyDate) buyDates.push(i.buyDate); });
+      populateHierarchicalDropdown(cMonthSelect, buyDates, "Tout l'historique d'achat");
     }
 
-    // Filtre Période de sortie (Collection)
+    // 2. Période de sortie (Collection)
     const cReleaseSelect = document.getElementById('c-releaseFilter');
     if(cReleaseSelect) {
-      const cReleaseVal = cReleaseSelect.value;
-      const cReleaseSet = new Set();
-      collection.forEach(i => { if (i.releaseDate) cReleaseSet.add(i.releaseDate.substring(0, 7)); });
-
-      cReleaseSelect.innerHTML = '<option value="all">Toutes les sorties</option><option value="nodate">📅 Sans date de sortie</option>';
-      Array.from(cReleaseSet).sort().forEach(ym => {
-        const [year, month] = ym.split('-');
-        const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
-        const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-        const opt = document.createElement('option');
-        opt.value = ym;
-        opt.textContent = `📅 ${label.charAt(0).toUpperCase() + label.slice(1)}`;
-        cReleaseSelect.appendChild(opt);
-      });
-      cReleaseSelect.value = Array.from(cReleaseSelect.options).some(o => o.value === cReleaseVal) ? cReleaseVal : 'all';
+      const releaseDates = [];
+      collection.forEach(i => { if (i.releaseDate) releaseDates.push(i.releaseDate); });
+      populateHierarchicalDropdown(cReleaseSelect, releaseDates, "Toutes les sorties");
     }
 
-    // Filtre Wishlist
+    // 3. Période Wishlist
     const wMonthSelect = document.getElementById('w-monthFilter');
     if(wMonthSelect) {
-      const wCurrentVal = wMonthSelect.value;
-      const wMonthsSet = new Set();
-      wishlist.forEach(i => { if (i.releaseDate) wMonthsSet.add(i.releaseDate.substring(0, 7)); });
-      
-      wMonthSelect.innerHTML = '<option value="all">Tout le calendrier</option><option value="nodate">📅 Sans date fixée</option>';
-      Array.from(wMonthsSet).sort().forEach(ym => {
-        const [year, month] = ym.split('-');
-        const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
-        const label = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-        const opt = document.createElement('option');
-        opt.value = ym;
-        opt.textContent = `📅 ${label.charAt(0).toUpperCase() + label.slice(1)}`;
-        wMonthSelect.appendChild(opt);
-      });
-      wMonthSelect.value = Array.from(wMonthSelect.options).some(o => o.value === wCurrentVal) ? wCurrentVal : 'all';
+      const wDates = [];
+      wishlist.forEach(i => { if (i.releaseDate) wDates.push(i.releaseDate); });
+      populateHierarchicalDropdown(wMonthSelect, wDates, "Tout le calendrier");
+    }
+  }
+
+  function checkDateMatch(itemDateStr, filterValue) {
+    if (filterValue === 'all') return true;
+    if (filterValue === 'nodate') return !itemDateStr;
+    if (!itemDateStr) return false;
+
+    if (filterValue.startsWith('year_')) {
+      const targetYear = filterValue.split('_')[1];
+      return itemDateStr.startsWith(targetYear);
+    } else {
+      return itemDateStr.startsWith(filterValue);
     }
   }
 
@@ -2085,8 +2090,7 @@
 
     wishlist.forEach(i => {
       const p = parseFloat(i.price) || 0;
-      const itemYM = i.releaseDate ? i.releaseDate.substring(0, 7) : 'nodate';
-      const matchMonth = (monthFilter === 'all') || (monthFilter === 'nodate' && !i.releaseDate) || (monthFilter === itemYM);
+      const matchMonth = checkDateMatch(i.releaseDate, monthFilter);
 
       if (matchMonth) {
         if (i.status === 'À prendre') totalConfirmed += p;
@@ -2105,8 +2109,7 @@
     container.innerHTML = '';
 
     const filtered = wishlist.filter(i => {
-      const itemYM = i.releaseDate ? i.releaseDate.substring(0, 7) : 'nodate';
-      const matchMonth = (monthFilter === 'all') || (monthFilter === 'nodate' && !i.releaseDate) || (monthFilter === itemYM);
+      const matchMonth = checkDateMatch(i.releaseDate, monthFilter);
       const matchPlat = (platF === 'all' || i.platform === platF);
       const matchStore = (storeF === 'all' || i.store === storeF);
       const matchStat = (statF === 'all' || i.status === statF);
@@ -2139,6 +2142,7 @@
       const leclercUrl = `https://www.e.leclerc/recherche?q=${q}`;
       const fnacUrl = `https://www.fnac.com/SearchResult/ResultList.aspx?Search=${q}`;
       const amazonUrl = `https://www.amazon.fr/s?k=${q}`;
+      const ebayUrl = `https://www.ebay.fr/sch/i.html?_nkw=${q}&LH_Complete=1&LH_Sold=1`;
 
       let collectorOrDiscogsHtml = item.platform === 'Vinyle'
         ? `<a class="btn-market discogs" href="https://www.discogs.com/fr/search/?q=${encodeURIComponent([item.artist, item.title].filter(Boolean).join(' '))}&type=release&format_exact=Vinyl" target="_blank">🎵 Discogs</a>`
@@ -2173,6 +2177,7 @@
             <a class="btn-market" href="${leclercUrl}" target="_blank">Leclerc</a>
             <a class="btn-market" href="${fnacUrl}" target="_blank">Fnac</a>
             <a class="btn-market" href="${amazonUrl}" target="_blank">Amazon</a>
+            <a class="btn-market" href="${ebayUrl}" target="_blank">🔍 eBay</a>
           </div>
         </div>
       `;
@@ -2198,12 +2203,8 @@
     }
 
     const monthItems = collection.filter(i => {
-      const buyYM = i.buyDate ? i.buyDate.substring(0, 7) : 'nodate';
-      const releaseYM = i.releaseDate ? i.releaseDate.substring(0, 7) : 'nodate';
-
-      const matchBuy = (monthFilter === 'all') || (monthFilter === 'nodate' && !i.buyDate) || (monthFilter === buyYM);
-      const matchRelease = (releaseFilter === 'all') || (releaseFilter === 'nodate' && !i.releaseDate) || (releaseFilter === releaseYM);
-
+      const matchBuy = checkDateMatch(i.buyDate, monthFilter);
+      const matchRelease = checkDateMatch(i.releaseDate, releaseFilter);
       return matchBuy && matchRelease;
     });
 
@@ -2246,11 +2247,8 @@
     }
 
     const filtered = collection.filter(i => {
-      const buyYM = i.buyDate ? i.buyDate.substring(0, 7) : 'nodate';
-      const releaseYM = i.releaseDate ? i.releaseDate.substring(0, 7) : 'nodate';
-
-      const matchBuy = (monthFilter === 'all') || (monthFilter === 'nodate' && !i.buyDate) || (monthFilter === buyYM);
-      const matchRelease = (releaseFilter === 'all') || (releaseFilter === 'nodate' && !i.releaseDate) || (releaseFilter === releaseYM);
+      const matchBuy = checkDateMatch(i.buyDate, monthFilter);
+      const matchRelease = checkDateMatch(i.releaseDate, releaseFilter);
       const matchPlat = (currentPlatformFilter === 'all' || i.platform === currentPlatformFilter);
       const matchStore = (storeF === 'all' || i.store === storeF);
       const matchState = (stateF === 'all' || i.state === stateF);
@@ -2299,6 +2297,7 @@
 
         const noteHtml = item.note ? `<div class="item-note">📝 ${item.note}</div>` : '';
         const query = encodeURIComponent(`${item.title} ${item.platform}`);
+        const ebayUrl = `https://www.ebay.fr/sch/i.html?_nkw=${query}&LH_Complete=1&LH_Sold=1`;
 
         card.innerHTML = `
           ${coverHtml}
@@ -2328,7 +2327,7 @@
             <div class="market-links" onclick="event.stopPropagation();">
               <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Argus :</span>
               <a class="btn-market pricecharting" href="https://www.pricecharting.com/search-products?type=prices&q=${query}" target="_blank">📈 PriceCharting</a>
-              <a class="btn-market" href="https://www.ebay.fr/sch/i.html?_nkw=${query}&LH_Complete=1&LH_Sold=1" target="_blank">📊 eBay</a>
+              <a class="btn-market" href="${ebayUrl}" target="_blank">🔍 eBay</a>
               <a class="btn-market" href="https://www.leboncoin.fr/recherche?text=${query}" target="_blank">🟠 LBC</a>
               <a class="btn-market" href="https://www.vinted.fr/catalog?search_text=${query}" target="_blank">🟢 Vinted</a>
             </div>
