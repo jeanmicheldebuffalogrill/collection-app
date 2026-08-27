@@ -110,20 +110,20 @@
       background: #12151d;
       padding: 8px;
       border-radius: 30px;
-      gap: 12px;
+      gap: 8px;
       margin-bottom: 24px;
       box-shadow: var(--clay-inset);
     }
     .tab-btn {
       flex: 1;
-      padding: 12px 10px;
+      padding: 12px 6px;
       background: transparent;
       border: none;
       color: var(--text-muted);
       border-radius: 22px;
       font-weight: 800;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.82rem;
       text-align: center;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
       transition: all 0.2s ease;
@@ -357,7 +357,6 @@
     }
     .btn-collector-link:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
 
-    /* Boutons d'ouverture des Modalas d'Ajout */
     .btn-open-add {
       background: var(--accent);
       color: white;
@@ -452,7 +451,24 @@
     }
     .btn-remove-preview:active { box-shadow: var(--clay-inset); }
 
-    /* Filtres */
+    /* Filtres et Barre de recherche */
+    .search-bar-input {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      background: var(--surface);
+      border-radius: 22px;
+      border: none;
+      color: var(--text);
+      font-weight: 800;
+      box-shadow: var(--clay-card);
+      margin-bottom: 12px;
+      outline: none;
+    }
+    .search-bar-input:focus {
+      box-shadow: var(--clay-card), 0 0 0 3px var(--accent);
+    }
+
     .controls { display: flex; gap: 8px; margin-bottom: 16px; width: 100%; }
     .controls select { flex: 1; padding: 12px; font-size: 0.85rem; background: var(--surface); border-radius: 20px; font-weight: 800; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); box-shadow: var(--clay-btn); }
 
@@ -584,7 +600,55 @@
     .btn-edit { color: var(--clay-blue); }
     .btn-delete { color: var(--clay-pink); }
 
-    /* Frise Chronologique en Carrousel Horizontal (Tuiles & Swipe Snap) */
+    /* Grille de Vignettes Collection (Mode Vitrine) */
+    .grid-collection-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      padding-bottom: 20px;
+    }
+    .grid-item-card {
+      background: var(--surface);
+      border-radius: 26px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: var(--clay-card);
+      transition: transform 0.2s;
+    }
+    .grid-item-card:hover { transform: translateY(-3px); }
+    .grid-item-cover {
+      width: 100%;
+      height: 190px;
+      border-radius: 18px;
+      object-fit: cover;
+      background: var(--bg);
+      box-shadow: var(--clay-btn);
+    }
+    .grid-item-cover-placeholder {
+      width: 100%;
+      height: 190px;
+      border-radius: 18px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      box-shadow: var(--clay-btn);
+      color: var(--text-muted);
+    }
+    .grid-item-title {
+      font-size: 0.9rem;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: var(--text-pop);
+    }
+
+    /* Frise Chronologique en Carrousel Horizontal */
     .timeline-h-container {
       display: flex;
       gap: 16px;
@@ -593,19 +657,10 @@
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
     }
-    .timeline-h-container::-webkit-scrollbar {
-      height: 8px;
-    }
-    .timeline-h-container::-webkit-scrollbar-track {
-      background: var(--surface);
-      border-radius: 99px;
-    }
-    .timeline-h-container::-webkit-scrollbar-thumb {
-      background: var(--accent);
-      border-radius: 99px;
-    }
+    .timeline-h-container::-webkit-scrollbar { height: 8px; }
+    .timeline-h-container::-webkit-scrollbar-track { background: var(--surface); border-radius: 99px; }
+    .timeline-h-container::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 99px; }
 
-    /* Carte Tuile Verticale du Carrousel */
     .tile-card {
       background: var(--surface);
       border-radius: 30px;
@@ -621,9 +676,7 @@
       cursor: pointer;
       transition: transform 0.2s;
     }
-    .tile-card:hover {
-      transform: translateY(-4px);
-    }
+    .tile-card:hover { transform: translateY(-4px); }
     .tile-cover {
       width: 100%;
       height: 270px;
@@ -667,6 +720,82 @@
       justify-content: center;
       align-items: center;
       gap: 8px;
+    }
+
+    /* Style des Boosters / Gachapon 3D Améliorés */
+    .booster-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .booster-card {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface-elevated) 100%);
+      border-radius: 30px;
+      padding: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--clay-card);
+      cursor: pointer;
+      border: 2px solid rgba(255, 255, 255, 0.05);
+      transition: transform 0.15s;
+    }
+    .booster-card:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
+    .booster-card.shake {
+      animation: boosterShake 0.4s ease-in-out infinite;
+    }
+    @keyframes boosterShake {
+      0% { transform: translateX(0) rotate(0deg); }
+      20% { transform: translateX(-6px) rotate(-2deg); }
+      40% { transform: translateX(6px) rotate(2deg); }
+      60% { transform: translateX(-4px) rotate(-1deg); }
+      80% { transform: translateX(4px) rotate(1deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+    .booster-info h3 { font-size: 1.15rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 4px; color: var(--clay-yellow); }
+    .booster-info p { font-size: 0.78rem; color: var(--text-muted); font-weight: 700; }
+    .booster-icon { font-size: 2.2rem; background: var(--bg); width: 65px; height: 65px; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: var(--clay-btn); flex-shrink: 0; }
+
+    /* Modal Plein Écran Gachapon Reveal (Cartes TCG Flip) */
+    #gachapon-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 12, 18, 0.92);
+      backdrop-filter: blur(14px);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .gachapon-modal-box {
+      background: var(--surface);
+      border-radius: 40px;
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      text-align: center;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.95);
+      border: 3px solid rgba(157, 127, 229, 0.3);
+      animation: cardFlipReveal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes cardFlipReveal {
+      0% { opacity: 0; transform: scale(0.6) rotateY(90deg); }
+      100% { opacity: 1; transform: scale(1) rotateY(0deg); }
+    }
+    .gachapon-cover-large {
+      width: 200px;
+      height: 270px;
+      border-radius: 24px;
+      object-fit: cover;
+      box-shadow: var(--clay-card);
+      border: 4px solid var(--surface-elevated);
+      cursor: pointer;
     }
 
     /* Fiche détaillée & Galerie */
@@ -738,7 +867,7 @@
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.92);
-      z-index: 2000;
+      z-index: 4000;
       align-items: center;
       justify-content: center;
       padding: 20px;
@@ -761,6 +890,21 @@
   <div id="lightbox-modal" onclick="closeLightbox()">
     <button type="button" style="position:absolute; top:24px; right:24px; background:var(--surface); border:none; color:var(--text); width:44px; height:44px; border-radius:50%; font-size:1.2rem; cursor:pointer; box-shadow:var(--clay-btn);" onclick="closeLightbox()">✕</button>
     <img id="lightbox-img" src="" alt="Agrandissement">
+  </div>
+
+  <!-- Modal Plein Écran Gachapon / Pack Opening Reveal -->
+  <div id="gachapon-modal" class="modal-overlay" style="z-index: 3500;">
+    <div class="gachapon-modal-box" id="gachaponModalBox">
+      <div style="font-size: 0.75rem; font-weight: 900; color: var(--clay-yellow); text-transform: uppercase; letter-spacing: 0.05em;">✨ BOOSTER OUVERT ! ✨</div>
+      <div id="gachaponCoverContainer"></div>
+      <h2 id="gachaponTitle" style="font-size: 1.3rem; font-weight: 900; text-shadow: var(--text-pop);"></h2>
+      <div id="gachaponMeta" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;"></div>
+      <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
+        <button type="button" class="btn-add" style="background: var(--clay-purple); color: var(--clay-purple-text); flex: 1;" id="btnGachaponDetail">🔍 Fiche</button>
+        <button type="button" class="btn-add" style="background: var(--accent); color: white; flex: 1;" id="btnGachaponReroll">🎲 Re-tirer !</button>
+      </div>
+      <button type="button" class="btn-action" style="background:var(--bg); border:none; margin-top: 4px;" onclick="closeGachaponModal()">Fermer</button>
+    </div>
   </div>
 
   <!-- Modal Fiche Détaillée & Photos (Collection) -->
@@ -1156,9 +1300,11 @@
     </div>
   </div>
 
+  <!-- NAVIGATION PAR 3 ONGLETS -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('wishlist')">🎯 Wishlist</button>
     <button class="tab-btn" onclick="switchTab('collection')">📦 Collection (<span id="collectionCount">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('random')">🎲 Aléatoire</button>
   </div>
 
   <!-- WISHLIST -->
@@ -1179,6 +1325,9 @@
       </div>
     </div>
 
+    <!-- Barre de recherche Wishlist -->
+    <input type="text" id="w-searchBar" class="search-bar-input" placeholder="🔍 Rechercher dans la wishlist..." oninput="renderWishlist()">
+
     <div class="month-filter-box">
       <label for="w-monthFilter">📅 Période / Budget :</label>
       <select id="w-monthFilter" onchange="renderWishlist()">
@@ -1187,7 +1336,7 @@
     </div>
 
     <div class="controls">
-      <select id="w-filterPlatform">
+      <select id="w-filterPlatform" onchange="renderWishlist()">
         <option value="all">Tous supports</option>
         <option value="PS5">PS5</option>
         <option value="Switch">Switch</option>
@@ -1200,7 +1349,7 @@
         <option value="Blu-ray">Blu-ray</option>
         <option value="Vêtement">Vêtements</option>
       </select>
-      <select id="w-filterStore">
+      <select id="w-filterStore" onchange="renderWishlist()">
         <option value="all">Toutes enseignes</option>
         <option value="Fnac">Fnac</option>
         <option value="Leclerc">Leclerc</option>
@@ -1212,11 +1361,21 @@
         <option value="Leboncoin">Leboncoin</option>
         <option value="eBay">eBay</option>
       </select>
-      <select id="w-filterStatus">
+      <select id="w-filterStatus" onchange="renderWishlist()">
         <option value="all">Tous statuts</option>
         <option value="À prendre">Je prends</option>
         <option value="En réflexion">En réflexion</option>
         <option value="Je passe">Je passe</option>
+      </select>
+    </div>
+
+    <!-- Tri Wishlist -->
+    <div class="month-filter-box" style="background:var(--bg); box-shadow:var(--clay-inset); margin-bottom: 20px;">
+      <label for="w-sortBy">🔄 Trier par :</label>
+      <select id="w-sortBy" onchange="renderWishlist()">
+        <option value="newest">Du plus récent au plus ancien</option>
+        <option value="az">Ordre alphabétique (A-Z)</option>
+        <option value="price-desc">Prix (du plus cher au moins cher)</option>
       </select>
     </div>
 
@@ -1249,6 +1408,9 @@
       <div class="platform-grid" id="platformBreakdownGrid"></div>
     </div>
 
+    <!-- Barre de recherche Collection -->
+    <input type="text" id="c-searchBar" class="search-bar-input" placeholder="🔍 Rechercher dans la collection..." oninput="renderCollection()">
+
     <div class="month-filter-box">
       <label for="c-monthFilter">📅 Période d'achat :</label>
       <select id="c-monthFilter" onchange="renderCollection()">
@@ -1264,7 +1426,7 @@
     </div>
 
     <div class="controls" id="collectionFiltersBar">
-      <select id="c-filterPlatform">
+      <select id="c-filterPlatform" onchange="renderCollection()">
         <option value="all">Tous supports</option>
         <option value="PS5">PS5</option>
         <option value="Switch">Switch</option>
@@ -1277,7 +1439,7 @@
         <option value="Blu-ray">Blu-ray</option>
         <option value="Vêtement">Vêtements</option>
       </select>
-      <select id="c-filterStore">
+      <select id="c-filterStore" onchange="renderCollection()">
         <option value="all">Toutes enseignes</option>
         <option value="Fnac">Fnac</option>
         <option value="Leclerc">Leclerc</option>
@@ -1289,14 +1451,14 @@
         <option value="Leboncoin">Leboncoin</option>
         <option value="eBay">eBay</option>
       </select>
-      <select id="c-filterState">
+      <select id="c-filterState" onchange="renderCollection()">
         <option value="all">Tous états</option>
         <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
         <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
         <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
         <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
       </select>
-      <select id="c-filterGameplay">
+      <select id="c-filterGameplay" onchange="renderCollection()">
         <option value="all">Toutes progressions</option>
         <option value="Non commencé">⏳ Non commencé</option>
         <option value="En cours">🎮 En cours</option>
@@ -1304,16 +1466,69 @@
       </select>
     </div>
 
+    <!-- Tri & Affichage Collection -->
+    <div class="month-filter-box" style="background:var(--bg); box-shadow:var(--clay-inset);">
+      <label for="c-sortBy">🔄 Trier par :</label>
+      <select id="c-sortBy" onchange="renderCollection()">
+        <option value="newest">Du plus récent au plus ancien</option>
+        <option value="az">Ordre alphabétique (A-Z)</option>
+        <option value="price-desc">Prix (du plus cher au moins cher)</option>
+      </select>
+    </div>
+
     <div class="month-filter-box" style="background:var(--bg); box-shadow:var(--clay-inset); margin-bottom: 20px;">
       <label for="c-viewMode">👁️ Affichage :</label>
       <select id="c-viewMode" onchange="renderCollection()">
         <option value="list">📋 Vue Liste classique</option>
+        <option value="grid">🖼️ Grille de Jaquettes (Vitrine)</option>
         <option value="timeline-release">🎞️ Frise (Par Sortie)</option>
         <option value="timeline-buy">🎞️ Frise (Par Achat)</option>
       </select>
     </div>
 
     <div id="collectionContainer"></div>
+  </div>
+
+  <!-- ONGLET ALÉATOIRE / PACK OPENING -->
+  <div id="tab-random" class="tab-content">
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h2 style="font-size: 1.25rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 4px;">🎰 Le Booster Mystère</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">Secoue un booster pour révéler ta prochaine session !</p>
+    </div>
+
+    <div class="booster-grid" id="boosterGridContainer">
+      <div class="booster-card" id="booster-game" onclick="openGachapon('game')">
+        <div class="booster-info">
+          <h3>Booster Jeux Vidéo</h3>
+          <p>Tirer un jeu de ta collection</p>
+        </div>
+        <div class="booster-icon">🎮</div>
+      </div>
+
+      <div class="booster-card" id="booster-vinyl" onclick="openGachapon('vinyl')">
+        <div class="booster-info">
+          <h3>Booster Vinyles</h3>
+          <p>Choisir un disque à écouter</p>
+        </div>
+        <div class="booster-icon">🎵</div>
+      </div>
+
+      <div class="booster-card" id="booster-movie" onclick="openGachapon('movie')">
+        <div class="booster-info">
+          <h3>Booster Films</h3>
+          <p>Sélectionner un Blu-ray / 4K</p>
+        </div>
+        <div class="booster-icon">🎬</div>
+      </div>
+
+      <div class="booster-card" id="booster-all" onclick="openGachapon('all')">
+        <div class="booster-info">
+          <h3>Booster Ultime (Tout)</h3>
+          <p>Piocher dans toute la bibliothèque</p>
+        </div>
+        <div class="booster-icon">✨</div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -1334,6 +1549,7 @@
   let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
   let collection = JSON.parse(localStorage.getItem('app_collection_cloud_v1')) || [];
   let currentDetailCollectionIndex = null;
+  let lastGachaponCategory = 'all';
 
   function setSyncStatus(text, color = 'var(--clay-green)') {
     const el = document.getElementById('syncStatus');
@@ -1998,7 +2214,6 @@
   }
 
   function updateMonthFilterDropdowns() {
-    // 1. Période d'achat (Collection)
     const cMonthSelect = document.getElementById('c-monthFilter');
     if(cMonthSelect) {
       const buyDates = [];
@@ -2006,7 +2221,6 @@
       populateHierarchicalDropdown(cMonthSelect, buyDates, "Tout l'historique d'achat");
     }
 
-    // 2. Période de sortie (Collection)
     const cReleaseSelect = document.getElementById('c-releaseFilter');
     if(cReleaseSelect) {
       const releaseDates = [];
@@ -2014,7 +2228,6 @@
       populateHierarchicalDropdown(cReleaseSelect, releaseDates, "Toutes les sorties");
     }
 
-    // 3. Période Wishlist
     const wMonthSelect = document.getElementById('w-monthFilter');
     if(wMonthSelect) {
       const wDates = [];
@@ -2034,6 +2247,18 @@
     } else {
       return itemDateStr.startsWith(filterValue);
     }
+  }
+
+  function sortItems(arr, sortBy) {
+    return arr.slice().sort((a, b) => {
+      if (sortBy === 'az') {
+        return (a.title || '').localeCompare(b.title || '');
+      } else if (sortBy === 'price-desc') {
+        return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
+      } else {
+        return 0;
+      }
+    });
   }
 
   function resetPlatformFilter() {
@@ -2079,11 +2304,75 @@
       document.querySelectorAll('.tab-btn')[0].classList.add('active');
       document.getElementById('tab-wishlist').classList.add('active');
       renderWishlist();
-    } else {
+    } else if (tab === 'collection') {
       document.querySelectorAll('.tab-btn')[1].classList.add('active');
       document.getElementById('tab-collection').classList.add('active');
       renderCollection();
+    } else if (tab === 'random') {
+      document.querySelectorAll('.tab-btn')[2].classList.add('active');
+      document.getElementById('tab-random').classList.add('active');
     }
+  }
+
+  // Système Gachapon / Pack Opening Amélioré (Plein Écran)
+  function openGachapon(category) {
+    lastGachaponCategory = category;
+    const boosterCard = document.getElementById(`booster-${category}`);
+    if (boosterCard) {
+      boosterCard.classList.add('shake');
+    }
+
+    setTimeout(() => {
+      if (boosterCard) boosterCard.classList.remove('shake');
+
+      let pool = [];
+      if (category === 'game') {
+        pool = collection.filter(i => i.platform !== 'Vinyle' && i.platform !== 'Blu-ray');
+      } else if (category === 'vinyl') {
+        pool = collection.filter(i => i.platform === 'Vinyle');
+      } else if (category === 'movie') {
+        pool = collection.filter(i => i.platform === 'Blu-ray');
+      } else {
+        pool = collection;
+      }
+
+      if (pool.length === 0) {
+        alert("Aucun objet disponible dans cette catégorie pour le tirage !");
+        return;
+      }
+
+      const winner = pool[Math.floor(Math.random() * pool.length)];
+      const index = collection.indexOf(winner);
+
+      const coverContainer = document.getElementById('gachaponCoverContainer');
+      coverContainer.innerHTML = winner.image 
+        ? `<img src="${winner.image}" class="gachapon-cover-large" alt="Jaquette" onclick="openLightbox(this.src)" onerror="this.outerHTML='<div class=\\'gachapon-cover-large\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg);\\'>📦</div>'">`
+        : `<div class="gachapon-cover-large" style="display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg);">📦</div>`;
+
+      document.getElementById('gachaponTitle').textContent = winner.title;
+
+      const metaEl = document.getElementById('gachaponMeta');
+      metaEl.innerHTML = `
+        <span class="badge">${winner.platform}</span>
+        ${winner.state ? `<span class="badge-state">${winner.state}</span>` : ''}
+        <span style="font-weight: 900; color: var(--clay-yellow);">${winner.price ? formatMoney(winner.price) : 'Non estimé'}</span>
+      `;
+
+      document.getElementById('btnGachaponDetail').onclick = () => {
+        closeGachaponModal();
+        openCollectionDetail(index);
+      };
+      document.getElementById('btnGachaponReroll').onclick = () => {
+        closeGachaponModal();
+        openGachapon(lastGachaponCategory);
+      };
+
+      document.getElementById('gachapon-modal').style.display = 'flex';
+    }, 500);
+  }
+
+  function closeGachaponModal() {
+    document.getElementById('gachapon-modal').style.display = 'none';
   }
 
   function renderWishlist() {
@@ -2091,6 +2380,8 @@
     const platF = document.getElementById('w-filterPlatform')?.value || 'all';
     const storeF = document.getElementById('w-filterStore')?.value || 'all';
     const statF = document.getElementById('w-filterStatus')?.value || 'all';
+    const sortBy = document.getElementById('w-sortBy')?.value || 'newest';
+    const searchQuery = (document.getElementById('w-searchBar')?.value || '').toLowerCase().trim();
 
     let totalConfirmed = 0, totalPending = 0;
 
@@ -2114,14 +2405,17 @@
     if (!container) return;
     container.innerHTML = '';
 
-    const filtered = wishlist.filter(i => {
+    let filtered = wishlist.filter(i => {
       const matchMonth = checkDateMatch(i.releaseDate, monthFilter);
       const matchPlat = (platF === 'all' || i.platform === platF);
       const matchStore = (storeF === 'all' || i.store === storeF);
       const matchStat = (statF === 'all' || i.status === statF);
+      const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery));
 
-      return matchMonth && matchPlat && matchStore && matchStat;
+      return matchMonth && matchPlat && matchStore && matchStat && matchSearch;
     });
+
+    filtered = sortItems(filtered, sortBy);
 
     filtered.forEach(item => {
       const index = wishlist.indexOf(item);
@@ -2202,6 +2496,8 @@
     const stateF = document.getElementById('c-filterState')?.value || 'all';
     const playF = document.getElementById('c-filterGameplay')?.value || 'all';
     const viewMode = document.getElementById('c-viewMode')?.value || 'list';
+    const sortBy = document.getElementById('c-sortBy')?.value || 'newest';
+    const searchQuery = (document.getElementById('c-searchBar')?.value || '').toLowerCase().trim();
 
     const filtersBar = document.getElementById('collectionFiltersBar');
     if (filtersBar) {
@@ -2252,16 +2548,19 @@
       }
     }
 
-    const filtered = collection.filter(i => {
+    let filtered = collection.filter(i => {
       const matchBuy = checkDateMatch(i.buyDate, monthFilter);
       const matchRelease = checkDateMatch(i.releaseDate, releaseFilter);
       const matchPlat = (currentPlatformFilter === 'all' || i.platform === currentPlatformFilter);
       const matchStore = (storeF === 'all' || i.store === storeF);
       const matchState = (stateF === 'all' || i.state === stateF);
       const matchPlay = (playF === 'all' || i.gameplay === playF);
+      const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery));
 
-      return viewMode.startsWith('timeline') ? (matchBuy && matchRelease) : (matchBuy && matchRelease && matchPlat && matchStore && matchState && matchPlay);
+      return viewMode.startsWith('timeline') ? (matchBuy && matchRelease && matchSearch) : (matchBuy && matchRelease && matchPlat && matchStore && matchState && matchPlay && matchSearch);
     });
+
+    filtered = sortItems(filtered, sortBy);
 
     let totalVal = 0;
     filtered.forEach(i => { totalVal += parseFloat(i.price) || 0; });
@@ -2269,7 +2568,7 @@
     if(document.getElementById('collectionTotalValue')) document.getElementById('collectionTotalValue').textContent = formatMoney(totalVal);
     if(document.getElementById('collectionItemTotal')) document.getElementById('collectionItemTotal').textContent = filtered.length;
 
-    const isFiltered = (monthFilter !== 'all' || releaseFilter !== 'all' || currentPlatformFilter !== 'all' || storeF !== 'all' || stateF !== 'all' || playF !== 'all');
+    const isFiltered = (monthFilter !== 'all' || releaseFilter !== 'all' || currentPlatformFilter !== 'all' || storeF !== 'all' || stateF !== 'all' || playF !== 'all' || searchQuery !== '');
     if(document.getElementById('c-labelValue')) document.getElementById('c-labelValue').textContent = isFiltered ? 'Valeur (sélection)' : 'Valeur totale';
     if(document.getElementById('c-labelCount')) document.getElementById('c-labelCount').textContent = isFiltered ? 'Objets (sélection)' : 'Objets possédés';
 
@@ -2341,6 +2640,40 @@
         `;
         container.appendChild(card);
       });
+    } else if (viewMode === 'grid') {
+      const gridContainer = document.createElement('div');
+      gridContainer.className = 'grid-collection-container';
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<span style="font-size:0.8rem; color:var(--text-muted); padding:20px;">Aucun objet pour cette sélection.</span>';
+        return;
+      }
+
+      filtered.forEach(item => {
+        const index = collection.indexOf(item);
+        const gridCard = document.createElement('div');
+        gridCard.className = 'grid-item-card';
+        gridCard.onclick = () => openCollectionDetail(index);
+
+        const coverHtml = item.image 
+          ? `<img src="${item.image}" class="grid-item-cover" alt="Jaquette" onerror="this.outerHTML='<div class=\\'grid-item-cover-placeholder\\'>📦</div>'">`
+          : `<div class="grid-item-cover-placeholder">📦</div>`;
+
+        const priceStr = item.price ? formatMoney(item.price) : '—';
+
+        gridCard.innerHTML = `
+          ${coverHtml}
+          <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+            <div class="grid-item-title">${item.title}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+              <span class="badge" style="font-size:0.62rem; padding:3px 7px;">${item.platform}</span>
+              <span style="font-size:0.82rem; font-weight:900; color:var(--clay-yellow);">${priceStr}</span>
+            </div>
+          </div>
+        `;
+        gridContainer.appendChild(gridCard);
+      });
+      container.appendChild(gridContainer);
     } else {
       const dateKey = (viewMode === 'timeline-release') ? 'releaseDate' : 'buyDate';
 
@@ -2510,15 +2843,6 @@
     collection.splice(index, 1);
     saveData();
   }
-
-  document.getElementById('w-filterPlatform').addEventListener('change', renderWishlist);
-  document.getElementById('w-filterStore').addEventListener('change', renderWishlist);
-  document.getElementById('w-filterStatus').addEventListener('change', renderWishlist);
-
-  document.getElementById('c-filterPlatform').addEventListener('change', renderCollection);
-  document.getElementById('c-filterStore').addEventListener('change', renderCollection);
-  document.getElementById('c-filterState').addEventListener('change', renderCollection);
-  document.getElementById('c-filterGameplay').addEventListener('change', renderCollection);
 
   window.addEventListener('DOMContentLoaded', () => {
     toggleFormFields('w-', document.getElementById('w-platform').value);
