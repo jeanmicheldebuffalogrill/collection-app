@@ -1291,7 +1291,6 @@
     renderCollection();
 
     if (supabaseClient) {
-      // FORCER le téléchargement immédiat des données fraîches du Cloud au démarrage
       fetchCloudDataBackground();
     }
   }
@@ -2306,7 +2305,13 @@
     clearImageField('w-image', 'w-preview-wrap', 'w-preview');
   });
 
-  function deleteWishlistItem(index) {
+  async function deleteWishlistItem(index) {
+    const item = wishlist[index];
+    if (item) {
+      if (item.image) {
+        await deleteFileFromSupabaseStorage(item.image);
+      }
+    }
     wishlist.splice(index, 1);
     saveData();
   }
