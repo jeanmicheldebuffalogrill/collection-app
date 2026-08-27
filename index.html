@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Wishlist & Collection Clay 3D</title>
 
-  <!-- PWA & Icône iPhone -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" href="apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Collection">
+
+  <!-- Client Officiel Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
@@ -74,9 +76,17 @@
       text-shadow: var(--text-pop);
       letter-spacing: -0.02em; 
     }
+    .sync-status {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--clay-green);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
     .btn-backup {
-      padding: 10px 16px;
-      font-size: 0.8rem;
+      padding: 10px 14px;
+      font-size: 0.78rem;
       background: var(--surface);
       border: none;
       color: var(--text);
@@ -652,13 +662,36 @@
       gap: 8px;
       margin-top: 8px;
     }
-    .gallery-thumb {
+    .gallery-thumb-wrapper {
+      position: relative;
       width: 100%;
       aspect-ratio: 1;
+    }
+    .gallery-thumb {
+      width: 100%;
+      height: 100%;
       border-radius: 16px;
       object-fit: cover;
       background: var(--bg);
       cursor: pointer;
+      box-shadow: var(--clay-btn);
+    }
+    .btn-delete-gallery-photo {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--clay-pink);
+      color: var(--clay-pink-text);
+      border: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 0.7rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       box-shadow: var(--clay-btn);
     }
     .btn-add-photo {
@@ -724,7 +757,7 @@
       <div style="text-align:left; margin-top:12px; background:var(--bg); padding:16px; border-radius:24px; box-shadow:var(--clay-inset);">
         <div style="font-size:0.75rem; font-weight:900; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase;">Galerie Photos</div>
         <div class="detail-gallery-grid" id="detailGalleryGrid"></div>
-        <label class="btn-add-photo" style="display:block;">
+        <label class="btn-add-photo" style="display:block;" id="btnAddPhotoLabel">
           📷 Ajouter une photo
           <input type="file" style="display:none;" accept="image/*" onchange="handleAddCollectionPhoto(event)">
         </label>
@@ -772,7 +805,6 @@
 
       <div id="edit-dynamic-fields"></div>
 
-      <!-- Bouton dynamique Collector / Discogs -->
       <button type="button" class="btn-collector-link" id="edit-searchBtn" onclick="handleCustomSearch('edit-')">
         🏆 Rechercher sur EditionCollector
       </button>
@@ -793,7 +825,6 @@
         <input type="date" id="edit-releaseDate" title="Date de sortie">
       </div>
 
-      <!-- Zone Jaquette Édition Wishlist -->
       <div class="image-section">
         <div class="image-action-grid">
           <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('edit-title', 'edit-platform')">
@@ -801,13 +832,13 @@
           </button>
           <label class="btn-image-action btn-photos">
             📷 Depuis Photos
-            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFileCompressed(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
+            <input type="file" style="display:none;" accept="image/*" onchange="handleCoverUpload(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
           </label>
         </div>
-        <input type="text" id="edit-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview')" onpaste="handleNativePaste(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
+        <input type="text" id="edit-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview')" onpaste="handleDirectPaste(event, 'edit-image', 'edit-preview-wrap', 'edit-preview')">
         <div id="edit-preview-wrap" class="image-preview-card" style="display:none;">
           <img id="edit-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-image', 'edit-preview-wrap', 'edit-preview')">✕ Retirer la jaquette</button>
+          <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('edit-image', 'edit-preview-wrap', 'edit-preview')">✕ Retirer</button>
         </div>
       </div>
 
@@ -886,7 +917,6 @@
         </div>
       </div>
 
-      <!-- Zone Jaquette Édition Collection -->
       <div class="image-section">
         <div class="image-action-grid">
           <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('edit-c-title', 'edit-c-platform')">
@@ -894,13 +924,13 @@
           </button>
           <label class="btn-image-action btn-photos">
             📷 Depuis Photos
-            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFileCompressed(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
+            <input type="file" style="display:none;" accept="image/*" onchange="handleCoverUpload(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
           </label>
         </div>
-        <input type="text" id="edit-c-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')" onpaste="handleNativePaste(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
+        <input type="text" id="edit-c-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')" onpaste="handleDirectPaste(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
         <div id="edit-c-preview-wrap" class="image-preview-card" style="display:none;">
           <img id="edit-c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕ Retirer la jaquette</button>
+          <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕ Retirer</button>
         </div>
       </div>
 
@@ -911,10 +941,13 @@
   </div>
 
   <div class="header-bar">
-    <h1>Bibliothèque Clay 3D</h1>
-    <div style="display: flex; gap: 8px;">
-      <button class="btn-backup" onclick="exportData()">💾 Sauvegarder</button>
-      <button class="btn-backup" onclick="document.getElementById('importFile').click()">📥 Charger</button>
+    <div>
+      <h1>Bibliothèque Clay 3D</h1>
+      <div class="sync-status" id="syncStatus">🟢 Prêt</div>
+    </div>
+    <div style="display: flex; gap: 6px;">
+      <button class="btn-backup" onclick="exportData()">💾 Backup</button>
+      <button class="btn-backup" onclick="document.getElementById('importFile').click()">📥 Import</button>
       <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
     </div>
   </div>
@@ -972,10 +1005,8 @@
         <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
       </div>
 
-      <!-- Champs dynamiques Wishlist -->
       <div id="w-dynamic-fields"></div>
 
-      <!-- Bouton dynamique Collector / Discogs -->
       <button type="button" class="btn-collector-link" id="w-searchBtn" onclick="handleCustomSearch('w-')">
         🏆 Rechercher sur EditionCollector
       </button>
@@ -996,7 +1027,6 @@
         <input type="date" id="w-releaseDate" title="Date de sortie">
       </div>
 
-      <!-- Zone Jaquette Ajout Wishlist -->
       <div class="image-section">
         <div class="image-action-grid">
           <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">
@@ -1004,13 +1034,13 @@
           </button>
           <label class="btn-image-action btn-photos">
             📷 Depuis Photos
-            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFileCompressed(event, 'w-image', 'w-preview-wrap', 'w-preview')">
+            <input type="file" style="display:none;" accept="image/*" onchange="handleCoverUpload(event, 'w-image', 'w-preview-wrap', 'w-preview')">
           </label>
         </div>
-        <input type="text" id="w-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')" onpaste="handleNativePaste(event, 'w-image', 'w-preview-wrap', 'w-preview')">
+        <input type="text" id="w-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')" onpaste="handleDirectPaste(event, 'w-image', 'w-preview-wrap', 'w-preview')">
         <div id="w-preview-wrap" class="image-preview-card" style="display:none;">
           <img id="w-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('w-image', 'w-preview-wrap', 'w-preview')">✕ Retirer la jaquette</button>
+          <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('w-image', 'w-preview-wrap', 'w-preview')">✕ Retirer</button>
         </div>
       </div>
 
@@ -1088,7 +1118,6 @@
       <div class="platform-grid" id="platformBreakdownGrid"></div>
     </div>
 
-    <!-- Sélecteur de Vue (Liste vs Frise Carrousel Horizontale) -->
     <div class="month-filter-box" style="background:var(--bg); box-shadow:var(--clay-inset);">
       <label for="c-viewMode">👁️ Mode d'affichage :</label>
       <select id="c-viewMode" onchange="renderCollection()">
@@ -1125,7 +1154,6 @@
         <input type="number" id="c-price" placeholder="Valeur (€)" step="0.01">
       </div>
 
-      <!-- Champs dynamiques Collection -->
       <div id="c-dynamic-fields"></div>
 
       <div class="form-row">
@@ -1160,7 +1188,6 @@
         </div>
       </div>
 
-      <!-- Zone Jaquette Ajout Collection -->
       <div class="image-section">
         <div class="image-action-grid">
           <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">
@@ -1168,13 +1195,13 @@
           </button>
           <label class="btn-image-action btn-photos">
             📷 Depuis Photos
-            <input type="file" style="display:none;" accept="image/*" onchange="handleImageFileCompressed(event, 'c-image', 'c-preview-wrap', 'c-preview')">
+            <input type="file" style="display:none;" accept="image/*" onchange="handleCoverUpload(event, 'c-image', 'c-preview-wrap', 'c-preview')">
           </label>
         </div>
-        <input type="text" id="c-image" class="image-input-direct" placeholder="Coller le lien de l'image ici (appui court/long)..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')" onpaste="handleNativePaste(event, 'c-image', 'c-preview-wrap', 'c-preview')">
+        <input type="text" id="c-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')" onpaste="handleDirectPaste(event, 'c-image', 'c-preview-wrap', 'c-preview')">
         <div id="c-preview-wrap" class="image-preview-card" style="display:none;">
           <img id="c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageField('c-image', 'c-preview-wrap', 'c-preview')">✕ Retirer la jaquette</button>
+          <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('c-image', 'c-preview-wrap', 'c-preview')">✕ Retirer</button>
         </div>
       </div>
 
@@ -1191,8 +1218,8 @@
         <option value="Switch 2">Switch 2</option>
         <option value="3DS">3DS</option>
         <option value="DS">DS</option>
-        <option value="GBA">Game Boy Advance</option>
-        <option value="GBC">Game Boy Color</option>
+        <option value="GBA">GBA</option>
+        <option value="GBC">GBC</option>
         <option value="Vinyle">Vinyles</option>
         <option value="Blu-ray">Blu-ray</option>
         <option value="Vêtement">Vêtements</option>
@@ -1229,53 +1256,297 @@
 </div>
 
 <script>
-  let wishlist = JSON.parse(localStorage.getItem('app_wishlist_v12')) || [];
-  let collection = JSON.parse(localStorage.getItem('app_collection_v12')) || [];
-  let currentDetailCollectionIndex = null;
+  const SUPABASE_URL = 'https://bclqthakhybmhdkyyhju.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_GxHaTOPwaJvrkc-qjYfV6w_MsZZyV6X';
+  let supabaseClient = null;
 
-  function formatMoney(amount) {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0);
+  try {
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  } catch (e) {
+    console.warn("Supabase non chargé :", e);
   }
 
-  function saveData() {
-    localStorage.setItem('app_wishlist_v12', JSON.stringify(wishlist));
-    localStorage.setItem('app_collection_v12', JSON.stringify(collection));
+  let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
+  let collection = JSON.parse(localStorage.getItem('app_collection_cloud_v1')) || [];
+  let currentDetailCollectionIndex = null;
+
+  function setSyncStatus(text, color = 'var(--clay-green)') {
+    const el = document.getElementById('syncStatus');
+    if (el) {
+      el.textContent = text;
+      el.style.color = color;
+    }
+  }
+
+  function initApp() {
     updateMonthFilterDropdowns();
     renderWishlist();
     renderCollection();
+
+    if (supabaseClient) {
+      fetchCloudDataBackground();
+    }
   }
 
-  function handleImageFileCompressed(event, imageFieldId, wrapId, previewImgId) {
+  async function fetchCloudDataBackground() {
+    try {
+      setSyncStatus('⏳ Sync Cloud...', 'var(--clay-yellow)');
+      const [wRes, cRes] = await Promise.all([
+        supabaseClient.from('wishlist_items').select('data'),
+        supabaseClient.from('collection_items').select('data')
+      ]);
+
+      if (wRes.data && wRes.data.length > 0) {
+        wishlist = wRes.data.map(row => row.data);
+      }
+      if (cRes.data && cRes.data.length > 0) {
+        collection = cRes.data.map(row => row.data);
+      }
+
+      localStorage.setItem('app_wishlist_cloud_v1', JSON.stringify(wishlist));
+      localStorage.setItem('app_collection_cloud_v1', JSON.stringify(collection));
+      
+      setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
+      updateMonthFilterDropdowns();
+      renderWishlist();
+      renderCollection();
+    } catch (e) {
+      setSyncStatus('🟢 Mode Local Actif', 'var(--clay-blue)');
+    }
+  }
+
+  function saveData() {
+    localStorage.setItem('app_wishlist_cloud_v1', JSON.stringify(wishlist));
+    localStorage.setItem('app_collection_cloud_v1', JSON.stringify(collection));
+    
+    updateMonthFilterDropdowns();
+    renderWishlist();
+    renderCollection();
+
+    if (supabaseClient) {
+      pushCloudDataBackground();
+    }
+  }
+
+  async function pushCloudDataBackground() {
+    try {
+      setSyncStatus('⏳ Enregistrement...', 'var(--clay-yellow)');
+      
+      await supabaseClient.from('wishlist_items').delete().neq('id', 'placeholder');
+      if (wishlist.length > 0) {
+        const rows = wishlist.map((item, idx) => ({ id: `w_${idx}_${Date.now()}`, data: item }));
+        await supabaseClient.from('wishlist_items').insert(rows);
+      }
+
+      await supabaseClient.from('collection_items').delete().neq('id', 'placeholder');
+      if (collection.length > 0) {
+        const rows = collection.map((item, idx) => ({ id: `c_${idx}_${Date.now()}`, data: item }));
+        await supabaseClient.from('collection_items').insert(rows);
+      }
+      setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
+    } catch (e) {
+      setSyncStatus('⚠️ Sauvegardé localement', 'var(--clay-pink)');
+    }
+  }
+
+  async function compressImageFile(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_SIZE = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob((blob) => {
+            const compressedFile = new File([blob], file.name || 'image.jpg', {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          }, 'image/jpeg', 0.82);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function deleteFileFromSupabaseStorage(photoUrl) {
+    if (!supabaseClient || !photoUrl || !photoUrl.includes('collection-photos/')) return;
+    try {
+      const filePath = photoUrl.split('/collection-photos/')[1];
+      if (filePath) {
+        await supabaseClient.storage
+          .from('collection-photos')
+          .remove([filePath]);
+      }
+    } catch (err) {
+      console.warn("Impossible de supprimer le fichier du storage distant :", err);
+    }
+  }
+
+  function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
+    if (e.clipboardData && e.clipboardData.items) {
+      for (const item of e.clipboardData.items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          compressImageFile(file).then(compressed => {
+            uploadDirectFile(compressed, inputFieldId, wrapId, previewImgId);
+          });
+          return;
+        }
+      }
+    }
+  }
+
+  async function uploadDirectFile(file, inputFieldId, wrapId, previewImgId) {
+    if (!supabaseClient) {
+      alert("Cloud non disponible.");
+      return;
+    }
+
+    try {
+      setSyncStatus('⏳ Compression & Upload...', 'var(--clay-yellow)');
+      const filePath = `photo_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
+
+      const { error } = await supabaseClient.storage
+        .from('collection-photos')
+        .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+      if (error) throw error;
+
+      const { data: publicUrlData } = supabaseClient.storage
+        .from('collection-photos')
+        .getPublicUrl(filePath);
+
+      document.getElementById(inputFieldId).value = publicUrlData.publicUrl;
+      updateImagePreview(inputFieldId, wrapId, previewImgId);
+      setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
+    } catch (err) {
+      alert("Erreur lors de l'envoi de l'image collée.");
+      setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
+    }
+  }
+
+  async function handleCoverUpload(event, inputFieldId, wrapId, previewImgId) {
     const file = event.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_HEIGHT = 400;
-        let width = img.width;
-        let height = img.height;
+    if (!supabaseClient) {
+      alert("Cloud non disponible.");
+      return;
+    }
 
-        if (height > MAX_HEIGHT) {
-          width *= MAX_HEIGHT / height;
-          height = MAX_HEIGHT;
-        }
+    try {
+      setSyncStatus('⏳ Compression & Upload...', 'var(--clay-yellow)');
+      const compressed = await compressImageFile(file);
+      const filePath = `photo_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
 
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
+      const { error } = await supabaseClient.storage
+        .from('collection-photos')
+        .upload(filePath, compressed, { cacheControl: '3600', upsert: false });
 
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById(imageFieldId).value = compressedDataUrl;
-        updateImagePreview(imageFieldId, wrapId, previewImgId);
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-    event.target.value = '';
+      if (error) throw error;
+
+      const { data: publicUrlData } = supabaseClient.storage
+        .from('collection-photos')
+        .getPublicUrl(filePath);
+
+      document.getElementById(inputFieldId).value = publicUrlData.publicUrl;
+      updateImagePreview(inputFieldId, wrapId, previewImgId);
+      setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
+    } catch (err) {
+      alert("Erreur lors de l'envoi de l'image.");
+      setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
+    } finally {
+      event.target.value = '';
+    }
+  }
+
+  async function handleAddCollectionPhoto(event) {
+    if (currentDetailCollectionIndex === null) return;
+    const file = event.target.files[0];
+    if (!file || !supabaseClient) return;
+
+    const btn = document.getElementById('btnAddPhotoLabel');
+    const oldText = btn ? btn.textContent : '';
+    if (btn) btn.textContent = "⏳ Compression & Upload...";
+
+    try {
+      setSyncStatus('⏳ Upload Photo...', 'var(--clay-yellow)');
+      const compressed = await compressImageFile(file);
+      const filePath = `photo_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
+
+      const { error } = await supabaseClient.storage
+        .from('collection-photos')
+        .upload(filePath, compressed, { cacheControl: '3600', upsert: false });
+
+      if (error) throw error;
+
+      const { data: publicUrlData } = supabaseClient.storage
+        .from('collection-photos')
+        .getPublicUrl(filePath);
+
+      const item = collection[currentDetailCollectionIndex];
+      if (!item.photos) item.photos = [];
+      item.photos.push(publicUrlData.publicUrl);
+
+      saveData();
+      renderDetailGallery();
+    } catch (e) {
+      alert("Erreur d'envoi de la photo sur le Cloud.");
+    } finally {
+      if (btn) btn.textContent = oldText;
+      event.target.value = '';
+    }
+  }
+
+  async function deleteCollectionPhoto(photoIndex) {
+    if (currentDetailCollectionIndex === null) return;
+    const item = collection[currentDetailCollectionIndex];
+    if (item.photos && item.photos[photoIndex] !== undefined) {
+      const photoUrl = item.photos[photoIndex];
+      await deleteFileFromSupabaseStorage(photoUrl);
+
+      item.photos.splice(photoIndex, 1);
+      saveData();
+      renderDetailGallery();
+    }
+  }
+
+  async function clearImageFieldAndStorage(imageFieldId, wrapId, previewImgId) {
+    const inputField = document.getElementById(imageFieldId);
+    if (inputField && inputField.value) {
+      await deleteFileFromSupabaseStorage(inputField.value);
+    }
+    clearImageField(imageFieldId, wrapId, previewImgId);
+  }
+
+  function formatMoney(amount) {
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0);
   }
 
   function updateSearchButton(prefix, platform) {
@@ -1349,11 +1620,6 @@
       updateSearchButton(prefix, platform);
     }
   }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    toggleFormFields('w-', document.getElementById('w-platform').value);
-    toggleFormFields('c-', document.getElementById('c-platform').value);
-  });
 
   function openLightbox(imgSrc) {
     if (!imgSrc) return;
@@ -1432,49 +1698,31 @@
     const grid = document.getElementById('detailGalleryGrid');
     grid.innerHTML = '';
 
-    item.photos.forEach((photoUrl) => {
+    item.photos.forEach((photoUrl, photoIndex) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'gallery-thumb-wrapper';
+
       const thumb = document.createElement('img');
       thumb.src = photoUrl;
       thumb.className = 'gallery-thumb';
       thumb.title = "Agrandir l'image";
       thumb.onclick = () => openLightbox(photoUrl);
-      grid.appendChild(thumb);
-    });
-  }
 
-  async function handleAddCollectionPhoto(event) {
-    if (currentDetailCollectionIndex === null) return;
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_HEIGHT = 500;
-        let width = img.width;
-        let height = img.height;
-        if (height > MAX_HEIGHT) {
-          width *= MAX_HEIGHT / height;
-          height = MAX_HEIGHT;
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn-delete-gallery-photo';
+      deleteBtn.innerHTML = '✕';
+      deleteBtn.title = "Supprimer cette photo";
+      deleteBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (confirm("Voulez-vous supprimer cette photo de la galerie ?")) {
+          deleteCollectionPhoto(photoIndex);
         }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-
-        const item = collection[currentDetailCollectionIndex];
-        if (!item.photos) item.photos = [];
-        item.photos.push(compressedDataUrl);
-        saveData();
-        renderDetailGallery();
       };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-    event.target.value = '';
+
+      wrapper.appendChild(thumb);
+      wrapper.appendChild(deleteBtn);
+      grid.appendChild(wrapper);
+    });
   }
 
   function openGoogleImagesTab(titleFieldId, platformFieldId) {
@@ -1494,27 +1742,10 @@
     window.open(`https://www.google.com/search?tbm=isch&q=${query}`, '_blank');
   }
 
-  function extractDirectImageUrl(rawText) {
-    if (!rawText) return '';
-    try {
-      if (rawText.includes('imgurl=')) {
-        const urlParams = new URLSearchParams(rawText.split('?')[1]);
-        const imgUrl = urlParams.get('imgurl');
-        if (imgUrl) return decodeURIComponent(imgUrl);
-      }
-    } catch (e) {}
-    return rawText.trim();
-  }
-
   function updateImagePreview(inputFieldId, wrapId, previewImgId) {
-    const rawVal = document.getElementById(inputFieldId).value.trim();
-    const val = extractDirectImageUrl(rawVal);
+    const val = document.getElementById(inputFieldId).value.trim();
     const wrap = document.getElementById(wrapId);
     const img = document.getElementById(previewImgId);
-    
-    if (val !== rawVal) {
-      document.getElementById(inputFieldId).value = val;
-    }
 
     if (val) {
       img.src = val;
@@ -1523,41 +1754,6 @@
       img.src = '';
       wrap.style.display = 'none';
     }
-  }
-
-  function handleNativePaste(e, inputFieldId, wrapId, previewImgId) {
-    if (e.clipboardData && e.clipboardData.items) {
-      for (const item of e.clipboardData.items) {
-        if (item.type.startsWith('image/')) {
-          e.preventDefault();
-          const file = item.getAsFile();
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              const MAX_HEIGHT = 400;
-              let width = img.width;
-              let height = img.height;
-              if (height > MAX_HEIGHT) {
-                width *= MAX_HEIGHT / height;
-                height = MAX_HEIGHT;
-              }
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, width, height);
-              document.getElementById(inputFieldId).value = canvas.toDataURL('image/jpeg', 0.8);
-              updateImagePreview(inputFieldId, wrapId, previewImgId);
-            };
-            img.src = event.target.result;
-          };
-          reader.readAsDataURL(file);
-          return;
-        }
-      }
-    }
-    setTimeout(() => updateImagePreview(inputFieldId, wrapId, previewImgId), 50);
   }
 
   function clearImageField(imageFieldId, wrapId, previewImgId) {
@@ -1690,6 +1886,7 @@
 
   function updateMonthFilterDropdowns() {
     const wMonthSelect = document.getElementById('w-monthFilter');
+    if(!wMonthSelect) return;
     const wCurrentVal = wMonthSelect.value;
     const wMonthsSet = new Set();
     wishlist.forEach(i => { if (i.releaseDate) wMonthsSet.add(i.releaseDate.substring(0, 7)); });
@@ -1707,6 +1904,7 @@
     wMonthSelect.value = Array.from(wMonthSelect.options).some(o => o.value === wCurrentVal) ? wCurrentVal : 'all';
 
     const cMonthSelect = document.getElementById('c-monthFilter');
+    if(!cMonthSelect) return;
     const cCurrentVal = cMonthSelect.value;
     const cMonthsSet = new Set();
     collection.forEach(i => { if (i.buyDate) cMonthsSet.add(i.buyDate.substring(0, 7)); });
@@ -1758,20 +1956,23 @@
   function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
     if (tab === 'wishlist') {
       document.querySelectorAll('.tab-btn')[0].classList.add('active');
       document.getElementById('tab-wishlist').classList.add('active');
+      renderWishlist();
     } else {
       document.querySelectorAll('.tab-btn')[1].classList.add('active');
       document.getElementById('tab-collection').classList.add('active');
+      renderCollection();
     }
   }
 
   function renderWishlist() {
-    const monthFilter = document.getElementById('w-monthFilter').value;
-    const platF = document.getElementById('w-filterPlatform').value;
-    const storeF = document.getElementById('w-filterStore').value;
-    const statF = document.getElementById('w-filterStatus').value;
+    const monthFilter = document.getElementById('w-monthFilter')?.value || 'all';
+    const platF = document.getElementById('w-filterPlatform')?.value || 'all';
+    const storeF = document.getElementById('w-filterStore')?.value || 'all';
+    const statF = document.getElementById('w-filterStatus')?.value || 'all';
 
     let totalConfirmed = 0, totalPending = 0;
 
@@ -1786,18 +1987,14 @@
       }
     });
 
-    if (monthFilter !== 'all') {
-      document.getElementById('labelConfirmed').textContent = 'Prévu (sélection)';
-      document.getElementById('labelPotential').textContent = 'Potentiel (sélection)';
-    } else {
-      document.getElementById('labelConfirmed').textContent = 'Total prévu';
-      document.getElementById('labelPotential').textContent = 'Total potentiel';
-    }
+    if(document.getElementById('labelConfirmed')) document.getElementById('labelConfirmed').textContent = monthFilter !== 'all' ? 'Prévu (sélection)' : 'Total prévu';
+    if(document.getElementById('labelPotential')) document.getElementById('labelPotential').textContent = monthFilter !== 'all' ? 'Potentiel (sélection)' : 'Total potentiel';
 
-    document.getElementById('totalConfirmed').textContent = formatMoney(totalConfirmed);
-    document.getElementById('totalPotential').textContent = formatMoney(totalConfirmed + totalPending);
+    if(document.getElementById('totalConfirmed')) document.getElementById('totalConfirmed').textContent = formatMoney(totalConfirmed);
+    if(document.getElementById('totalPotential')) document.getElementById('totalPotential').textContent = formatMoney(totalConfirmed + totalPending);
 
     const container = document.getElementById('wishlistContainer');
+    if (!container) return;
     container.innerHTML = '';
 
     const filtered = wishlist.filter(i => {
@@ -1814,19 +2011,9 @@
       const index = wishlist.indexOf(item);
       const card = document.createElement('div');
       
-      let statusClass = 'status-take';
-      let badgeStatusClass = 'take';
-      let statusText = '✅ Je prends';
-      
-      if (item.status === 'En réflexion') {
-        statusClass = 'status-think';
-        badgeStatusClass = 'think';
-        statusText = '⏳ En réflexion';
-      } else if (item.status === 'Je passe') {
-        statusClass = 'status-pass';
-        badgeStatusClass = 'pass';
-        statusText = '❌ Je passe';
-      }
+      let statusClass = item.status === 'En réflexion' ? 'status-think' : item.status === 'Je passe' ? 'status-pass' : 'status-take';
+      let badgeStatusClass = item.status === 'En réflexion' ? 'think' : item.status === 'Je passe' ? 'pass' : 'take';
+      let statusText = item.status === 'En réflexion' ? '⏳ En réflexion' : item.status === 'Je passe' ? '❌ Je passe' : '✅ Je prends';
 
       card.className = `item-card ${statusClass}`;
       const dateStr = item.releaseDate ? `📅 ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}` : '📅 Sans date';
@@ -1846,15 +2033,9 @@
       const fnacUrl = `https://www.fnac.com/SearchResult/ResultList.aspx?Search=${q}`;
       const amazonUrl = `https://www.amazon.fr/s?k=${q}`;
 
-      let collectorOrDiscogsHtml = '';
-      if (item.platform === 'Vinyle') {
-        const discogsQuery = encodeURIComponent([item.artist, item.title].filter(Boolean).join(' '));
-        const discogsUrl = `https://www.discogs.com/fr/search/?q=${discogsQuery}&type=release&format_exact=Vinyl`;
-        collectorOrDiscogsHtml = `<a class="btn-market discogs" href="${discogsUrl}" target="_blank">🎵 Discogs</a>`;
-      } else {
-        const ecUrl = `https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + item.title)}`;
-        collectorOrDiscogsHtml = `<a class="btn-market collector" href="${ecUrl}" target="_blank">🏆 Collector</a>`;
-      }
+      let collectorOrDiscogsHtml = item.platform === 'Vinyle'
+        ? `<a class="btn-market discogs" href="https://www.discogs.com/fr/search/?q=${encodeURIComponent([item.artist, item.title].filter(Boolean).join(' '))}&type=release&format_exact=Vinyl" target="_blank">🎵 Discogs</a>`
+        : `<a class="btn-market collector" href="https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + item.title)}" target="_blank">🏆 Collector</a>`;
 
       card.innerHTML = `
         ${coverHtml}
@@ -1893,20 +2074,19 @@
   }
 
   function renderCollection() {
-    document.getElementById('collectionCount').textContent = collection.length;
+    const countEl = document.getElementById('collectionCount');
+    if (countEl) countEl.textContent = collection.length;
 
-    const monthFilter = document.getElementById('c-monthFilter').value;
-    const currentPlatformFilter = document.getElementById('c-filterPlatform').value;
-    const storeF = document.getElementById('c-filterStore').value;
-    const stateF = document.getElementById('c-filterState').value;
-    const playF = document.getElementById('c-filterGameplay').value;
-    const viewMode = document.getElementById('c-viewMode').value;
+    const monthFilter = document.getElementById('c-monthFilter')?.value || 'all';
+    const currentPlatformFilter = document.getElementById('c-filterPlatform')?.value || 'all';
+    const storeF = document.getElementById('c-filterStore')?.value || 'all';
+    const stateF = document.getElementById('c-filterState')?.value || 'all';
+    const playF = document.getElementById('c-filterGameplay')?.value || 'all';
+    const viewMode = document.getElementById('c-viewMode')?.value || 'list';
 
     const filtersBar = document.getElementById('collectionFiltersBar');
-    if (viewMode.startsWith('timeline')) {
-      filtersBar.style.display = 'none';
-    } else {
-      filtersBar.style.display = 'flex';
+    if (filtersBar) {
+      filtersBar.style.display = viewMode.startsWith('timeline') ? 'none' : 'flex';
     }
 
     const monthItems = collection.filter(i => {
@@ -1924,33 +2104,32 @@
     });
 
     const breakdownGrid = document.getElementById('platformBreakdownGrid');
-    breakdownGrid.innerHTML = '';
+    if (breakdownGrid) {
+      breakdownGrid.innerHTML = '';
+      const sortedPlatforms = Object.keys(platformStats).sort((a, b) => platformStats[b].total - platformStats[a].total);
 
-    const sortedPlatforms = Object.keys(platformStats).sort((a, b) => platformStats[b].total - platformStats[a].total);
+      if (sortedPlatforms.length === 0) {
+        breakdownGrid.innerHTML = '<span style="font-size:0.75rem; color:#64748b;">Aucun objet pour cette période.</span>';
+      } else {
+        sortedPlatforms.forEach(plat => {
+          const data = platformStats[plat];
+          const chip = document.createElement('div');
+          const isSelected = (currentPlatformFilter === plat);
+          
+          chip.className = `platform-chip ${isSelected ? 'active' : ''}`;
+          chip.onclick = () => {
+            document.getElementById('c-filterPlatform').value = (document.getElementById('c-filterPlatform').value === plat) ? 'all' : plat;
+            renderCollection();
+          };
 
-    if (sortedPlatforms.length === 0) {
-      breakdownGrid.innerHTML = '<span style="font-size:0.75rem; color:#64748b;">Aucun objet pour cette période.</span>';
-    } else {
-      sortedPlatforms.forEach(plat => {
-        const data = platformStats[plat];
-        const chip = document.createElement('div');
-        const isSelected = (currentPlatformFilter === plat);
-        
-        chip.className = `platform-chip ${isSelected ? 'active' : ''}`;
-        chip.title = isSelected ? `Désélectionner ${plat}` : `Filtrer sur ${plat}`;
-        
-        chip.onclick = () => {
-          document.getElementById('c-filterPlatform').value = (document.getElementById('c-filterPlatform').value === plat) ? 'all' : plat;
-          renderCollection();
-        };
-
-        chip.innerHTML = `
-          <div class="platform-chip-name">${plat} ${isSelected ? '✓' : ''}</div>
-          <div class="platform-chip-value">${formatMoney(data.total)}</div>
-          <div class="platform-chip-count">${data.count} objet${data.count > 1 ? 's' : ''}</div>
-        `;
-        breakdownGrid.appendChild(chip);
-      });
+          chip.innerHTML = `
+            <div class="platform-chip-name">${plat} ${isSelected ? '✓' : ''}</div>
+            <div class="platform-chip-value">${formatMoney(data.total)}</div>
+            <div class="platform-chip-count">${data.count} objet${data.count > 1 ? 's' : ''}</div>
+          `;
+          breakdownGrid.appendChild(chip);
+        });
+      }
     }
 
     const filtered = collection.filter(i => {
@@ -1961,22 +2140,21 @@
       const matchState = (stateF === 'all' || i.state === stateF);
       const matchPlay = (playF === 'all' || i.gameplay === playF);
 
-      if (viewMode.startsWith('timeline')) {
-        return matchMonth;
-      }
-      return matchMonth && matchPlat && matchStore && matchState && matchPlay;
+      return viewMode.startsWith('timeline') ? matchMonth : (matchMonth && matchPlat && matchStore && matchState && matchPlay);
     });
 
     let totalVal = 0;
     filtered.forEach(i => { totalVal += parseFloat(i.price) || 0; });
-    document.getElementById('collectionTotalValue').textContent = formatMoney(totalVal);
-    document.getElementById('collectionItemTotal').textContent = filtered.length;
+    
+    if(document.getElementById('collectionTotalValue')) document.getElementById('collectionTotalValue').textContent = formatMoney(totalVal);
+    if(document.getElementById('collectionItemTotal')) document.getElementById('collectionItemTotal').textContent = filtered.length;
 
     const isFiltered = (monthFilter !== 'all' || currentPlatformFilter !== 'all' || storeF !== 'all' || stateF !== 'all' || playF !== 'all');
-    document.getElementById('c-labelValue').textContent = isFiltered ? 'Valeur (sélection)' : 'Valeur totale';
-    document.getElementById('c-labelCount').textContent = isFiltered ? 'Objets (sélection)' : 'Objets possédés';
+    if(document.getElementById('c-labelValue')) document.getElementById('c-labelValue').textContent = isFiltered ? 'Valeur (sélection)' : 'Valeur totale';
+    if(document.getElementById('c-labelCount')) document.getElementById('c-labelCount').textContent = isFiltered ? 'Objets (sélection)' : 'Objets possédés';
 
     const container = document.getElementById('collectionContainer');
+    if (!container) return;
     container.innerHTML = '';
 
     if (viewMode === 'list') {
@@ -2004,12 +2182,7 @@
         const datesStr = datesDisplay.length > 0 ? datesDisplay.join(' • ') : '📅 Dates non fixées';
 
         const noteHtml = item.note ? `<div class="item-note">📝 ${item.note}</div>` : '';
-
         const query = encodeURIComponent(`${item.title} ${item.platform}`);
-        const priceChartingUrl = `https://www.pricecharting.com/search-products?type=prices&q=${query}`;
-        const ebaySoldUrl = `https://www.ebay.fr/sch/i.html?_nkw=${query}&LH_Complete=1&LH_Sold=1`;
-        const leboncoinUrl = `https://www.leboncoin.fr/recherche?text=${query}`;
-        const vintedUrl = `https://www.vinted.fr/catalog?search_text=${query}`;
 
         card.innerHTML = `
           ${coverHtml}
@@ -2038,20 +2211,18 @@
 
             <div class="market-links" onclick="event.stopPropagation();">
               <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Argus :</span>
-              <a class="btn-market pricecharting" href="${priceChartingUrl}" target="_blank">📈 PriceCharting</a>
-              <a class="btn-market" href="${ebaySoldUrl}" target="_blank">📊 eBay</a>
-              <a class="btn-market" href="${leboncoinUrl}" target="_blank">🟠 LBC</a>
-              <a class="btn-market" href="${vintedUrl}" target="_blank">🟢 Vinted</a>
+              <a class="btn-market pricecharting" href="https://www.pricecharting.com/search-products?type=prices&q=${query}" target="_blank">📈 PriceCharting</a>
+              <a class="btn-market" href="https://www.ebay.fr/sch/i.html?_nkw=${query}&LH_Complete=1&LH_Sold=1" target="_blank">📊 eBay</a>
+              <a class="btn-market" href="https://www.leboncoin.fr/recherche?text=${query}" target="_blank">🟠 LBC</a>
+              <a class="btn-market" href="https://www.vinted.fr/catalog?search_text=${query}" target="_blank">🟢 Vinted</a>
             </div>
           </div>
         `;
         container.appendChild(card);
       });
     } else {
-      // Mode Frise Horizontale en Carrousel Unifié (Trié chronologiquement)
       const dateKey = (viewMode === 'timeline-release') ? 'releaseDate' : 'buyDate';
 
-      // Trier tous les objets filtrés par date (du plus ancien au plus récent, ou inversement)
       filtered.sort((a, b) => {
         const dateA = a[dateKey] || '9999-12-31';
         const dateB = b[dateKey] || '9999-12-31';
@@ -2062,15 +2233,13 @@
       scrollContainer.className = 'timeline-h-container';
 
       if (filtered.length === 0) {
-        scrollContainer.innerHTML = '<span style="font-size:0.8rem; color:var(--text-muted); padding:20px;">Aucun objet trouvé pour cette période.</span>';
+        scrollContainer.innerHTML = '<span style="font-size:0.8rem; color:var(--text-muted); padding:20px;">Aucun objet pour cette sélection.</span>';
       } else {
         filtered.forEach(item => {
           const index = collection.indexOf(item);
           const tile = document.createElement('div');
           tile.className = 'tile-card';
-          tile.onclick = () => {
-            openCollectionDetail(index);
-          };
+          tile.onclick = () => openCollectionDetail(index);
 
           const coverHtml = item.image 
             ? `<img src="${item.image}" class="tile-cover" alt="Jaquette" onerror="this.outerHTML='<div class=\\'tile-cover-placeholder\\'>📦</div>'">`
@@ -2098,7 +2267,7 @@
     }
   }
 
-  // Wishlist Form Submit
+  // Wishlist Submit
   document.getElementById('wishlistForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const platform = document.getElementById('w-platform').value;
@@ -2120,15 +2289,18 @@
       status: document.getElementById('w-status').value,
       ...extraData
     });
+    
     saveData();
     e.target.reset();
     toggleFormFields('w-', document.getElementById('w-platform').value);
     clearImageField('w-image', 'w-preview-wrap', 'w-preview');
   });
 
-  function deleteWishlistItem(index) { wishlist.splice(index, 1); saveData(); }
+  function deleteWishlistItem(index) {
+    wishlist.splice(index, 1);
+    saveData();
+  }
 
-  // Transfert Wishlist -> Collection
   function moveToCollection(index) {
     const item = wishlist[index];
     const acquisitionDate = item.releaseDate ? item.releaseDate : new Date().toISOString().slice(0, 10);
@@ -2155,15 +2327,11 @@
     switchTab('collection');
   }
 
-  // Collection Form Submit
+  // Collection Submit
   document.getElementById('collectionForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    
     const title = document.getElementById('c-title').value.trim();
-    if (!title) {
-      alert("Veuillez saisir un nom pour l'objet.");
-      return;
-    }
+    if (!title) return;
 
     const platform = document.getElementById('c-platform').value;
     let extraData = { platform };
@@ -2177,33 +2345,42 @@
       extraData.gameplay = document.getElementById('c-gameplay')?.value || 'Non commencé';
     }
 
-    const imageVal = document.getElementById('c-image').value.trim();
-
-    const newItem = {
+    collection.unshift({
       title: title,
       price: document.getElementById('c-price').value,
       store: document.getElementById('c-store').value,
       state: document.getElementById('c-state').value,
       releaseDate: document.getElementById('c-releaseDate').value,
       buyDate: document.getElementById('c-buyDate').value,
-      image: imageVal,
+      image: document.getElementById('c-image').value.trim(),
       note: document.getElementById('c-note').value.trim(),
       photos: [],
       ...extraData
-    };
+    });
 
-    collection.unshift(newItem);
     saveData();
-
     e.target.reset();
     toggleFormFields('c-', document.getElementById('c-platform').value);
     clearImageField('c-image', 'c-preview-wrap', 'c-preview');
-    
     document.getElementById('c-viewMode').value = 'list';
     renderCollection();
   });
 
-  function deleteCollectionItem(index) { collection.splice(index, 1); saveData(); }
+  async function deleteCollectionItem(index) {
+    const item = collection[index];
+    if (item) {
+      if (item.image) {
+        await deleteFileFromSupabaseStorage(item.image);
+      }
+      if (item.photos && item.photos.length > 0) {
+        for (const photoUrl of item.photos) {
+          await deleteFileFromSupabaseStorage(photoUrl);
+        }
+      }
+    }
+    collection.splice(index, 1);
+    saveData();
+  }
 
   document.getElementById('w-filterPlatform').addEventListener('change', renderWishlist);
   document.getElementById('w-filterStore').addEventListener('change', renderWishlist);
@@ -2214,8 +2391,11 @@
   document.getElementById('c-filterState').addEventListener('change', renderCollection);
   document.getElementById('c-filterGameplay').addEventListener('change', renderCollection);
 
-  updateMonthFilterDropdowns();
-  saveData();
+  window.addEventListener('DOMContentLoaded', () => {
+    toggleFormFields('w-', document.getElementById('w-platform').value);
+    toggleFormFields('c-', document.getElementById('c-platform').value);
+    initApp();
+  });
 </script>
 
 </body>
