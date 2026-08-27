@@ -722,7 +722,7 @@
       gap: 8px;
     }
 
-    /* Style des Vrais Sachets Boosters TCG Ultra-Réalistes (Languette supérieure dorée/cuivrée interactive) */
+    /* Style des Vrais Sachets Boosters TCG Ultra-Réalistes */
     .booster-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -732,7 +732,7 @@
     .tcg-booster {
       position: relative;
       border-radius: 14px;
-      padding: 14px 10px;
+      padding: 18px 10px 14px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -740,6 +740,17 @@
       height: 270px;
       box-shadow: 0 16px 35px rgba(0,0,0,0.85), inset 4px 4px 8px rgba(255,255,255,0.35), inset -4px -4px 8px rgba(0,0,0,0.8);
       overflow: hidden;
+    }
+
+    .tcg-booster.shake {
+      animation: boosterShake 0.3s ease-in-out infinite;
+    }
+    @keyframes boosterShake {
+      0% { transform: translateX(0) rotate(0deg); }
+      25% { transform: translateX(-4px) rotate(-2deg); }
+      50% { transform: translateX(4px) rotate(2deg); }
+      75% { transform: translateX(-3px) rotate(-1deg); }
+      100% { transform: translateX(0) rotate(0deg); }
     }
 
     .tcg-booster::after {
@@ -751,7 +762,6 @@
       z-index: 3;
     }
     
-    /* Soudure crantée du bas classique */
     .tcg-crimp-bottom {
       position: absolute;
       left: 0;
@@ -763,24 +773,23 @@
       border-top: 2px solid rgba(0,0,0,0.6);
     }
 
-    /* Soudure crantée du haut (La languette interactive dorée/cuivrée à glisser de gauche à droite) */
     .tcg-crimp-top {
       position: absolute;
       left: 0;
       right: 0;
-      height: 14px;
+      height: 22px;
       background: linear-gradient(90deg, #f39c12 0%, #e67e22 50%, #f1c40f 100%);
       background-size: 200% 100%;
       z-index: 5;
       top: 0;
       border-bottom: 2px solid rgba(0,0,0,0.7);
-      cursor: ew-resize;
+      cursor: pointer;
       user-select: none;
       touch-action: pan-y;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.62rem;
+      font-size: 0.68rem;
       font-weight: 900;
       color: #161922;
       letter-spacing: 0.05em;
@@ -800,7 +809,7 @@
       text-transform: uppercase;
       box-shadow: var(--clay-inset);
       z-index: 1;
-      margin-top: 10px;
+      margin-top: 8px;
     }
     .tcg-art-center {
       font-size: 3.4rem;
@@ -819,6 +828,21 @@
     }
     .tcg-banner-bottom h3 { font-size: 0.85rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 2px; }
     .tcg-banner-bottom p { font-size: 0.62rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; }
+
+    /* Flash lumineux d'ouverture */
+    #flash-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(253,253,150,0.6) 50%, rgba(0,0,0,0) 100%);
+      z-index: 4500;
+      pointer-events: none;
+      animation: flashAnim 0.4s ease-out forwards;
+    }
+    @keyframes flashAnim {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
 
     /* Modal Plein Écran Gachapon Reveal (Cartes TCG Flip) */
     #gachapon-modal {
@@ -948,6 +972,9 @@
 <body>
 
 <div class="container">
+
+  <!-- Flash lumineux d'ouverture -->
+  <div id="flash-overlay"></div>
 
   <!-- Lightbox Plein Écran -->
   <div id="lightbox-modal" onclick="closeLightbox()">
@@ -1338,10 +1365,10 @@
             <input type="file" style="display:none;" accept="image/*" onchange="handleCoverUpload(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
           </label>
         </div>
-        <input type="text" id="edit-c-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')" onpaste="handleDirectPaste(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
+        <input type="text" id="edit-c-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('edit-image', 'edit-c-preview-wrap', 'edit-c-preview')" onpaste="handleDirectPaste(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
         <div id="edit-c-preview-wrap" class="image-preview-card" style="display:none;">
           <img id="edit-c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕ Retirer</button>
+          <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('edit-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕ Retirer</button>
         </div>
       </div>
 
@@ -1552,7 +1579,7 @@
     <div id="collectionContainer"></div>
   </div>
 
-  <!-- ONGLET ALÉATOIRE / PACK OPENING GLISSEMENT DE HAUT DE GAUCHE À DROITE -->
+  <!-- ONGLET ALÉATOIRE / PACK OPENING INTERACTIF AVEC SON TYPE POKEMON TCG -->
   <div id="tab-random" class="tab-content">
     <div style="text-align: center; margin-bottom: 20px;">
       <h2 style="font-size: 1.25rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 4px;">⚡ BÂTIMENT DES BOOSTERS ⚡</h2>
@@ -1629,6 +1656,91 @@
   let collection = JSON.parse(localStorage.getItem('app_collection_cloud_v1')) || [];
   let currentDetailCollectionIndex = null;
   let lastGachaponCategory = 'all';
+
+  // Synthèse audio Web Audio API inspirée du style Pokémon TCG (Zip-crac net et percussif)
+  let audioCtx = null;
+  let tcgRipOsc = null;
+  let tcgRipGain = null;
+
+  function getAudioContext() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  function startPokemonRipSound() {
+    try {
+      const ctx = getAudioContext();
+      
+      // Bruit blanc filtré dans les aigus/moyens pour donner ce "Zip" net et sec de plastique tendu
+      const bufferSize = ctx.sampleRate * 0.3;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        // Bruit crépitant plus prononcé
+        data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      }
+
+      tcgRipOsc = ctx.createBufferSource();
+      tcgRipOsc.buffer = buffer;
+      tcgRipOsc.loop = true;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2800, ctx.currentTime); // Fréquence plus haute et tranchante type TCG
+      filter.Q.setValueAtTime(6, ctx.currentTime);
+
+      tcgRipGain = ctx.createGain();
+      tcgRipGain.gain.setValueAtTime(0.01, ctx.currentTime);
+
+      tcgRipOsc.connect(filter);
+      filter.connect(tcgRipGain);
+      tcgRipGain.connect(ctx.destination);
+
+      tcgRipOsc.start();
+    } catch(e) {}
+  }
+
+  function updatePokemonRipVolume(progress) {
+    if (tcgRipGain && audioCtx) {
+      // Volume progressif ultra net pendant qu'on glisse
+      const vol = Math.min(Math.max(progress * 0.45, 0.05), 0.4);
+      tcgRipGain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    }
+  }
+
+  function stopPokemonRipSound(success) {
+    try {
+      if (tcgRipOsc && tcgRipGain && audioCtx) {
+        if (success) {
+          // Petit effet "Pop" de libération finale quand le sachet s'ouvre complètement
+          const osc = audioCtx.createOscillator();
+          const popGain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.08);
+          
+          popGain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+          popGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+          
+          osc.connect(popGain);
+          popGain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.08);
+        }
+
+        tcgRipGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        setTimeout(() => {
+          tcgRipOsc.stop();
+          tcgRipOsc.disconnect();
+        }, 60);
+      }
+    } catch(e) {}
+  }
 
   // Variables pour le glissement horizontal de la soudure supérieure de gauche à droite
   let isTopRipActive = false;
@@ -2399,7 +2511,7 @@
     }
   }
 
-  // Système interactif de glissement de la languette supérieure de gauche à droite
+  // Système interactif style Pokémon TCG (Secousse + Son "Zip" net et progressif + Flash lumineux)
   function startTopHorizontalRip(e, category) {
     e.stopPropagation();
     isTopRipActive = true;
@@ -2407,23 +2519,35 @@
     startTopX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
     currentTopDragX = 0;
 
+    const boosterCard = document.getElementById(`booster-${category}`);
     const crimpEl = document.getElementById(`crimp-${category}`);
+
+    if (boosterCard) boosterCard.classList.add('shake');
+    startPokemonRipSound(); // Démarre le son "Zip" percussif style TCG
     
     function onPointerMove(moveEvent) {
       if (!isTopRipActive) return;
       const currentX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0].clientX) || 0;
-      currentTopDragX = currentX - startTopX; // Glisser de gauche à droite donne une valeur positive
+      currentTopDragX = currentX - startTopX;
 
       if (currentTopDragX > 0 && crimpEl) {
         let pull = Math.min(currentTopDragX, 150);
         crimpEl.style.transform = `translateX(${pull}px)`;
         crimpEl.style.opacity = `${1 - (pull / 200)}`;
+        
+        // Fait varier le volume en direct selon l'avancée du glissement de la languette
+        updatePokemonRipVolume(pull / 150);
       }
     }
 
     function onPointerUp() {
       if (!isTopRipActive) return;
       isTopRipActive = false;
+      if (boosterCard) boosterCard.classList.remove('shake');
+      
+      const success = currentTopDragX > 40;
+      stopPokemonRipSound(success); // Arrête le son avec un petit pop de libération si réussi
+
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
       window.removeEventListener('touchmove', onPointerMove);
@@ -2431,10 +2555,12 @@
 
       const crimpElFinal = document.getElementById(`crimp-${activeCategory}`);
 
-      // Si on a glissé de plus de 50 pixels vers la droite, on déchire complètement le haut !
-      if (currentTopDragX > 50) {
+      if (success) {
+        // Déchirure complète réussie !
+        triggerFlash();
+
         if (crimpElFinal) {
-          crimpElFinal.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+          crimpElFinal.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
           crimpElFinal.style.transform = 'translateX(220px) rotate(15deg)';
           crimpElFinal.style.opacity = '0';
         }
@@ -2446,9 +2572,9 @@
             crimpElFinal.style.transition = '';
           }
           triggerGachaponReveal(activeCategory);
-        }, 400);
+        }, 350);
       } else {
-        // Sinon, la languette revient en place
+        // Retour en place si on n'a pas assez tiré
         if (crimpElFinal) {
           crimpElFinal.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
           crimpElFinal.style.transform = 'translateX(0px)';
@@ -2462,6 +2588,16 @@
     window.addEventListener('pointerup', onPointerUp);
     window.addEventListener('touchmove', onPointerMove);
     window.addEventListener('touchend', onPointerUp);
+  }
+
+  function triggerFlash() {
+    const flash = document.getElementById('flash-overlay');
+    if (flash) {
+      flash.style.display = 'block';
+      setTimeout(() => {
+        flash.style.display = 'none';
+      }, 400);
+    }
   }
 
   function triggerGachaponReveal(category) {
