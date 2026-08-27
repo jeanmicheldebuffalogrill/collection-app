@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Wishlist & Collection Clay 3D</title>
 
-  <!-- Anti-cache pour forcer l'iPhone à prendre les nouveautés -->
+  <!-- Anti-cache ultime pour PWA iOS -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -1291,6 +1291,7 @@
     renderCollection();
 
     if (supabaseClient) {
+      // FORCER le téléchargement immédiat des données fraîches du Cloud au démarrage
       fetchCloudDataBackground();
     }
   }
@@ -1959,7 +1960,6 @@
   }
 
   function switchTab(tab) {
-    // Forcer une synchro rapide avec le Cloud à chaque changement d'onglet
     if (supabaseClient) {
       fetchCloudDataBackground();
     }
