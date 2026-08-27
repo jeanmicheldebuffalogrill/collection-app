@@ -357,8 +357,8 @@
     }
     .btn-collector-link:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
 
-    /* Bouton d'ouverture de la Modale Collection */
-    .btn-open-add-collection {
+    /* Boutons d'ouverture des Modalas d'Ajout */
+    .btn-open-add {
       background: var(--accent);
       color: white;
       border: none;
@@ -374,7 +374,7 @@
       box-shadow: var(--clay-card);
       transition: transform 0.1s;
     }
-    .btn-open-add-collection:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
+    .btn-open-add:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
 
     /* Zone Jaquette Compatible iPhone & Pellicule */
     .image-section {
@@ -796,7 +796,91 @@
     </div>
   </div>
 
-  <!-- NOUVEAU : Modal d'Ajout Collection -->
+  <!-- NOUVEAU : Modal d'Ajout Wishlist -->
+  <div id="add-wishlist-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>Ajouter à la wishlist</span>
+        <button type="button" class="btn-action" style="border:none;" onclick="closeAddWishlistModal()">✕</button>
+      </div>
+      <form id="wishlistForm" style="box-shadow:none; padding:0; margin:0; background:transparent;">
+        <div class="form-row">
+          <input type="text" id="w-title" placeholder="Nom du produit..." required oninput="updateSearchButton('w-', document.getElementById('w-platform').value)">
+        </div>
+
+        <div class="form-row">
+          <select id="w-platform" onchange="toggleFormFields('w-', this.value)">
+            <optgroup label="Jeux Vidéo">
+              <option value="PS5">PlayStation 5</option>
+              <option value="Switch">Nintendo Switch</option>
+              <option value="Switch 2">Nintendo Switch 2</option>
+              <option value="3DS">3DS</option>
+              <option value="DS">DS</option>
+              <option value="GBA">Game Boy Advance</option>
+              <option value="GBC">Game Boy Color</option>
+            </optgroup>
+            <optgroup label="Autres Médias">
+              <option value="Vinyle">🎵 Vinyle</option>
+              <option value="Blu-ray">🎬 Blu-ray / 4K</option>
+              <option value="Vêtement">👕 Vêtement</option>
+              <option value="Autre">📦 Autre</option>
+            </optgroup>
+          </select>
+          
+          <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
+        </div>
+
+        <div id="w-dynamic-fields"></div>
+
+        <button type="button" class="btn-collector-link" id="w-searchBtn" onclick="handleCustomSearch('w-')">
+          🏆 Rechercher sur EditionCollector
+        </button>
+
+        <div class="form-row">
+          <select id="w-store">
+            <option value="Non renseigné">🏪 Lieu de préco / achat</option>
+            <option value="Fnac">Fnac</option>
+            <option value="Leclerc">Leclerc</option>
+            <option value="Amazon">Amazon</option>
+            <option value="Cdiscount">Cdiscount</option>
+            <option value="Auchan">Auchan</option>
+            <option value="Carrefour">Carrefour</option>
+            <option value="Vinted">Vinted</option>
+            <option value="Leboncoin">Leboncoin</option>
+            <option value="Autre">Autre enseigne</option>
+          </select>
+          <input type="date" id="w-releaseDate" title="Date de sortie">
+        </div>
+
+        <div class="image-section">
+          <div class="image-action-grid">
+            <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">
+              🔍 Chercher jaquette
+            </button>
+            <label class="btn-image-action btn-photos">
+              📷 Depuis Photos
+              <input type="file" style="display:none;" accept="image/*" onchange="handleCoverUpload(event, 'w-image', 'w-preview-wrap', 'w-preview')">
+            </label>
+          </div>
+          <input type="text" id="w-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')" onpaste="handleDirectPaste(event, 'w-image', 'w-preview-wrap', 'w-preview')">
+          <div id="w-preview-wrap" class="image-preview-card" style="display:none;">
+            <img id="w-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
+            <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('w-image', 'w-preview-wrap', 'w-preview')">✕ Retirer</button>
+          </div>
+        </div>
+
+        <select id="w-status">
+          <option value="À prendre">✅ Je prends</option>
+          <option value="En réflexion">⏳ En réflexion</option>
+          <option value="Je passe">❌ Je passe</option>
+        </select>
+
+        <button type="submit" class="btn-add">+ Ajouter à la wishlist</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal d'Ajout Collection -->
   <div id="add-collection-modal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-header">
@@ -1076,13 +1160,12 @@
   <!-- WISHLIST -->
   <div id="tab-wishlist" class="tab-content active">
     
-    <div class="month-filter-box">
-      <label for="w-monthFilter">📅 Période / Budget :</label>
-      <select id="w-monthFilter" onchange="renderWishlist()">
-        <option value="all">Tout le calendrier</option>
-      </select>
-    </div>
+    <!-- BOUTON D'OUVERTURE DE LA MODALE D'AJOUT -->
+    <button type="button" class="btn-open-add" onclick="openAddWishlistModal()">
+      ➕ Ajouter un article à la wishlist
+    </button>
 
+    <!-- HUB DE STATS & FILTRES UNIFIÉ -->
     <div class="summary-grid">
       <div class="summary-card confirmed">
         <div class="summary-label" id="labelConfirmed">Total prévu</div>
@@ -1094,80 +1177,12 @@
       </div>
     </div>
 
-    <form id="wishlistForm">
-      <div class="form-row">
-        <input type="text" id="w-title" placeholder="Nom du produit..." required oninput="updateSearchButton('w-', document.getElementById('w-platform').value)">
-      </div>
-
-      <div class="form-row">
-        <select id="w-platform" onchange="toggleFormFields('w-', this.value)">
-          <optgroup label="Jeux Vidéo">
-            <option value="PS5">PlayStation 5</option>
-            <option value="Switch">Nintendo Switch</option>
-            <option value="Switch 2">Nintendo Switch 2</option>
-            <option value="3DS">3DS</option>
-            <option value="DS">DS</option>
-            <option value="GBA">Game Boy Advance</option>
-            <option value="GBC">Game Boy Color</option>
-          </optgroup>
-          <optgroup label="Autres Médias">
-            <option value="Vinyle">🎵 Vinyle</option>
-            <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-            <option value="Vêtement">👕 Vêtement</option>
-            <option value="Autre">📦 Autre</option>
-          </optgroup>
-        </select>
-        
-        <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
-      </div>
-
-      <div id="w-dynamic-fields"></div>
-
-      <button type="button" class="btn-collector-link" id="w-searchBtn" onclick="handleCustomSearch('w-')">
-        🏆 Rechercher sur EditionCollector
-      </button>
-
-      <div class="form-row">
-        <select id="w-store">
-          <option value="Non renseigné">🏪 Lieu de préco / achat</option>
-          <option value="Fnac">Fnac</option>
-          <option value="Leclerc">Leclerc</option>
-          <option value="Amazon">Amazon</option>
-          <option value="Cdiscount">Cdiscount</option>
-          <option value="Auchan">Auchan</option>
-          <option value="Carrefour">Carrefour</option>
-          <option value="Vinted">Vinted</option>
-          <option value="Leboncoin">Leboncoin</option>
-          <option value="Autre">Autre enseigne</option>
-        </select>
-        <input type="date" id="w-releaseDate" title="Date de sortie">
-      </div>
-
-      <div class="image-section">
-        <div class="image-action-grid">
-          <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('w-title', 'w-platform')">
-            🔍 Chercher jaquette
-          </button>
-          <label class="btn-image-action btn-photos">
-            📷 Depuis Photos
-            <input type="file" style="display:none;" accept="image/*" onchange="handleCoverUpload(event, 'w-image', 'w-preview-wrap', 'w-preview')">
-          </label>
-        </div>
-        <input type="text" id="w-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('w-image', 'w-preview-wrap', 'w-preview')" onpaste="handleDirectPaste(event, 'w-image', 'w-preview-wrap', 'w-preview')">
-        <div id="w-preview-wrap" class="image-preview-card" style="display:none;">
-          <img id="w-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('w-image', 'w-preview-wrap', 'w-preview')">✕ Retirer</button>
-        </div>
-      </div>
-
-      <select id="w-status">
-        <option value="À prendre">✅ Je prends</option>
-        <option value="En réflexion">⏳ En réflexion</option>
-        <option value="Je passe">❌ Je passe</option>
+    <div class="month-filter-box">
+      <label for="w-monthFilter">📅 Période / Budget :</label>
+      <select id="w-monthFilter" onchange="renderWishlist()">
+        <option value="all">Tout le calendrier</option>
       </select>
-
-      <button type="submit" class="btn-add">+ Ajouter à la wishlist</button>
-    </form>
+    </div>
 
     <div class="controls">
       <select id="w-filterPlatform">
@@ -1209,7 +1224,7 @@
   <div id="tab-collection" class="tab-content">
     
     <!-- BOUTON D'OUVERTURE DE LA MODALE D'AJOUT -->
-    <button type="button" class="btn-open-add-collection" onclick="openAddCollectionModal()">
+    <button type="button" class="btn-open-add" onclick="openAddCollectionModal()">
       ➕ Ajouter un objet à la collection
     </button>
 
@@ -1734,6 +1749,15 @@
   function closeDetailModal() {
     document.getElementById('detail-modal').style.display = 'none';
     currentDetailCollectionIndex = null;
+  }
+
+  function openAddWishlistModal() {
+    document.getElementById('add-wishlist-modal').style.display = 'flex';
+    toggleFormFields('w-', document.getElementById('w-platform').value);
+  }
+
+  function closeAddWishlistModal() {
+    document.getElementById('add-wishlist-modal').style.display = 'none';
   }
 
   function openAddCollectionModal() {
@@ -2382,6 +2406,7 @@
       ...extraData
     });
     
+    closeAddWishlistModal();
     saveData();
     e.target.reset();
     toggleFormFields('w-', document.getElementById('w-platform').value);
