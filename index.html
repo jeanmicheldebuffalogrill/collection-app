@@ -722,7 +722,7 @@
       gap: 8px;
     }
 
-    /* Style des Vrais Sachets Boosters TCG Ultra-Réalistes */
+    /* Style des Vrais Sachets Boosters Pokémon TCG (Format allongé, métallisé foil & relief) */
     .booster-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -731,15 +731,26 @@
     }
     .tcg-booster {
       position: relative;
-      border-radius: 14px;
-      padding: 18px 10px 14px 10px;
+      border-radius: 12px;
+      padding: 26px 10px 18px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      height: 270px;
-      box-shadow: 0 16px 35px rgba(0,0,0,0.85), inset 4px 4px 8px rgba(255,255,255,0.35), inset -4px -4px 8px rgba(0,0,0,0.8);
+      height: 320px; /* Format vertical plus long et élancé style vrai booster Pokémon */
+      box-shadow: 0 18px 40px rgba(0,0,0,0.9), inset 6px 6px 14px rgba(255,255,255,0.45), inset -6px -6px 14px rgba(0,0,0,0.85);
       overflow: hidden;
+    }
+
+    /* Effet Foil Holographique Métallisé Intense */
+    .tcg-booster::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.35) 45%, rgba(255,255,255,0) 70%);
+      pointer-events: none;
+      z-index: 3;
+      mix-blend-mode: overlay;
     }
 
     .tcg-booster.shake {
@@ -752,25 +763,16 @@
       75% { transform: translateX(-3px) rotate(-1deg); }
       100% { transform: translateX(0) rotate(0deg); }
     }
-
-    .tcg-booster::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 70%);
-      pointer-events: none;
-      z-index: 3;
-    }
     
     .tcg-crimp-bottom {
       position: absolute;
       left: 0;
       right: 0;
-      height: 10px;
-      background: repeating-linear-gradient(45deg, #0b0d12, #0b0d12 3px, #1a1f2c 3px, #1a1f2c 6px);
+      height: 12px;
+      background: repeating-linear-gradient(45deg, #0b0d12, #0b0d12 3px, #222a3a 3px, #222a3a 6px);
       z-index: 4;
       bottom: 0;
-      border-top: 2px solid rgba(0,0,0,0.6);
+      border-top: 2px solid rgba(0,0,0,0.7);
     }
 
     .tcg-crimp-top {
@@ -799,35 +801,22 @@
 
     .tcg-logo-box {
       background: rgba(10, 12, 18, 0.9);
-      border: 2px solid rgba(255,255,255,0.3);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.7rem;
+      border: 2px solid rgba(255,255,255,0.35);
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-size: 0.78rem;
       font-weight: 900;
       color: var(--clay-yellow);
       letter-spacing: 0.08em;
       text-transform: uppercase;
       box-shadow: var(--clay-inset);
       z-index: 1;
-      margin-top: 8px;
     }
     .tcg-art-center {
-      font-size: 3.4rem;
-      filter: drop-shadow(0 12px 18px rgba(0,0,0,0.95));
+      font-size: 4.5rem;
+      filter: drop-shadow(0 14px 20px rgba(0,0,0,0.95));
       z-index: 1;
     }
-    .tcg-banner-bottom {
-      background: rgba(10, 12, 18, 0.92);
-      border: 2px solid rgba(255,255,255,0.2);
-      width: 100%;
-      padding: 10px 6px;
-      border-radius: 12px;
-      text-align: center;
-      box-shadow: var(--clay-inset);
-      z-index: 1;
-    }
-    .tcg-banner-bottom h3 { font-size: 0.85rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 2px; }
-    .tcg-banner-bottom p { font-size: 0.62rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; }
 
     /* Flash lumineux d'ouverture */
     #flash-overlay {
@@ -1579,11 +1568,11 @@
     <div id="collectionContainer"></div>
   </div>
 
-  <!-- ONGLET ALÉATOIRE / PACK OPENING INTERACTIF AVEC SON TYPE POKEMON TCG -->
+  <!-- ONGLET ALÉATOIRE / PLACE DES BOOSTERS TCG FOIL -->
   <div id="tab-random" class="tab-content">
     <div style="text-align: center; margin-bottom: 20px;">
-      <h2 style="font-size: 1.25rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 4px;">⚡ BÂTIMENT DES BOOSTERS ⚡</h2>
-      <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">Glisse la languette dorée du haut de gauche à droite pour ouvrir !</p>
+      <h2 style="font-size: 1.25rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 4px;">✨ PLACE DES BOOSTERS ✨</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">Glisse la languette dorée du haut de gauche à droite pour déchirer le sachet !</p>
     </div>
 
     <div class="booster-grid" id="boosterGridContainer">
@@ -1592,10 +1581,6 @@
         <div class="tcg-crimp-top" id="crimp-game" onpointerdown="startTopHorizontalRip(event, 'game')">TIRER ➔</div>
         <div class="tcg-logo-box">🎮 GAMING</div>
         <div class="tcg-art-center">🕹️</div>
-        <div class="tcg-banner-bottom">
-          <h3>SÉRIE JEU</h3>
-          <p>Glisse de ➔</p>
-        </div>
         <div class="tcg-crimp-bottom"></div>
       </div>
 
@@ -1604,10 +1589,6 @@
         <div class="tcg-crimp-top" id="crimp-vinyl" onpointerdown="startTopHorizontalRip(event, 'vinyl')">TIRER ➔</div>
         <div class="tcg-logo-box">🎵 VINYL</div>
         <div class="tcg-art-center">💿</div>
-        <div class="tcg-banner-bottom">
-          <h3>SÉRIE AUDIO</h3>
-          <p>Glisse de ➔</p>
-        </div>
         <div class="tcg-crimp-bottom"></div>
       </div>
 
@@ -1616,10 +1597,6 @@
         <div class="tcg-crimp-top" id="crimp-movie" onpointerdown="startTopHorizontalRip(event, 'movie')">TIRER ➔</div>
         <div class="tcg-logo-box">🎬 CINÉMA</div>
         <div class="tcg-art-center">🍿</div>
-        <div class="tcg-banner-bottom">
-          <h3>SÉRIE FILMS</h3>
-          <p>Glisse de ➔</p>
-        </div>
         <div class="tcg-crimp-bottom"></div>
       </div>
 
@@ -1628,10 +1605,6 @@
         <div class="tcg-crimp-top" id="crimp-all" onpointerdown="startTopHorizontalRip(event, 'all')">TIRER ➔</div>
         <div class="tcg-logo-box">✨ ULTIME</div>
         <div class="tcg-art-center">🌟</div>
-        <div class="tcg-banner-bottom">
-          <h3>ÉDITION SPEC</h3>
-          <p>Glisse de ➔</p>
-        </div>
         <div class="tcg-crimp-bottom"></div>
       </div>
     </div>
@@ -1657,7 +1630,7 @@
   let currentDetailCollectionIndex = null;
   let lastGachaponCategory = 'all';
 
-  // Synthèse audio Web Audio API inspirée du style Pokémon TCG (Zip-crac net et percussif)
+  // Synthèse audio style Pokémon TCG (Zip net, aigu, percussif et ultra-rapide)
   let audioCtx = null;
   let tcgRipOsc = null;
   let tcgRipGain = null;
@@ -1676,12 +1649,10 @@
     try {
       const ctx = getAudioContext();
       
-      // Bruit blanc filtré dans les aigus/moyens pour donner ce "Zip" net et sec de plastique tendu
-      const bufferSize = ctx.sampleRate * 0.3;
+      const bufferSize = ctx.sampleRate * 0.25;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        // Bruit crépitant plus prononcé
         data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
       }
 
@@ -1691,8 +1662,8 @@
 
       const filter = ctx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(2800, ctx.currentTime); // Fréquence plus haute et tranchante type TCG
-      filter.Q.setValueAtTime(6, ctx.currentTime);
+      filter.frequency.setValueAtTime(3600, ctx.currentTime);
+      filter.Q.setValueAtTime(8, ctx.currentTime);
 
       tcgRipGain = ctx.createGain();
       tcgRipGain.gain.setValueAtTime(0.01, ctx.currentTime);
@@ -1707,8 +1678,7 @@
 
   function updatePokemonRipVolume(progress) {
     if (tcgRipGain && audioCtx) {
-      // Volume progressif ultra net pendant qu'on glisse
-      const vol = Math.min(Math.max(progress * 0.45, 0.05), 0.4);
+      const vol = Math.min(Math.max(progress * 0.5, 0.05), 0.45);
       tcgRipGain.gain.setValueAtTime(vol, audioCtx.currentTime);
     }
   }
@@ -1717,27 +1687,26 @@
     try {
       if (tcgRipOsc && tcgRipGain && audioCtx) {
         if (success) {
-          // Petit effet "Pop" de libération finale quand le sachet s'ouvre complètement
           const osc = audioCtx.createOscillator();
           const popGain = audioCtx.createGain();
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.08);
+          osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.06);
           
-          popGain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-          popGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+          popGain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+          popGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
           
           osc.connect(popGain);
           popGain.connect(audioCtx.destination);
           osc.start();
-          osc.stop(audioCtx.currentTime + 0.08);
+          osc.stop(audioCtx.currentTime + 0.06);
         }
 
-        tcgRipGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        tcgRipGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
         setTimeout(() => {
           tcgRipOsc.stop();
           tcgRipOsc.disconnect();
-        }, 60);
+        }, 50);
       }
     } catch(e) {}
   }
@@ -2511,7 +2480,7 @@
     }
   }
 
-  // Système interactif style Pokémon TCG (Secousse + Son "Zip" net et progressif + Flash lumineux)
+  // Système interactif Pokémon TCG : secousse, son zip percussif ultra net et flash
   function startTopHorizontalRip(e, category) {
     e.stopPropagation();
     isTopRipActive = true;
@@ -2523,7 +2492,7 @@
     const crimpEl = document.getElementById(`crimp-${category}`);
 
     if (boosterCard) boosterCard.classList.add('shake');
-    startPokemonRipSound(); // Démarre le son "Zip" percussif style TCG
+    startPokemonRipSound();
     
     function onPointerMove(moveEvent) {
       if (!isTopRipActive) return;
@@ -2535,7 +2504,6 @@
         crimpEl.style.transform = `translateX(${pull}px)`;
         crimpEl.style.opacity = `${1 - (pull / 200)}`;
         
-        // Fait varier le volume en direct selon l'avancée du glissement de la languette
         updatePokemonRipVolume(pull / 150);
       }
     }
@@ -2546,7 +2514,7 @@
       if (boosterCard) boosterCard.classList.remove('shake');
       
       const success = currentTopDragX > 40;
-      stopPokemonRipSound(success); // Arrête le son avec un petit pop de libération si réussi
+      stopPokemonRipSound(success);
 
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
@@ -2556,7 +2524,6 @@
       const crimpElFinal = document.getElementById(`crimp-${activeCategory}`);
 
       if (success) {
-        // Déchirure complète réussie !
         triggerFlash();
 
         if (crimpElFinal) {
@@ -2574,7 +2541,6 @@
           triggerGachaponReveal(activeCategory);
         }, 350);
       } else {
-        // Retour en place si on n'a pas assez tiré
         if (crimpElFinal) {
           crimpElFinal.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
           crimpElFinal.style.transform = 'translateX(0px)';
