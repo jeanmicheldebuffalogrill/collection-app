@@ -357,6 +357,25 @@
     }
     .btn-collector-link:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
 
+    /* Bouton d'ouverture de la Modale Collection */
+    .btn-open-add-collection {
+      background: var(--accent);
+      color: white;
+      border: none;
+      font-weight: 900;
+      cursor: pointer;
+      padding: 16px;
+      border-radius: 26px;
+      width: 100%;
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: var(--text-pop);
+      box-shadow: var(--clay-card);
+      transition: transform 0.1s;
+    }
+    .btn-open-add-collection:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
+
     /* Zone Jaquette Compatible iPhone & Pellicule */
     .image-section {
       display: flex;
@@ -777,6 +796,98 @@
     </div>
   </div>
 
+  <!-- NOUVEAU : Modal d'Ajout Collection -->
+  <div id="add-collection-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>Ajouter à la collection</span>
+        <button type="button" class="btn-action" style="border:none;" onclick="closeAddCollectionModal()">✕</button>
+      </div>
+      <form id="collectionForm" style="box-shadow:none; padding:0; margin:0; background:transparent;">
+        <div class="form-row">
+          <input type="text" id="c-title" placeholder="Nom de l'objet possédé..." required>
+        </div>
+
+        <div class="form-row">
+          <select id="c-platform" onchange="toggleFormFields('c-', this.value)">
+            <optgroup label="Jeux Vidéo">
+              <option value="PS5">PlayStation 5</option>
+              <option value="Switch">Nintendo Switch</option>
+              <option value="Switch 2">Nintendo Switch 2</option>
+              <option value="3DS">3DS</option>
+              <option value="DS">DS</option>
+              <option value="GBA">Game Boy Advance</option>
+              <option value="GBC">Game Boy Color</option>
+            </optgroup>
+            <optgroup label="Autres Médias">
+              <option value="Vinyle">🎵 Vinyle</option>
+              <option value="Blu-ray">🎬 Blu-ray / 4K</option>
+              <option value="Vêtement">👕 Vêtement</option>
+              <option value="Autre">📦 Autre</option>
+            </optgroup>
+          </select>
+          
+          <input type="number" id="c-price" placeholder="Valeur (€)" step="0.01">
+        </div>
+
+        <div id="c-dynamic-fields"></div>
+
+        <div class="form-row">
+          <select id="c-store">
+            <option value="Non renseigné">🏪 Acheté chez...</option>
+            <option value="Fnac">Fnac</option>
+            <option value="Leclerc">Leclerc</option>
+            <option value="Amazon">Amazon</option>
+            <option value="Cdiscount">Cdiscount</option>
+            <option value="Auchan">Auchan</option>
+            <option value="Carrefour">Carrefour</option>
+            <option value="Vinted">Vinted</option>
+            <option value="Leboncoin">Leboncoin</option>
+            <option value="Autre">Autre enseigne</option>
+          </select>
+          <select id="c-state" required>
+            <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
+            <option value="🟢 Occasion (Très bon état)">🟢 Occasion (Très bon état)</option>
+            <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
+            <option value="🟠 Occasion (Abîmé / Usé)">🟠 Occasion (Abîmé / Usé)</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label style="font-size:0.7rem; color:var(--text-muted);">Sortie originale :</label>
+            <input type="date" id="c-releaseDate">
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:var(--text-muted);">Date d'achat :</label>
+            <input type="date" id="c-buyDate">
+          </div>
+        </div>
+
+        <div class="image-section">
+          <div class="image-action-grid">
+            <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">
+              🔍 Chercher jaquette
+            </button>
+            <label class="btn-image-action btn-photos">
+              📷 Depuis Photos
+              <input type="file" style="display:none;" accept="image/*" onchange="handleCoverUpload(event, 'c-image', 'c-preview-wrap', 'c-preview')">
+            </label>
+          </div>
+          <input type="text" id="c-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')" onpaste="handleDirectPaste(event, 'c-image', 'c-preview-wrap', 'c-preview')">
+          <div id="c-preview-wrap" class="image-preview-card" style="display:none;">
+            <img id="c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
+            <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('c-image', 'c-preview-wrap', 'c-preview')">✕ Retirer</button>
+          </div>
+        </div>
+
+        <textarea id="c-note" placeholder="Notes & commentaires..."></textarea>
+
+        <button type="submit" class="btn-add">+ Ajouter à la collection</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Modal Modification Wishlist -->
   <div id="edit-modal" class="modal-overlay">
     <div class="modal-box">
@@ -1097,21 +1208,12 @@
   <!-- COLLECTION -->
   <div id="tab-collection" class="tab-content">
     
-    <div class="month-filter-box">
-      <label for="c-monthFilter">📅 Période d'achat :</label>
-      <select id="c-monthFilter" onchange="renderCollection()">
-        <option value="all">Tout l'historique</option>
-      </select>
-    </div>
+    <!-- BOUTON D'OUVERTURE DE LA MODALE D'AJOUT -->
+    <button type="button" class="btn-open-add-collection" onclick="openAddCollectionModal()">
+      ➕ Ajouter un objet à la collection
+    </button>
 
-    <!-- NOUVEAU : Filtre par période de sortie -->
-    <div class="month-filter-box">
-      <label for="c-releaseFilter">📅 Période de sortie :</label>
-      <select id="c-releaseFilter" onchange="renderCollection()">
-        <option value="all">Toutes les sorties</option>
-      </select>
-    </div>
-
+    <!-- HUB DE STATS & FILTRES UNIFIÉ -->
     <div class="summary-grid">
       <div class="summary-card value">
         <div class="summary-label" id="c-labelValue">Valeur totale</div>
@@ -1131,97 +1233,19 @@
       <div class="platform-grid" id="platformBreakdownGrid"></div>
     </div>
 
-    <div class="month-filter-box" style="background:var(--bg); box-shadow:var(--clay-inset);">
-      <label for="c-viewMode">👁️ Mode d'affichage :</label>
-      <select id="c-viewMode" onchange="renderCollection()">
-        <option value="list">📋 Vue Liste classique</option>
-        <option value="timeline-release">🎞️ Frise Horizontale (Par Sortie)</option>
-        <option value="timeline-buy">🎞️ Frise Horizontale (Par Achat)</option>
+    <div class="month-filter-box">
+      <label for="c-monthFilter">📅 Période d'achat :</label>
+      <select id="c-monthFilter" onchange="renderCollection()">
+        <option value="all">Tout l'historique</option>
       </select>
     </div>
 
-    <form id="collectionForm">
-      <div class="form-row">
-        <input type="text" id="c-title" placeholder="Nom de l'objet possédé" required>
-      </div>
-
-      <div class="form-row">
-        <select id="c-platform" onchange="toggleFormFields('c-', this.value)">
-          <optgroup label="Jeux Vidéo">
-            <option value="PS5">PlayStation 5</option>
-            <option value="Switch">Nintendo Switch</option>
-            <option value="Switch 2">Nintendo Switch 2</option>
-            <option value="3DS">3DS</option>
-            <option value="DS">DS</option>
-            <option value="GBA">Game Boy Advance</option>
-            <option value="GBC">Game Boy Color</option>
-          </optgroup>
-          <optgroup label="Autres Médias">
-            <option value="Vinyle">🎵 Vinyle</option>
-            <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-            <option value="Vêtement">👕 Vêtement</option>
-            <option value="Autre">📦 Autre</option>
-          </optgroup>
-        </select>
-        
-        <input type="number" id="c-price" placeholder="Valeur (€)" step="0.01">
-      </div>
-
-      <div id="c-dynamic-fields"></div>
-
-      <div class="form-row">
-        <select id="c-store">
-          <option value="Non renseigné">🏪 Acheté chez...</option>
-          <option value="Fnac">Fnac</option>
-          <option value="Leclerc">Leclerc</option>
-          <option value="Amazon">Amazon</option>
-          <option value="Cdiscount">Cdiscount</option>
-          <option value="Auchan">Auchan</option>
-          <option value="Carrefour">Carrefour</option>
-          <option value="Vinted">Vinted</option>
-          <option value="Leboncoin">Leboncoin</option>
-          <option value="Autre">Autre enseigne</option>
-        </select>
-        <select id="c-state" required>
-          <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
-          <option value="🟢 Occasion (Très bon état)">🟢 Occasion (Très bon état)</option>
-          <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
-          <option value="🟠 Occasion (Abîmé / Usé)">🟠 Occasion (Abîmé / Usé)</option>
-        </select>
-      </div>
-
-      <div class="form-row">
-        <div>
-          <label style="font-size:0.7rem; color:var(--text-muted);">Sortie originale :</label>
-          <input type="date" id="c-releaseDate">
-        </div>
-        <div>
-          <label style="font-size:0.7rem; color:var(--text-muted);">Date d'achat :</label>
-          <input type="date" id="c-buyDate">
-        </div>
-      </div>
-
-      <div class="image-section">
-        <div class="image-action-grid">
-          <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">
-            🔍 Chercher jaquette
-          </button>
-          <label class="btn-image-action btn-photos">
-            📷 Depuis Photos
-            <input type="file" style="display:none;" accept="image/*" onchange="handleCoverUpload(event, 'c-image', 'c-preview-wrap', 'c-preview')">
-          </label>
-        </div>
-        <input type="text" id="c-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('c-image', 'c-preview-wrap', 'c-preview')" onpaste="handleDirectPaste(event, 'c-image', 'c-preview-wrap', 'c-preview')">
-        <div id="c-preview-wrap" class="image-preview-card" style="display:none;">
-          <img id="c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('c-image', 'c-preview-wrap', 'c-preview')">✕ Retirer</button>
-        </div>
-      </div>
-
-      <textarea id="c-note" placeholder="Notes & commentaires..."></textarea>
-
-      <button type="submit" class="btn-add">+ Ajouter à la collection</button>
-    </form>
+    <div class="month-filter-box">
+      <label for="c-releaseFilter">📅 Période de sortie :</label>
+      <select id="c-releaseFilter" onchange="renderCollection()">
+        <option value="all">Toutes les sorties</option>
+      </select>
+    </div>
 
     <div class="controls" id="collectionFiltersBar">
       <select id="c-filterPlatform">
@@ -1260,6 +1284,15 @@
         <option value="Non commencé">⏳ Non commencé</option>
         <option value="En cours">🎮 En cours</option>
         <option value="Terminé">🏆 Terminé</option>
+      </select>
+    </div>
+
+    <div class="month-filter-box" style="background:var(--bg); box-shadow:var(--clay-inset); margin-bottom: 20px;">
+      <label for="c-viewMode">👁️ Affichage :</label>
+      <select id="c-viewMode" onchange="renderCollection()">
+        <option value="list">📋 Vue Liste classique</option>
+        <option value="timeline-release">🎞️ Frise (Par Sortie)</option>
+        <option value="timeline-buy">🎞️ Frise (Par Achat)</option>
       </select>
     </div>
 
@@ -1703,6 +1736,15 @@
     currentDetailCollectionIndex = null;
   }
 
+  function openAddCollectionModal() {
+    document.getElementById('add-collection-modal').style.display = 'flex';
+    toggleFormFields('c-', document.getElementById('c-platform').value);
+  }
+
+  function closeAddCollectionModal() {
+    document.getElementById('add-collection-modal').style.display = 'none';
+  }
+
   function renderDetailGallery() {
     if (currentDetailCollectionIndex === null) return;
     const item = collection[currentDetailCollectionIndex];
@@ -1918,7 +1960,7 @@
       cMonthSelect.value = Array.from(cMonthSelect.options).some(o => o.value === cCurrentVal) ? cCurrentVal : 'all';
     }
 
-    // NOUVEAU : Filtre Période de sortie (Collection)
+    // Filtre Période de sortie (Collection)
     const cReleaseSelect = document.getElementById('c-releaseFilter');
     if(cReleaseSelect) {
       const cReleaseVal = cReleaseSelect.value;
@@ -2414,6 +2456,7 @@
       ...extraData
     });
 
+    closeAddCollectionModal();
     saveData();
     e.target.reset();
     toggleFormFields('c-', document.getElementById('c-platform').value);
