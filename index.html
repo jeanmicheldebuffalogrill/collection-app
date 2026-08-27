@@ -722,40 +722,103 @@
       gap: 8px;
     }
 
-    /* Style des Boosters / Gachapon 3D Améliorés */
+    /* Style des Vrais Sachets Boosters TCG Ultra-Réalistes (Languette supérieure dorée/cuivrée interactive) */
     .booster-grid {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 16px;
       margin-bottom: 20px;
     }
-    .booster-card {
-      background: linear-gradient(135deg, var(--surface) 0%, var(--surface-elevated) 100%);
-      border-radius: 30px;
-      padding: 22px;
+    .tcg-booster {
+      position: relative;
+      border-radius: 14px;
+      padding: 14px 10px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      box-shadow: var(--clay-card);
-      cursor: pointer;
-      border: 2px solid rgba(255, 255, 255, 0.05);
-      transition: transform 0.15s;
+      height: 270px;
+      box-shadow: 0 16px 35px rgba(0,0,0,0.85), inset 4px 4px 8px rgba(255,255,255,0.35), inset -4px -4px 8px rgba(0,0,0,0.8);
+      overflow: hidden;
     }
-    .booster-card:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
-    .booster-card.shake {
-      animation: boosterShake 0.4s ease-in-out infinite;
+
+    .tcg-booster::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 70%);
+      pointer-events: none;
+      z-index: 3;
     }
-    @keyframes boosterShake {
-      0% { transform: translateX(0) rotate(0deg); }
-      20% { transform: translateX(-6px) rotate(-2deg); }
-      40% { transform: translateX(6px) rotate(2deg); }
-      60% { transform: translateX(-4px) rotate(-1deg); }
-      80% { transform: translateX(4px) rotate(1deg); }
-      100% { transform: translateX(0) rotate(0deg); }
+    
+    /* Soudure crantée du bas classique */
+    .tcg-crimp-bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: repeating-linear-gradient(45deg, #0b0d12, #0b0d12 3px, #1a1f2c 3px, #1a1f2c 6px);
+      z-index: 4;
+      bottom: 0;
+      border-top: 2px solid rgba(0,0,0,0.6);
     }
-    .booster-info h3 { font-size: 1.15rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 4px; color: var(--clay-yellow); }
-    .booster-info p { font-size: 0.78rem; color: var(--text-muted); font-weight: 700; }
-    .booster-icon { font-size: 2.2rem; background: var(--bg); width: 65px; height: 65px; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: var(--clay-btn); flex-shrink: 0; }
+
+    /* Soudure crantée du haut (La languette interactive dorée/cuivrée à glisser de gauche à droite) */
+    .tcg-crimp-top {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 14px;
+      background: linear-gradient(90deg, #f39c12 0%, #e67e22 50%, #f1c40f 100%);
+      background-size: 200% 100%;
+      z-index: 5;
+      top: 0;
+      border-bottom: 2px solid rgba(0,0,0,0.7);
+      cursor: ew-resize;
+      user-select: none;
+      touch-action: pan-y;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.62rem;
+      font-weight: 900;
+      color: #161922;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      transition: transform 0.05s linear;
+    }
+
+    .tcg-logo-box {
+      background: rgba(10, 12, 18, 0.9);
+      border: 2px solid rgba(255,255,255,0.3);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      color: var(--clay-yellow);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: var(--clay-inset);
+      z-index: 1;
+      margin-top: 10px;
+    }
+    .tcg-art-center {
+      font-size: 3.4rem;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,0.95));
+      z-index: 1;
+    }
+    .tcg-banner-bottom {
+      background: rgba(10, 12, 18, 0.92);
+      border: 2px solid rgba(255,255,255,0.2);
+      width: 100%;
+      padding: 10px 6px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: var(--clay-inset);
+      z-index: 1;
+    }
+    .tcg-banner-bottom h3 { font-size: 0.85rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 2px; }
+    .tcg-banner-bottom p { font-size: 0.62rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; }
 
     /* Modal Plein Écran Gachapon Reveal (Cartes TCG Flip) */
     #gachapon-modal {
@@ -782,11 +845,11 @@
       text-align: center;
       box-shadow: 0 40px 80px rgba(0, 0, 0, 0.95);
       border: 3px solid rgba(157, 127, 229, 0.3);
-      animation: cardFlipReveal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      animation: cardSlideUpReveal 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
-    @keyframes cardFlipReveal {
-      0% { opacity: 0; transform: scale(0.6) rotateY(90deg); }
-      100% { opacity: 1; transform: scale(1) rotateY(0deg); }
+    @keyframes cardSlideUpReveal {
+      0% { opacity: 0; transform: translateY(80px) scale(0.7) rotateY(90deg); }
+      100% { opacity: 1; transform: translateY(0) scale(1) rotateY(0deg); }
     }
     .gachapon-cover-large {
       width: 200px;
@@ -1489,44 +1552,60 @@
     <div id="collectionContainer"></div>
   </div>
 
-  <!-- ONGLET ALÉATOIRE / PACK OPENING -->
+  <!-- ONGLET ALÉATOIRE / PACK OPENING GLISSEMENT DE HAUT DE GAUCHE À DROITE -->
   <div id="tab-random" class="tab-content">
     <div style="text-align: center; margin-bottom: 20px;">
-      <h2 style="font-size: 1.25rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 4px;">🎰 Le Booster Mystère</h2>
-      <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">Secoue un booster pour révéler ta prochaine session !</p>
+      <h2 style="font-size: 1.25rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 4px;">⚡ BÂTIMENT DES BOOSTERS ⚡</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">Glisse la languette dorée du haut de gauche à droite pour ouvrir !</p>
     </div>
 
     <div class="booster-grid" id="boosterGridContainer">
-      <div class="booster-card" id="booster-game" onclick="openGachapon('game')">
-        <div class="booster-info">
-          <h3>Booster Jeux Vidéo</h3>
-          <p>Tirer un jeu de ta collection</p>
+      <!-- Sachet TCG Jeux Vidéo -->
+      <div class="tcg-booster" id="booster-game" style="background: linear-gradient(135deg, #0d381b 0%, #175e2f 40%, #082412 100%); border-color: rgba(187, 249, 175, 0.6);">
+        <div class="tcg-crimp-top" id="crimp-game" onpointerdown="startTopHorizontalRip(event, 'game')">TIRER ➔</div>
+        <div class="tcg-logo-box">🎮 GAMING</div>
+        <div class="tcg-art-center">🕹️</div>
+        <div class="tcg-banner-bottom">
+          <h3>SÉRIE JEU</h3>
+          <p>Glisse de ➔</p>
         </div>
-        <div class="booster-icon">🎮</div>
+        <div class="tcg-crimp-bottom"></div>
       </div>
 
-      <div class="booster-card" id="booster-vinyl" onclick="openGachapon('vinyl')">
-        <div class="booster-info">
-          <h3>Booster Vinyles</h3>
-          <p>Choisir un disque à écouter</p>
+      <!-- Sachet TCG Vinyles -->
+      <div class="tcg-booster" id="booster-vinyl" style="background: linear-gradient(135deg, #320d38 0%, #5d1767 40%, #1f0824 100%); border-color: rgba(231, 198, 255, 0.6);">
+        <div class="tcg-crimp-top" id="crimp-vinyl" onpointerdown="startTopHorizontalRip(event, 'vinyl')">TIRER ➔</div>
+        <div class="tcg-logo-box">🎵 VINYL</div>
+        <div class="tcg-art-center">💿</div>
+        <div class="tcg-banner-bottom">
+          <h3>SÉRIE AUDIO</h3>
+          <p>Glisse de ➔</p>
         </div>
-        <div class="booster-icon">🎵</div>
+        <div class="tcg-crimp-bottom"></div>
       </div>
 
-      <div class="booster-card" id="booster-movie" onclick="openGachapon('movie')">
-        <div class="booster-info">
-          <h3>Booster Films</h3>
-          <p>Sélectionner un Blu-ray / 4K</p>
+      <!-- Sachet TCG Films -->
+      <div class="tcg-booster" id="booster-movie" style="background: linear-gradient(135deg, #0d2b38 0%, #174b5e 40%, #081a24 100%); border-color: rgba(175, 252, 255, 0.6);">
+        <div class="tcg-crimp-top" id="crimp-movie" onpointerdown="startTopHorizontalRip(event, 'movie')">TIRER ➔</div>
+        <div class="tcg-logo-box">🎬 CINÉMA</div>
+        <div class="tcg-art-center">🍿</div>
+        <div class="tcg-banner-bottom">
+          <h3>SÉRIE FILMS</h3>
+          <p>Glisse de ➔</p>
         </div>
-        <div class="booster-icon">🎬</div>
+        <div class="tcg-crimp-bottom"></div>
       </div>
 
-      <div class="booster-card" id="booster-all" onclick="openGachapon('all')">
-        <div class="booster-info">
-          <h3>Booster Ultime (Tout)</h3>
-          <p>Piocher dans toute la bibliothèque</p>
+      <!-- Sachet TCG Ultime -->
+      <div class="tcg-booster" id="booster-all" style="background: linear-gradient(135deg, #382e0d 0%, #5e4f17 40%, #241d08 100%); border-color: rgba(253, 253, 150, 0.6);">
+        <div class="tcg-crimp-top" id="crimp-all" onpointerdown="startTopHorizontalRip(event, 'all')">TIRER ➔</div>
+        <div class="tcg-logo-box">✨ ULTIME</div>
+        <div class="tcg-art-center">🌟</div>
+        <div class="tcg-banner-bottom">
+          <h3>ÉDITION SPEC</h3>
+          <p>Glisse de ➔</p>
         </div>
-        <div class="booster-icon">✨</div>
+        <div class="tcg-crimp-bottom"></div>
       </div>
     </div>
   </div>
@@ -1550,6 +1629,12 @@
   let collection = JSON.parse(localStorage.getItem('app_collection_cloud_v1')) || [];
   let currentDetailCollectionIndex = null;
   let lastGachaponCategory = 'all';
+
+  // Variables pour le glissement horizontal de la soudure supérieure de gauche à droite
+  let isTopRipActive = false;
+  let activeCategory = null;
+  let startTopX = 0;
+  let currentTopDragX = 0;
 
   function setSyncStatus(text, color = 'var(--clay-green)') {
     const el = document.getElementById('syncStatus');
@@ -2314,61 +2399,115 @@
     }
   }
 
-  // Système Gachapon / Pack Opening Amélioré (Plein Écran)
-  function openGachapon(category) {
-    lastGachaponCategory = category;
-    const boosterCard = document.getElementById(`booster-${category}`);
-    if (boosterCard) {
-      boosterCard.classList.add('shake');
+  // Système interactif de glissement de la languette supérieure de gauche à droite
+  function startTopHorizontalRip(e, category) {
+    e.stopPropagation();
+    isTopRipActive = true;
+    activeCategory = category;
+    startTopX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    currentTopDragX = 0;
+
+    const crimpEl = document.getElementById(`crimp-${category}`);
+    
+    function onPointerMove(moveEvent) {
+      if (!isTopRipActive) return;
+      const currentX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0].clientX) || 0;
+      currentTopDragX = currentX - startTopX; // Glisser de gauche à droite donne une valeur positive
+
+      if (currentTopDragX > 0 && crimpEl) {
+        let pull = Math.min(currentTopDragX, 150);
+        crimpEl.style.transform = `translateX(${pull}px)`;
+        crimpEl.style.opacity = `${1 - (pull / 200)}`;
+      }
     }
 
-    setTimeout(() => {
-      if (boosterCard) boosterCard.classList.remove('shake');
+    function onPointerUp() {
+      if (!isTopRipActive) return;
+      isTopRipActive = false;
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('touchmove', onPointerMove);
+      window.removeEventListener('touchend', onPointerUp);
 
-      let pool = [];
-      if (category === 'game') {
-        pool = collection.filter(i => i.platform !== 'Vinyle' && i.platform !== 'Blu-ray');
-      } else if (category === 'vinyl') {
-        pool = collection.filter(i => i.platform === 'Vinyle');
-      } else if (category === 'movie') {
-        pool = collection.filter(i => i.platform === 'Blu-ray');
+      const crimpElFinal = document.getElementById(`crimp-${activeCategory}`);
+
+      // Si on a glissé de plus de 50 pixels vers la droite, on déchire complètement le haut !
+      if (currentTopDragX > 50) {
+        if (crimpElFinal) {
+          crimpElFinal.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+          crimpElFinal.style.transform = 'translateX(220px) rotate(15deg)';
+          crimpElFinal.style.opacity = '0';
+        }
+
+        setTimeout(() => {
+          if (crimpElFinal) {
+            crimpElFinal.style.transform = '';
+            crimpElFinal.style.opacity = '';
+            crimpElFinal.style.transition = '';
+          }
+          triggerGachaponReveal(activeCategory);
+        }, 400);
       } else {
-        pool = collection;
+        // Sinon, la languette revient en place
+        if (crimpElFinal) {
+          crimpElFinal.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+          crimpElFinal.style.transform = 'translateX(0px)';
+          crimpElFinal.style.opacity = '1';
+          setTimeout(() => { crimpElFinal.style.transition = ''; }, 300);
+        }
       }
+    }
 
-      if (pool.length === 0) {
-        alert("Aucun objet disponible dans cette catégorie pour le tirage !");
-        return;
-      }
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('touchmove', onPointerMove);
+    window.addEventListener('touchend', onPointerUp);
+  }
 
-      const winner = pool[Math.floor(Math.random() * pool.length)];
-      const index = collection.indexOf(winner);
+  function triggerGachaponReveal(category) {
+    let pool = [];
+    if (category === 'game') {
+      pool = collection.filter(i => i.platform !== 'Vinyle' && i.platform !== 'Blu-ray');
+    } else if (category === 'vinyl') {
+      pool = collection.filter(i => i.platform === 'Vinyle');
+    } else if (category === 'movie') {
+      pool = collection.filter(i => i.platform === 'Blu-ray');
+    } else {
+      pool = collection;
+    }
 
-      const coverContainer = document.getElementById('gachaponCoverContainer');
-      coverContainer.innerHTML = winner.image 
-        ? `<img src="${winner.image}" class="gachapon-cover-large" alt="Jaquette" onclick="openLightbox(this.src)" onerror="this.outerHTML='<div class=\\'gachapon-cover-large\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg);\\'>📦</div>'">`
-        : `<div class="gachapon-cover-large" style="display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg);">📦</div>`;
+    if (pool.length === 0) {
+      alert("Aucun objet disponible dans cette catégorie pour le tirage !");
+      return;
+    }
 
-      document.getElementById('gachaponTitle').textContent = winner.title;
+    const winner = pool[Math.floor(Math.random() * pool.length)];
+    const index = collection.indexOf(winner);
 
-      const metaEl = document.getElementById('gachaponMeta');
-      metaEl.innerHTML = `
-        <span class="badge">${winner.platform}</span>
-        ${winner.state ? `<span class="badge-state">${winner.state}</span>` : ''}
-        <span style="font-weight: 900; color: var(--clay-yellow);">${winner.price ? formatMoney(winner.price) : 'Non estimé'}</span>
-      `;
+    const coverContainer = document.getElementById('gachaponCoverContainer');
+    coverContainer.innerHTML = winner.image 
+      ? `<img src="${winner.image}" class="gachapon-cover-large" alt="Jaquette" onclick="openLightbox(this.src)" onerror="this.outerHTML='<div class=\\'gachapon-cover-large\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg);\\'>📦</div>'">`
+      : `<div class="gachapon-cover-large" style="display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg);">📦</div>`;
 
-      document.getElementById('btnGachaponDetail').onclick = () => {
-        closeGachaponModal();
-        openCollectionDetail(index);
-      };
-      document.getElementById('btnGachaponReroll').onclick = () => {
-        closeGachaponModal();
-        openGachapon(lastGachaponCategory);
-      };
+    document.getElementById('gachaponTitle').textContent = winner.title;
 
-      document.getElementById('gachapon-modal').style.display = 'flex';
-    }, 500);
+    const metaEl = document.getElementById('gachaponMeta');
+    metaEl.innerHTML = `
+      <span class="badge">${winner.platform}</span>
+      ${winner.state ? `<span class="badge-state">${winner.state}</span>` : ''}
+      <span style="font-weight: 900; color: var(--clay-yellow);">${winner.price ? formatMoney(winner.price) : 'Non estimé'}</span>
+    `;
+
+    document.getElementById('btnGachaponDetail').onclick = () => {
+      closeGachaponModal();
+      openCollectionDetail(index);
+    };
+    document.getElementById('btnGachaponReroll').onclick = () => {
+      closeGachaponModal();
+      triggerGachaponReveal(lastGachaponCategory);
+    };
+
+    document.getElementById('gachapon-modal').style.display = 'flex';
   }
 
   function closeGachaponModal() {
