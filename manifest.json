@@ -2,7 +2,7 @@
   "name": "Collection Clay 3D",
   "short_name": "Collection",
   "description": "Gestion de ma wishlist et collection",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#161922",
   "theme_color": "#161922",
