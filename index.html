@@ -1085,7 +1085,6 @@
           🏆 Rechercher sur EditionCollector
         </button>
 
-        <!-- Choix Édition (Standard ou Collector) -->
         <div class="form-row">
           <select id="w-editionType" required>
             <option value="Standard">📦 Version Standard</option>
@@ -1138,14 +1137,14 @@
     </div>
   </div>
 
-  <!-- Modal d'Ajout Collection -->
+  <!-- Modal d'Ajout Collection avec Galerie Photos intégrée dès la création -->
   <div id="add-collection-modal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-header">
         <span>Ajouter à la collection</span>
         <button type="button" class="btn-action" style="border:none;" onclick="closeAddCollectionModal()">✕</button>
       </div>
-      <form id="collectionForm" style="box-shadow:none; padding:0; margin:0; background:transparent;">
+      <form id="collectionForm" style="box-shadow:none; padding:0; margin:0; background:transparent;" onsubmit="handleCollectionSubmit(event)">
         <div class="form-row">
           <input type="text" id="c-title" placeholder="Nom de l'objet possédé..." required>
         </div>
@@ -1174,8 +1173,22 @@
 
         <div id="c-dynamic-fields"></div>
 
+        <!-- Filtres séparés : Édition et État -->
         <div class="form-row">
-          <select id="c-store">
+          <select id="c-editionType" required>
+            <option value="Standard">📦 Version Standard</option>
+            <option value="Collector">✨ Version Collector</option>
+          </select>
+          <select id="c-state" required>
+            <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
+            <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
+            <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
+            <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <select id="c-store" style="width:100%;">
             <option value="Non renseigné">🏪 Acheté chez...</option>
             <option value="Fnac">Fnac</option>
             <option value="Leclerc">Leclerc</option>
@@ -1187,20 +1200,6 @@
             <option value="Leboncoin">Leboncoin</option>
             <option value="eBay">eBay</option>
             <option value="Autre">Autre enseigne</option>
-          </select>
-          
-          <select id="c-state" required>
-            <optgroup label="Standards">
-              <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
-              <option value="🟢 Occasion (Très bon état)">🟢 Occasion (Très bon état)</option>
-              <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
-              <option value="🟠 Occasion (Abîmé / Usé)">🟠 Occasion (Abîmé / Usé)</option>
-            </optgroup>
-            <optgroup label="Collectors">
-              <option value="📦 Collector Neuf sous blister">📦 Collector Neuf sous blister</option>
-              <option value="🔓 Collector Ouvert (Complet / Bon état)">🔓 Collector Ouvert (Bon état)</option>
-              <option value="⚠️ Collector Ouvert (Abîmé / Usé)">⚠️ Collector Ouvert (Abîmé)</option>
-            </optgroup>
           </select>
         </div>
 
@@ -1215,7 +1214,9 @@
           </div>
         </div>
 
+        <!-- Jaquette principale -->
         <div class="image-section">
+          <div style="font-size:0.75rem; font-weight:900; color:var(--text-muted); text-transform:uppercase;">Jaquette Principale</div>
           <div class="image-action-grid">
             <button type="button" class="btn-image-action btn-google" onclick="openGoogleImagesTab('c-title', 'c-platform')">
               🔍 Chercher jaquette
@@ -1230,6 +1231,16 @@
             <img id="c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
             <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('c-image', 'c-preview-wrap', 'c-preview')">✕ Retirer</button>
           </div>
+        </div>
+
+        <!-- Galerie Photos additionnelles dès la création -->
+        <div class="image-section">
+          <div style="font-size:0.75rem; font-weight:900; color:var(--text-muted); text-transform:uppercase;">Galerie Photos additionnelles</div>
+          <div class="detail-gallery-grid" id="addCollectionGalleryGrid"></div>
+          <label class="btn-add-photo" style="display:block; text-align:center;">
+            📷 Ajouter une photo à la galerie
+            <input type="file" style="display:none;" accept="image/*" onchange="handleAddFormGalleryPhoto(event)">
+          </label>
         </div>
 
         <textarea id="c-note" placeholder="Notes & commentaires..."></textarea>
@@ -1361,7 +1372,20 @@
       <div id="edit-c-dynamic-fields"></div>
 
       <div class="form-row">
-        <select id="edit-c-store">
+        <select id="edit-c-editionType" required>
+          <option value="Standard">📦 Version Standard</option>
+          <option value="Collector">✨ Version Collector</option>
+        </select>
+        <select id="edit-c-state" required>
+          <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
+          <option value="🟢 Occasion (Très bon état)">🟢 Occasion (Très bon état)</option>
+          <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
+          <option value="🟠 Occasion (Abîmé / Usé)">🟠 Occasion (Abîmé / Usé)</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <select id="edit-c-store" style="width:100%;">
           <option value="Non renseigné">🏪 Acheté chez...</option>
           <option value="Fnac">Fnac</option>
           <option value="Leclerc">Leclerc</option>
@@ -1373,19 +1397,6 @@
           <option value="Leboncoin">Leboncoin</option>
           <option value="eBay">eBay</option>
           <option value="Autre">Autre enseigne</option>
-        </select>
-        <select id="edit-c-state" required>
-          <optgroup label="Standards">
-            <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
-            <option value="🟢 Occasion (Très bon état)">🟢 Occasion (Très bon état)</option>
-            <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
-            <option value="🟠 Occasion (Abîmé / Usé)">🟠 Occasion (Abîmé / Usé)</option>
-          </optgroup>
-          <optgroup label="Collectors">
-            <option value="📦 Collector Neuf sous blister">📦 Collector Neuf sous blister</option>
-            <option value="🔓 Collector Ouvert (Complet / Bon état)">🔓 Collector Ouvert (Bon état)</option>
-            <option value="⚠️ Collector Ouvert (Abîmé / Usé)">⚠️ Collector Ouvert (Abîmé)</option>
-          </optgroup>
         </select>
       </div>
 
@@ -1410,10 +1421,10 @@
             <input type="file" style="display:none;" accept="image/*" onchange="handleCoverUpload(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
           </label>
         </div>
-        <input type="text" id="edit-c-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('image', 'edit-c-preview-wrap', 'edit-c-preview')" onpaste="handleDirectPaste(event, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">
+        <input type="text" id="edit-c-image" class="image-input-direct" placeholder="Coller le lien ou l'image..." oninput="updateImagePreview('edit-image', 'edit-c-preview-wrap', 'edit-c-preview')" onpaste="handleDirectPaste(event, 'edit-image', 'edit-c-preview-wrap', 'edit-c-preview')">
         <div id="edit-c-preview-wrap" class="image-preview-card" style="display:none;">
           <img id="edit-c-preview" class="image-preview-thumb" src="" alt="Aperçu" onclick="openLightbox(this.src)">
-          <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕ Retirer</button>
+          <button type="button" class="btn-remove-preview" onclick="clearImageFieldAndStorage('edit-image', 'edit-c-preview-wrap', 'edit-c-preview')">✕ Retirer</button>
         </div>
       </div>
 
@@ -1586,14 +1597,20 @@
         <option value="Leboncoin">Leboncoin</option>
         <option value="eBay">eBay</option>
       </select>
+    </div>
+
+    <div class="controls">
+      <select id="c-filterEdition" onchange="renderCollection()">
+        <option value="all">✨ Toutes éditions</option>
+        <option value="Standard">📦 Standard</option>
+        <option value="Collector">🌟 Collector</option>
+      </select>
       <select id="c-filterState" onchange="renderCollection()">
         <option value="all">Tous états</option>
         <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
         <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
         <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
         <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
-        <option value="📦 Collector Neuf sous blister">📦 Collector Neuf</option>
-        <option value="🔓 Collector Ouvert (Complet / Bon état)">🔓 Collector Ouvert</option>
       </select>
       <select id="c-filterGameplay" onchange="renderCollection()">
         <option value="all">Toutes progressions</option>
@@ -1687,6 +1704,9 @@
   let collection = JSON.parse(localStorage.getItem('app_collection_cloud_v1')) || [];
   let currentDetailCollectionIndex = null;
   let lastGachaponCategory = 'all';
+
+  // Tableau temporaire pour gérer les photos de la galerie dans le formulaire d'ajout Collection
+  let tempFormPhotos = [];
 
   // Synthèse audio style Pokémon TCG
   let audioCtx = null;
@@ -1964,6 +1984,45 @@
     event.target.value = '';
   }
 
+  async function handleAddFormGalleryPhoto(event) {
+    const file = event.target.files[0];
+    if (!file || !supabaseClient) return;
+    try {
+      const compressed = await compressImageFile(file);
+      const filePath = `photo_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
+      const { error } = await supabaseClient.storage.from('collection-photos').upload(filePath, compressed, { cacheControl: '3600', upsert: false });
+      if (error) throw error;
+      const { data: publicUrlData } = supabaseClient.storage.from('collection-photos').getPublicUrl(filePath);
+      tempFormPhotos.push(publicUrlData.publicUrl);
+      renderAddFormGallery();
+    } catch (e) { alert("Erreur d'envoi de la photo."); }
+    event.target.value = '';
+  }
+
+  function renderAddFormGallery() {
+    const grid = document.getElementById('addCollectionGalleryGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    tempFormPhotos.forEach((photoUrl, idx) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'gallery-thumb-wrapper';
+      const thumb = document.createElement('img');
+      thumb.src = photoUrl;
+      thumb.className = 'gallery-thumb';
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn-delete-gallery-photo';
+      delBtn.innerHTML = '✕';
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        tempFormPhotos.splice(idx, 1);
+        renderAddFormGallery();
+      };
+      wrapper.appendChild(thumb);
+      wrapper.appendChild(delBtn);
+      grid.appendChild(wrapper);
+    });
+  }
+
   async function deleteCollectionPhoto(photoIndex) {
     if (currentDetailCollectionIndex === null) return;
     const item = collection[currentDetailCollectionIndex];
@@ -2023,8 +2082,10 @@
     } else if (platform === 'Blu-ray') {
       return `
         <div class="form-row">
-          <input type="text" id="${prefix}director" placeholder="Réalisateur" value="${data.director || ''}">
-          <input type="text" id="${prefix}actors" placeholder="Acteurs" value="${data.actors || ''}">
+          <select id="${prefix}blurayType" style="width:100%;">
+            <option value="Version normale" ${data.blurayType === 'Version normale' ? 'selected' : ''}>🎬 Version normale</option>
+            <option value="Steelbook" ${data.blurayType === 'Steelbook' ? 'selected' : ''}>📀 Steelbook</option>
+          </select>
         </div>
       `;
     } else {
@@ -2067,11 +2128,12 @@
 
     document.getElementById('detail-title').textContent = item.title;
 
-    const isCollector = (item.editionType === 'Collector') || (item.state && item.state.includes('Collector'));
+    const isCollector = item.editionType === 'Collector';
     const metaEl = document.getElementById('detail-meta');
     metaEl.innerHTML = `
       <span class="badge">${item.platform}</span>
       ${isCollector ? '<span class="badge-collector">✨ COLLECTOR</span>' : ''}
+      ${item.blurayType ? `<span class="badge-state">📀 ${item.blurayType}</span>` : ''}
       ${item.state ? `<span class="badge-state">${item.state}</span>` : ''}
       <span style="font-weight:900; color:var(--clay-yellow);">${item.price ? formatMoney(item.price) : 'Non estimé'}</span>
     `;
@@ -2081,8 +2143,7 @@
       if (item.artist) specificInfoHtml += `<div><strong>Artiste :</strong> ${item.artist}</div>`;
       if (item.edition) specificInfoHtml += `<div><strong>Édition :</strong> ${item.edition}</div>`;
     } else if (item.platform === 'Blu-ray') {
-      if (item.director) specificInfoHtml += `<div><strong>Réalisateur :</strong> ${item.director}</div>`;
-      if (item.actors) specificInfoHtml += `<div><strong>Acteurs :</strong> ${item.actors}</div>`;
+      if (item.blurayType) specificInfoHtml += `<div><strong>Format :</strong> ${item.blurayType}</div>`;
     } else {
       if (item.gameplay) specificInfoHtml += `<div><strong>Progression :</strong> ${item.gameplay}</div>`;
     }
@@ -2116,6 +2177,8 @@
   function closeAddWishlistModal() { document.getElementById('add-wishlist-modal').style.display = 'none'; }
 
   function openAddCollectionModal() {
+    tempFormPhotos = [];
+    renderAddFormGallery();
     document.getElementById('add-collection-modal').style.display = 'flex';
     toggleFormFields('c-', document.getElementById('c-platform').value);
   }
@@ -2174,6 +2237,9 @@
     document.getElementById('edit-price').value = item.price || '';
     document.getElementById('edit-editionType').value = item.editionType || 'Standard';
     toggleFormFields('edit-', item.platform);
+    if (item.platform === 'Blu-ray' && document.getElementById('edit-blurayType')) {
+      document.getElementById('edit-blurayType').value = item.blurayType || 'Version normale';
+    }
     updateSearchButton('edit-', item.platform);
     document.getElementById('edit-store').value = item.store || 'Non renseigné';
     document.getElementById('edit-releaseDate').value = item.releaseDate || '';
@@ -2193,8 +2259,7 @@
       extraData.artist = document.getElementById('edit-artist').value.trim();
       extraData.edition = document.getElementById('edit-edition').value.trim();
     } else if (platform === 'Blu-ray') {
-      extraData.director = document.getElementById('edit-director').value.trim();
-      extraData.actors = document.getElementById('edit-actors').value.trim();
+      extraData.blurayType = document.getElementById('edit-blurayType')?.value || 'Version normale';
     }
     wishlist[index] = {
       ...wishlist[index],
@@ -2218,6 +2283,10 @@
     document.getElementById('edit-c-platform').value = item.platform;
     document.getElementById('edit-c-price').value = item.price || '';
     toggleFormFields('edit-c-', item.platform);
+    if (item.platform === 'Blu-ray' && document.getElementById('edit-c-blurayType')) {
+      document.getElementById('edit-c-blurayType').value = item.blurayType || 'Version normale';
+    }
+    document.getElementById('edit-c-editionType').value = item.editionType || 'Standard';
     document.getElementById('edit-c-store').value = item.store || 'Non renseigné';
     document.getElementById('edit-c-state').value = item.state || '✨ Neuf sous blister';
     document.getElementById('edit-c-releaseDate').value = item.releaseDate || '';
@@ -2238,21 +2307,17 @@
       extraData.artist = document.getElementById('edit-c-artist').value.trim();
       extraData.edition = document.getElementById('edit-c-edition').value.trim();
     } else if (platform === 'Blu-ray') {
-      extraData.director = document.getElementById('edit-c-director').value.trim();
-      extraData.actors = document.getElementById('edit-c-actors').value.trim();
+      extraData.blurayType = document.getElementById('edit-c-blurayType')?.value || 'Version normale';
     } else {
       extraData.gameplay = document.getElementById('edit-c-gameplay').value;
     }
-    const stateVal = document.getElementById('edit-c-state').value;
-    const editionTypeVal = stateVal.includes('Collector') ? 'Collector' : 'Standard';
-
     collection[index] = {
       ...collection[index],
       title: document.getElementById('edit-c-title').value.trim(),
       price: document.getElementById('edit-c-price').value,
-      editionType: editionTypeVal,
+      editionType: document.getElementById('edit-c-editionType').value,
       store: document.getElementById('edit-c-store').value,
-      state: stateVal,
+      state: document.getElementById('edit-c-state').value,
       releaseDate: document.getElementById('edit-c-releaseDate').value,
       buyDate: document.getElementById('edit-c-buyDate').value,
       image: document.getElementById('edit-c-image').value.trim(),
@@ -2474,11 +2539,12 @@
       : `<div class="gachapon-cover-large" style="display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg);">📦</div>`;
 
     document.getElementById('gachaponTitle').textContent = winner.title;
-    const isCollector = (winner.editionType === 'Collector') || (winner.state && winner.state.includes('Collector'));
+    const isCollector = winner.editionType === 'Collector';
     const metaEl = document.getElementById('gachaponMeta');
     metaEl.innerHTML = `
       <span class="badge">${winner.platform}</span>
       ${isCollector ? '<span class="badge-collector">✨ COLLECTOR</span>' : ''}
+      ${winner.blurayType ? `<span class="badge-state">📀 ${winner.blurayType}</span>` : ''}
       ${winner.state ? `<span class="badge-state">${winner.state}</span>` : ''}
       <span style="font-weight: 900; color: var(--clay-yellow);">${winner.price ? formatMoney(winner.price) : 'Non estimé'}</span>
     `;
@@ -2541,6 +2607,7 @@
       const priceStr = item.price ? formatMoney(item.price) : 'Prix non fixé';
       const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${item.store}</span>` : '';
       const collectorBadge = isCollector ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
+      const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${item.blurayType}</span>` : '';
 
       const coverHtml = item.image 
         ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">`
@@ -2570,6 +2637,7 @@
               <div class="item-meta">
                 <span class="badge">${item.platform}</span>
                 ${collectorBadge}
+                ${blurayBadge}
                 <span class="badge-status ${badgeStatusClass}">${statusText}</span>
                 ${storeBadge}
                 <span>${priceStr}</span>
@@ -2605,6 +2673,7 @@
     const releaseFilter = document.getElementById('c-releaseFilter')?.value || 'all';
     const currentPlatformFilter = document.getElementById('c-filterPlatform')?.value || 'all';
     const storeF = document.getElementById('c-filterStore')?.value || 'all';
+    const editionF = document.getElementById('c-filterEdition')?.value || 'all';
     const stateF = document.getElementById('c-filterState')?.value || 'all';
     const playF = document.getElementById('c-filterGameplay')?.value || 'all';
     const viewMode = document.getElementById('c-viewMode')?.value || 'list';
@@ -2658,11 +2727,12 @@
       const matchRelease = checkDateMatch(i.releaseDate, releaseFilter);
       const matchPlat = (currentPlatformFilter === 'all' || i.platform === currentPlatformFilter);
       const matchStore = (storeF === 'all' || i.store === storeF);
+      const matchEdition = (editionF === 'all' || (i.editionType || 'Standard') === editionF);
       const matchState = (stateF === 'all' || i.state === stateF);
       const matchPlay = (playF === 'all' || i.gameplay === playF);
       const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery));
 
-      return viewMode.startsWith('timeline') ? (matchBuy && matchRelease && matchSearch) : (matchBuy && matchRelease && matchPlat && matchStore && matchState && matchPlay && matchSearch);
+      return viewMode.startsWith('timeline') ? (matchBuy && matchRelease && matchSearch) : (matchBuy && matchRelease && matchPlat && matchStore && matchEdition && matchState && matchPlay && matchSearch);
     });
 
     filtered = sortItems(filtered, sortBy);
@@ -2673,7 +2743,7 @@
     if(document.getElementById('collectionTotalValue')) document.getElementById('collectionTotalValue').textContent = formatMoney(totalVal);
     if(document.getElementById('collectionItemTotal')) document.getElementById('collectionItemTotal').textContent = filtered.length;
 
-    const isFiltered = (monthFilter !== 'all' || releaseFilter !== 'all' || currentPlatformFilter !== 'all' || storeF !== 'all' || stateF !== 'all' || playF !== 'all' || searchQuery !== '');
+    const isFiltered = (monthFilter !== 'all' || releaseFilter !== 'all' || currentPlatformFilter !== 'all' || storeF !== 'all' || editionF !== 'all' || stateF !== 'all' || playF !== 'all' || searchQuery !== '');
     if(document.getElementById('c-labelValue')) document.getElementById('c-labelValue').textContent = isFiltered ? 'Valeur (sélection)' : 'Valeur totale';
     if(document.getElementById('c-labelCount')) document.getElementById('c-labelCount').textContent = isFiltered ? 'Objets (sélection)' : 'Objets possédés';
 
@@ -2685,7 +2755,7 @@
       filtered.forEach(item => {
         const index = collection.indexOf(item);
         const card = document.createElement('div');
-        const isCollector = (item.editionType === 'Collector') || (item.state && item.state.includes('Collector'));
+        const isCollector = item.editionType === 'Collector';
         card.className = `item-card ${isCollector ? 'is-collector' : ''}`;
         
         const valStr = item.price ? formatMoney(item.price) : 'Non estimé';
@@ -2693,6 +2763,7 @@
         const stateBadge = item.state ? `<span class="badge-state">${item.state}</span>` : '';
         const playBadge = (item.gameplay && item.gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${item.gameplay}</span>` : '';
         const collectorBadge = isCollector ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
+        const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${item.blurayType}</span>` : '';
 
         const coverHtml = item.image 
           ? `<img src="${item.image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">`
@@ -2721,6 +2792,7 @@
                 <div class="item-meta">
                   <span class="badge">${item.platform}</span>
                   ${collectorBadge}
+                  ${blurayBadge}
                   ${stateBadge}
                   ${playBadge}
                   ${storeBadge}
@@ -2753,7 +2825,7 @@
       filtered.forEach(item => {
         const index = collection.indexOf(item);
         const gridCard = document.createElement('div');
-        const isCollector = (item.editionType === 'Collector') || (item.state && item.state.includes('Collector'));
+        const isCollector = item.editionType === 'Collector';
         gridCard.className = `grid-item-card ${isCollector ? 'is-collector' : ''}`;
         gridCard.onclick = () => openCollectionDetail(index);
 
@@ -2787,7 +2859,7 @@
         filtered.forEach(item => {
           const index = collection.indexOf(item);
           const tile = document.createElement('div');
-          const isCollector = (item.editionType === 'Collector') || (item.state && item.state.includes('Collector'));
+          const isCollector = item.editionType === 'Collector';
           tile.className = `tile-card ${isCollector ? 'is-collector' : ''}`;
           tile.onclick = () => openCollectionDetail(index);
 
@@ -2824,8 +2896,7 @@
       extraData.artist = document.getElementById('w-artist')?.value.trim() || '';
       extraData.edition = document.getElementById('w-edition')?.value.trim() || '';
     } else if (platform === 'Blu-ray') {
-      extraData.director = document.getElementById('w-director')?.value.trim() || '';
-      extraData.actors = document.getElementById('w-actors')?.value.trim() || '';
+      extraData.blurayType = document.getElementById('w-blurayType')?.value || 'Version normale';
     }
 
     wishlist.unshift({
@@ -2853,14 +2924,12 @@
     saveData();
   }
 
-  // Fonction de transfert intégrant la version Standard / Collector
+  // Fonction de transfert intégrant la version et le format Blu-ray
   function moveToCollection(index) {
     const item = wishlist[index];
     if (!item) return;
 
     const acquisitionDate = item.releaseDate ? item.releaseDate : new Date().toISOString().slice(0, 10);
-    const isCollector = item.editionType === 'Collector';
-    const collectionState = isCollector ? '📦 Collector Neuf sous blister' : '✨ Neuf sous blister';
 
     collection.unshift({
       title: item.title,
@@ -2868,7 +2937,7 @@
       price: item.price || '',
       editionType: item.editionType || 'Standard',
       store: item.store || 'Non renseigné',
-      state: collectionState,
+      state: '✨ Neuf sous blister',
       releaseDate: item.releaseDate || '',
       buyDate: acquisitionDate,
       image: item.image || '',
@@ -2878,6 +2947,7 @@
       edition: item.edition || '',
       director: item.director || '',
       actors: item.actors || '',
+      blurayType: item.blurayType || '',
       gameplay: 'Non commencé'
     });
     wishlist.splice(index, 1);
@@ -2885,8 +2955,8 @@
     switchTab('collection');
   }
 
-  // Collection Submit
-  document.getElementById('collectionForm').addEventListener('submit', (e) => {
+  // Collection Submit (avec support des photos additionnelles et des sélecteurs séparés)
+  function handleCollectionSubmit(e) {
     e.preventDefault();
     const title = document.getElementById('c-title').value.trim();
     if (!title) return;
@@ -2897,37 +2967,34 @@
       extraData.artist = document.getElementById('c-artist')?.value.trim() || '';
       extraData.edition = document.getElementById('c-edition')?.value.trim() || '';
     } else if (platform === 'Blu-ray') {
-      extraData.director = document.getElementById('c-director')?.value.trim() || '';
-      extraData.actors = document.getElementById('c-actors')?.value.trim() || '';
+      extraData.blurayType = document.getElementById('c-blurayType')?.value || 'Version normale';
     } else {
       extraData.gameplay = document.getElementById('c-gameplay')?.value || 'Non commencé';
     }
 
-    const stateVal = document.getElementById('c-state').value;
-    const editionTypeVal = stateVal.includes('Collector') ? 'Collector' : 'Standard';
-
     collection.unshift({
       title: title,
       price: document.getElementById('c-price').value,
-      editionType: editionTypeVal,
+      editionType: document.getElementById('c-editionType').value,
       store: document.getElementById('c-store').value,
-      state: stateVal,
+      state: document.getElementById('c-state').value,
       releaseDate: document.getElementById('c-releaseDate').value,
       buyDate: document.getElementById('c-buyDate').value,
       image: document.getElementById('c-image').value.trim(),
       note: document.getElementById('c-note').value.trim(),
-      photos: [],
+      photos: [...tempFormPhotos],
       ...extraData
     });
 
     closeAddCollectionModal();
     saveData();
     e.target.reset();
+    tempFormPhotos = [];
     toggleFormFields('c-', document.getElementById('c-platform').value);
     clearImageField('c-image', 'c-preview-wrap', 'c-preview');
     document.getElementById('c-viewMode').value = 'list';
     renderCollection();
-  });
+  }
 
   async function deleteCollectionItem(index) {
     const item = collection[index];
