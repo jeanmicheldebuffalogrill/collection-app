@@ -209,6 +209,7 @@
           </select>
           <select id="c-state" required>
             <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
+            <option value="🟢 Occasion (Comme neuf)">🟢 Occasion (Comme neuf)</option>
             <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
             <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
             <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
@@ -366,7 +367,13 @@
       <div id="edit-c-dynamic-fields"></div>
       <div class="form-row">
         <select id="edit-c-editionType" required><option value="Standard">📦 Version Standard</option><option value="Collector">✨ Version Collector</option></select>
-        <select id="edit-c-state" required><option value="✨ Neuf sous blister">✨ Neuf sous blister</option><option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option><option value="🟡 Occasion (Bon état)">🟡 Bon état</option><option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option></select>
+        <select id="edit-c-state" required>
+          <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
+          <option value="🟢 Occasion (Comme neuf)">🟢 Occasion (Comme neuf)</option>
+          <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
+          <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
+          <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
+        </select>
       </div>
       <div class="form-row">
         <select id="edit-c-store" style="width:100%;">
@@ -493,7 +500,14 @@
     </div>
     <div class="controls">
       <select id="c-filterEdition"><option value="all">✨ Toutes éditions</option><option value="Standard">📦 Standard</option><option value="Collector">🌟 Collector</option></select>
-      <select id="c-filterState"><option value="all">Tous états</option><option value="✨ Neuf sous blister">✨ Neuf sous blister</option><option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option><option value="🟡 Occasion (Bon état)">🟡 Bon état</option><option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option></select>
+      <select id="c-filterState">
+        <option value="all">Tous états</option>
+        <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
+        <option value="🟢 Occasion (Comme neuf)">🟢 Occasion (Comme neuf)</option>
+        <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
+        <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
+        <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
+      </select>
       <select id="c-filterGameplay"><option value="all">Toutes progressions</option><option value="Non commencé">⏳ Non commencé</option><option value="En cours">🎮 En cours</option><option value="Terminé">🏆 Terminé</option></select>
     </div>
     <div class="month-filter-box"><label>🔄 Trier :</label><select id="c-sortBy"><option value="newest">Du plus récent</option><option value="az">A-Z</option><option value="price-desc">Prix décroissant</option></select></div>
