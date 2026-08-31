@@ -151,33 +151,60 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .tile-title { font-size: 1rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* =========================================
-   GACHAPON BOOSTERS - DESIGN PLAT & CENTRÉ
+   GACHAPON BOOSTERS - EFFET PLASTIQUE FOIL
    ========================================= */
 .booster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
 
 .tcg-booster { 
   position: relative; 
   border-radius: 14px; 
-  /* Padding ajusté pour laisser la place à la languette en haut */
-  padding: 30px 10px 10px 10px; 
+  padding: 30px 10px 24px 10px; /* Espace en haut/bas pour les languettes */
   display: flex; 
   flex-direction: column; 
   align-items: center; 
-  justify-content: center; /* Centrage parfait vertical */
-  gap: 24px; /* Espacement équilibré entre le logo et l'emoji */
+  justify-content: center; 
+  gap: 24px; 
   height: 320px; 
-  box-shadow: 0 18px 40px rgba(0,0,0,0.9); 
-  overflow: hidden; 
+  /* NOUVEAU : Effet bombé avec des ombres internes sur les côtés */
+  box-shadow: 0 18px 40px rgba(0,0,0,0.9), inset 15px 0 20px rgba(0,0,0,0.4), inset -15px 0 20px rgba(0,0,0,0.4); 
+  overflow: hidden; /* Empêche le reflet de dépasser */
 }
 
+/* NOUVEAU : Le reflet Foil Animé (Shimmer) */
+.tcg-booster::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transform: skewX(-25deg);
+  animation: foil-shimmer 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes foil-shimmer {
+  0% { left: -100%; }
+  30% { left: 200%; }
+  100% { left: 200%; } /* Pause naturelle avant de recommencer */
+}
+
+/* Languette dorée en haut */
 .tcg-crimp-top { 
-  position: absolute; 
-  left: 0; right: 0; top: 0; 
-  height: 26px; 
+  position: absolute; left: 0; right: 0; top: 0; height: 26px; 
   background: linear-gradient(90deg, #f39c12 0%, #e67e22 50%, #f1c40f 100%); 
-  z-index: 5; 
+  z-index: 15; /* Au dessus du reflet */
   display: flex; align-items: center; justify-content: center; 
   font-size: 0.68rem; font-weight: 900; color: #161922; cursor: pointer; 
+  border-bottom: 2px solid rgba(0,0,0,0.3);
+}
+
+/* NOUVEAU : Soudure thermique en bas du sachet */
+.tcg-crimp-bottom {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 16px;
+  /* Rayures verticales pour simuler la soudure plastique */
+  background: repeating-linear-gradient(90deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.4) 2px, rgba(0,0,0,0.4) 4px);
+  z-index: 5;
+  border-top: 2px solid rgba(0,0,0,0.4);
 }
 
 .tcg-logo-box { 
