@@ -440,10 +440,14 @@ function renderCollection() {
   const storeF = document.getElementById('c-filterStore')?.value || 'all';
   const editionF = document.getElementById('c-filterEdition')?.value || 'all';
   const stateF = document.getElementById('c-filterState')?.value || 'all';
-  const playF = document.getElementById('c-filterGameplay')?.value || 'all';
   const viewMode = document.getElementById('c-viewMode')?.value || 'list';
   const sortBy = document.getElementById('c-sortBy')?.value || 'newest';
   const searchQuery = (document.getElementById('c-searchBar')?.value || '').toLowerCase().trim();
+
+  // Nouveaux filtres dynamiques
+  const playF = document.getElementById('c-filterGameplay')?.value || 'all';
+  const vinylF = document.getElementById('c-filterVinylEdition')?.value || 'all';
+  const blurayF = document.getElementById('c-filterBlurayType')?.value || 'all';
 
   if(document.getElementById('collectionFiltersBar')) document.getElementById('collectionFiltersBar').style.display = viewMode.startsWith('timeline') ? 'none' : 'flex';
 
@@ -454,9 +458,16 @@ function renderCollection() {
     const matchStore = (storeF === 'all' || i.store === storeF);
     const matchEdition = (editionF === 'all' || (i.editionType || 'Standard') === editionF);
     const matchState = (stateF === 'all' || i.state === stateF);
-    const matchPlay = (playF === 'all' || i.gameplay === playF);
     const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery));
-    return viewMode.startsWith('timeline') ? (matchBuy && matchRelease && matchSearch) : (matchBuy && matchRelease && matchPlat && matchStore && matchEdition && matchState && matchPlay && matchSearch);
+    
+    // Application des filtres spécifiques
+    const matchPlay = (playF === 'all' || i.gameplay === playF);
+    const matchVinyl = (vinylF === 'all' || i.vinylEdition === vinylF);
+    const matchBluray = (blurayF === 'all' || i.blurayType === blurayF);
+
+    return viewMode.startsWith('timeline') ? 
+      (matchBuy && matchRelease && matchSearch) : 
+      (matchBuy && matchRelease && matchPlat && matchStore && matchEdition && matchState && matchPlay && matchVinyl && matchBluray && matchSearch);
   });
 
   filtered = sortItems(filtered, sortBy, true);
@@ -481,7 +492,11 @@ function renderCollection() {
       const data = platformStats[plat];
       const chip = document.createElement('div');
       chip.className = `platform-chip ${currentPlatformFilter === plat ? 'active' : ''}`;
-      chip.onclick = () => { document.getElementById('c-filterPlatform').value = (document.getElementById('c-filterPlatform').value === plat) ? 'all' : plat; renderCollection(); };
+      chip.onclick = () => { 
+        document.getElementById('c-filterPlatform').value = (document.getElementById('c-filterPlatform').value === plat) ? 'all' : plat; 
+        updateDynamicCollectionFilters();
+        renderCollection(); 
+      };
       chip.innerHTML = `<div class="platform-chip-name">${escapeHTML(plat)} ${currentPlatformFilter === plat ? '✓' : ''}</div><div class="platform-chip-value">${formatMoney(data.total)}</div><div class="platform-chip-count">${data.count} obj.</div>`;
       breakdownGrid.appendChild(chip);
     });
@@ -593,6 +608,35 @@ function renderCollection() {
         }
       });
     }
+  }
+}
+
+// --- Fonction pour Afficher/Masquer les Filtres Spécifiques ---
+function updateDynamicCollectionFilters() {
+  const platform = document.getElementById('c-filterPlatform')?.value;
+  const gameplayFilter = document.getElementById('c-filterGameplay');
+  const vinylFilter = document.getElementById('c-filterVinylEdition');
+  const blurayFilter = document.getElementById('c-filterBlurayType');
+  
+  if (!gameplayFilter || !vinylFilter || !blurayFilter) return;
+
+  if (platform === 'Vinyle') {
+    gameplayFilter.style.display = 'none';
+    blurayFilter.style.display = 'none';
+    vinylFilter.style.display = 'block';
+  } else if (platform === 'Blu-ray') {
+    gameplayFilter.style.display = 'none';
+    vinylFilter.style.display = 'none';
+    blurayFilter.style.display = 'block';
+  } else if (platform === 'Vêtement' || platform === 'Autre') {
+    gameplayFilter.style.display = 'none';
+    vinylFilter.style.display = 'none';
+    blurayFilter.style.display = 'none';
+  } else {
+    // Jeux vidéo ou Tous supports
+    vinylFilter.style.display = 'none';
+    blurayFilter.style.display = 'none';
+    gameplayFilter.style.display = 'block';
   }
 }
 
@@ -908,7 +952,11 @@ document.getElementById('tabBtnWishlist')?.addEventListener('click', () => switc
 document.getElementById('tabBtnCollection')?.addEventListener('click', () => switchTab('Collection'));
 document.getElementById('tabBtnRandom')?.addEventListener('click', () => switchTab('Random'));
 
-document.getElementById('btnResetPlatform')?.addEventListener('click', () => { document.getElementById('c-filterPlatform').value = 'all'; renderCollection(); });
+document.getElementById('btnResetPlatform')?.addEventListener('click', () => { 
+  document.getElementById('c-filterPlatform').value = 'all'; 
+  updateDynamicCollectionFilters();
+  renderCollection(); 
+});
 
 // --- Filtres Helper ---
 function checkDateMatch(itemDateStr, filterValue) {
@@ -919,7 +967,6 @@ function checkDateMatch(itemDateStr, filterValue) {
   return itemDateStr.startsWith(filterValue);
 }
 
-// CORRECTION DU TRI ICI
 function sortItems(arr, sortBy, isCollection = false) {
   return arr.slice().sort((a, b) => {
     if (sortBy === 'az') return (a.title || '').localeCompare(b.title || '');
@@ -976,11 +1023,19 @@ function updateMonthFilterDropdowns() {
 }
 
 // Filtres UI 
-document.getElementById('c-filterPlatform')?.addEventListener('change', renderCollection);
+document.getElementById('c-filterPlatform')?.addEventListener('change', () => { 
+  updateDynamicCollectionFilters();
+  if(document.getElementById('c-filterGameplay')) document.getElementById('c-filterGameplay').value = 'all';
+  if(document.getElementById('c-filterVinylEdition')) document.getElementById('c-filterVinylEdition').value = 'all';
+  if(document.getElementById('c-filterBlurayType')) document.getElementById('c-filterBlurayType').value = 'all';
+  renderCollection(); 
+});
 document.getElementById('c-filterStore')?.addEventListener('change', renderCollection);
 document.getElementById('c-filterEdition')?.addEventListener('change', renderCollection);
 document.getElementById('c-filterState')?.addEventListener('change', renderCollection);
 document.getElementById('c-filterGameplay')?.addEventListener('change', renderCollection);
+document.getElementById('c-filterVinylEdition')?.addEventListener('change', renderCollection);
+document.getElementById('c-filterBlurayType')?.addEventListener('change', renderCollection);
 document.getElementById('c-viewMode')?.addEventListener('change', renderCollection);
 document.getElementById('c-sortBy')?.addEventListener('change', renderCollection);
 document.getElementById('c-monthFilter')?.addEventListener('change', renderCollection);
@@ -1112,5 +1167,6 @@ document.getElementById('btnGachaponReroll')?.addEventListener('click', () => {
 window.addEventListener('DOMContentLoaded', () => {
   toggleFormFields('w-', document.getElementById('w-platform')?.value || 'PS5');
   toggleFormFields('c-', document.getElementById('c-platform')?.value || 'PS5');
+  updateDynamicCollectionFilters();
   checkAuth();
 });
