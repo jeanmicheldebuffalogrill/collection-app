@@ -127,7 +127,7 @@ function setSyncStatus(text, color = 'var(--clay-green)') {
 
 function formatMoney(amount) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0); }
 
-// --- Fonctions Images & Supabase Storage (SÉCURISÉ & SYNCHRONISÉ) ---
+// --- Fonctions Images & Supabase Storage (RESTORED TO ORIGINAL WORKING STATE) ---
 async function compressImageFile(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -156,66 +156,15 @@ async function compressImageFile(file) {
 async function deleteFileFromSupabaseStorage(photoUrl) {
   if (!supabaseClient || !photoUrl || !photoUrl.includes('collection-photos/')) return;
   try {
-    // Extraction propre du nom du fichier dans le bucket Supabase
     const parts = photoUrl.split('/collection-photos/');
     if (parts.length > 1) {
-      const filePath = parts[1].split('?')[0]; // Supprime d'éventuels paramètres d'URL
+      const filePath = parts[1].split('?')[0];
       await supabaseClient.storage.from('collection-photos').remove([filePath]);
     }
-  } catch (err) {
-    console.warn("Erreur lors de la suppression du fichier Storage :", err);
-  }
+  } catch (err) {}
 }
 
 async function uploadDirectFile(file, inputFieldId, wrapId, previewImgId) {
-  if (!supabaseClient) { alert("Cloud non disponible."); return; }
-  try {
-    setSyncStatus('⏳ Upload...', 'var(--clay-yellow)');
-    const filePath = `photo_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
-    const { error } = await supabaseClient.storage.from('collection-photos').upload(filePath, file, { cacheControl: '3600', upsert: false });
-    if (error) throw error;
-    const { data: publicUrlData } = supabaseClient.storage.from('collection-photos').getPublicUrl(filePath);
-    document.getElementById(inputFieldId).value = publicUrlData.publicUrl;
-    updateImagePreview(inputFieldId, wrapId, previewImgId);
-    setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
-  } catch (err) {
-    alert("Erreur upload: " + err.message); setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
-  }
-}
-
-// --- SYSTÈME DE COLLAGE INTELLIGENT ---
-function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
-  if (!e.clipboardData) return;
-  
-  const items = Array.from(e.clipboardData.items);
-  const htmlItem = items.find(i => i.type === 'text/html');
-  const imageItem = items.find(i => i.type.startsWith('image/'));
-  
-  if (htmlItem) {
-    e.preventDefault();
-    htmlItem.getAsString(html => {
-      const match = html.match(/src=["'](https?:\/\/[^"']+)["']/);
-      if (match && match[1]) {
-        document.getElementById(inputFieldId).value = match[1];
-        updateImagePreview(inputFieldId, wrapId, previewImgId);
-      } else if (imageItem) {
-        const file = imageItem.getAsFile();
-        if (file) compressImageFile(file).then(c => uploadDirectFile(c, inputFieldId, wrapId, previewImgId));
-      }
-    });
-    return;
-  }
-
-  if (imageItem) {
-    e.preventDefault();
-    const file = imageItem.getAsFile();
-    if (file) compressImageFile(file).then(c => uploadDirectFile(c, inputFieldId, wrapId, previewImgId));
-  }
-}
-
-async function handleCoverUpload(event, inputFieldId, wrapId, previewImgId) {
-  const file = event.target.files[0];
-  if (!file) return;
   if (!supabaseClient) { alert("Cloud non disponible."); return; }
   try {
     setSyncStatus('⏳ Upload...', 'var(--clay-yellow)');
@@ -228,8 +177,31 @@ async function handleCoverUpload(event, inputFieldId, wrapId, previewImgId) {
     updateImagePreview(inputFieldId, wrapId, previewImgId);
     setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
   } catch (err) {
-    alert("Erreur upload: " + err.message); setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
-  } finally { event.target.value = ''; }
+    alert("Erreur upload: " + err.message); 
+    setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
+  }
+}
+
+// Fonction de collage direct (Intercepte l'image copiée depuis le web et l'envoie sur Supabase)
+function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
+  if (!e.clipboardData || !e.clipboardData.items) return;
+  for (const item of e.clipboardData.items) {
+    if (item.type.indexOf('image') === 0) {
+      e.preventDefault();
+      const file = item.getAsFile();
+      if (file) {
+        uploadDirectFile(file, inputFieldId, wrapId, previewImgId);
+      }
+      return;
+    }
+  }
+}
+
+async function handleCoverUpload(event, inputFieldId, wrapId, previewImgId) {
+  const file = event.target.files[0];
+  if (!file) return;
+  uploadDirectFile(file, inputFieldId, wrapId, previewImgId);
+  event.target.value = '';
 }
 
 function updateImagePreview(inputFieldId, wrapId, previewImgId) {
@@ -322,7 +294,7 @@ function renderAddFormGallery() {
     const delBtn = document.createElement('button'); delBtn.className = 'btn-delete-gallery-photo'; delBtn.innerHTML = '✕';
     delBtn.onclick = (e) => { 
       e.stopPropagation(); 
-      deleteFileFromSupabaseStorage(photoUrl); // Nettoyage Storage immédiat
+      deleteFileFromSupabaseStorage(photoUrl);
       tempFormPhotos.splice(idx, 1); 
       renderAddFormGallery(); 
     };
@@ -632,6 +604,10 @@ window.deleteWishlistItem = async function(index) {
     if (item && item.image) await deleteFileFromSupabaseStorage(item.image);
     wishlist.splice(index, 1);
     saveData();
+    // Suppression directe dans Supabase pour éviter le retour au rafraîchissement
+    if (supabaseClient && item && item.id) {
+      await supabaseClient.from('wishlist_items').delete().eq('id', item.id);
+    }
   }
 }
 
@@ -646,12 +622,22 @@ window.deleteCollectionItem = async function(index) {
     }
     collection.splice(index, 1);
     saveData();
+    // Suppression directe dans Supabase pour éviter le retour au rafraîchissement
+    if (supabaseClient && item && item.id) {
+      await supabaseClient.from('collection_items').delete().eq('id', item.id);
+    }
   }
 }
 
 window.moveToCollection = function(index) {
   const item = wishlist[index];
   if (!item) return;
+  
+  // Suppression de l'ancienne entrée wishlist sur Supabase Cloud
+  if (supabaseClient && item.id) {
+    supabaseClient.from('wishlist_items').delete().eq('id', item.id);
+  }
+
   collection.unshift({
     ...item,
     id: crypto.randomUUID ? crypto.randomUUID() : `c_${Date.now()}`,
@@ -751,7 +737,7 @@ function toggleFormFields(prefix, platform) {
   if (prefix === 'w-' || prefix === 'edit-') updateSearchButton(prefix, platform);
 }
 
-// Ouvertures (Avec réinitialisation des images)
+// Ouvertures
 document.getElementById('btnOpenAddWishlist')?.addEventListener('click', () => { 
   document.getElementById('wishlistForm').reset(); 
   updateImagePreview('w-image', 'w-preview-wrap', 'w-preview');
