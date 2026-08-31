@@ -76,6 +76,11 @@ body { padding: env(safe-area-inset-top, 24px) 16px env(safe-area-inset-bottom, 
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10, 12, 18, 0.85); backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center; padding: 16px; padding-bottom: env(safe-area-inset-bottom, 16px); }
 .modal-box { background: var(--surface); border-radius: 36px; width: 100%; max-width: 440px; padding: 26px; display: flex; flex-direction: column; gap: 16px; max-height: 85vh; overflow-y: auto; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1.15rem; text-shadow: var(--text-pop); }
+
+/* --- HIDE SCROLLBARS FOR MODALS --- */
+.modal-box::-webkit-scrollbar { display: none; }
+.modal-box { -ms-overflow-style: none; scrollbar-width: none; }
+
 form { background: var(--surface); padding: 24px; border-radius: 32px; display: flex; flex-direction: column; gap: 14px; width: 100%; box-shadow: var(--clay-card); margin-bottom: 20px;}
 .form-row { display: flex; gap: 10px; width: 100%; }
 .form-row > * { flex: 1; min-width: 0; }
@@ -144,11 +149,23 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .grid-item-cover-placeholder { width: 100%; height: 180px; border-radius: 16px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: var(--clay-btn); }
 .grid-item-title { font-size: 0.85rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.timeline-h-container { display: flex; gap: 16px; overflow-x: auto; padding: 10px 4px 20px 4px; scroll-snap-type: x mandatory; }
+/* --- TIMELINE CONTAINER & HIDE SCROLLBARS --- */
+.timeline-h-container { 
+  display: flex; gap: 16px; overflow-x: auto; padding: 10px 4px 20px 4px; scroll-snap-type: x mandatory; 
+  cursor: grab; /* Ajout du curseur grab pour PC */
+}
+.timeline-h-container.active { 
+  cursor: grabbing; 
+  scroll-snap-type: none; /* Désactive le magnétisme pendant le glissement pour plus de fluidité */
+}
+.timeline-h-container::-webkit-scrollbar { display: none; }
+.timeline-h-container { -ms-overflow-style: none; scrollbar-width: none; }
+
 .tile-card { background: var(--surface); border-radius: 30px; padding: 18px; min-width: 220px; max-width: 220px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; scroll-snap-align: center; box-shadow: var(--clay-card); }
 .tile-cover { width: 100%; height: 270px; border-radius: 20px; object-fit: cover; box-shadow: var(--clay-btn); }
 .tile-cover-placeholder { width: 100%; height: 270px; border-radius: 20px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: var(--clay-btn); }
 .tile-title { font-size: 1rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 
 /* =========================================
    GACHAPON BOOSTERS - EFFET PLASTIQUE FOIL
@@ -158,19 +175,17 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .tcg-booster { 
   position: relative; 
   border-radius: 14px; 
-  padding: 30px 10px 24px 10px; /* Espace en haut/bas pour les languettes */
+  padding: 30px 10px 24px 10px;
   display: flex; 
   flex-direction: column; 
   align-items: center; 
   justify-content: center; 
   gap: 24px; 
   height: 320px; 
-  /* NOUVEAU : Effet bombé avec des ombres internes sur les côtés */
   box-shadow: 0 18px 40px rgba(0,0,0,0.9), inset 15px 0 20px rgba(0,0,0,0.4), inset -15px 0 20px rgba(0,0,0,0.4); 
-  overflow: hidden; /* Empêche le reflet de dépasser */
+  overflow: hidden; 
 }
 
-/* NOUVEAU : Le reflet Foil Animé (Shimmer) */
 .tcg-booster::after {
   content: "";
   position: absolute;
@@ -185,23 +200,20 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 @keyframes foil-shimmer {
   0% { left: -100%; }
   30% { left: 200%; }
-  100% { left: 200%; } /* Pause naturelle avant de recommencer */
+  100% { left: 200%; }
 }
 
-/* Languette dorée en haut */
 .tcg-crimp-top { 
   position: absolute; left: 0; right: 0; top: 0; height: 26px; 
   background: linear-gradient(90deg, #f39c12 0%, #e67e22 50%, #f1c40f 100%); 
-  z-index: 15; /* Au dessus du reflet */
+  z-index: 15; 
   display: flex; align-items: center; justify-content: center; 
   font-size: 0.68rem; font-weight: 900; color: #161922; cursor: pointer; 
   border-bottom: 2px solid rgba(0,0,0,0.3);
 }
 
-/* NOUVEAU : Soudure thermique en bas du sachet */
 .tcg-crimp-bottom {
   position: absolute; left: 0; right: 0; bottom: 0; height: 16px;
-  /* Rayures verticales pour simuler la soudure plastique */
   background: repeating-linear-gradient(90deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.4) 2px, rgba(0,0,0,0.4) 4px);
   z-index: 5;
   border-top: 2px solid rgba(0,0,0,0.4);
@@ -226,7 +238,6 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .gachapon-modal-box { background: var(--surface); border-radius: 40px; width: 100%; max-width: 400px; padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 18px; box-shadow: 0 40px 80px rgba(0, 0, 0, 0.95); }
 .gachapon-cover-large { width: 200px; height: 270px; border-radius: 24px; object-fit: cover; box-shadow: var(--clay-card); }
 
-/* Animation Tremblement Classique */
 .shake { animation: shake-anim 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
 @keyframes shake-anim {
   10%, 90% { transform: translate3d(-2px, 0, 0) rotate(-1deg); }
@@ -235,22 +246,10 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   40%, 60% { transform: translate3d(4px, 0, 0) rotate(2deg); }
 }
 
-/* Lightbox Plein Écran */
 #lightbox-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92); z-index: 4000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(12px); }
 #lightbox-img { max-width: 100%; max-height: 85vh; border-radius: 30px; object-fit: contain; box-shadow: var(--clay-card); }
 .btn-close-lightbox { position: absolute; top: env(safe-area-inset-top, 24px); right: 24px; background: var(--surface); border: none; color: var(--text); width: 44px; height: 44px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: var(--clay-btn); margin-top: 16px; }
 .btn-close-lightbox:active { box-shadow: var(--clay-inset); }
 
-/* Flash Lumineux */
-#flash-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #ffffff;
-  z-index: 9000;
-  animation: flash-fade 0.4s ease-out forwards;
-}
-@keyframes flash-fade {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
-}
+#flash-overlay { display: none; position: fixed; inset: 0; background: #ffffff; z-index: 9000; animation: flash-fade 0.4s ease-out forwards; }
+@keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
