@@ -177,14 +177,35 @@ async function uploadDirectFile(file, inputFieldId, wrapId, previewImgId) {
   }
 }
 
+// --- NOUVEAU SYSTÈME DE COLLAGE ROBUSTE ---
 function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
-  if (e.clipboardData && e.clipboardData.items) {
-    for (const item of e.clipboardData.items) {
-      if (item.type.startsWith('image/')) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        compressImageFile(file).then(compressed => uploadDirectFile(compressed, inputFieldId, wrapId, previewImgId));
-        return;
+  if (!e.clipboardData) return;
+  const items = e.clipboardData.items;
+  let handled = false;
+
+  // 1. Chercher un vrai fichier image (Copier l'image -> Blob)
+  for (const item of items) {
+    if (item.type.indexOf('image') === 0) {
+      e.preventDefault();
+      handled = true;
+      const file = item.getAsFile();
+      compressImageFile(file).then(compressed => uploadDirectFile(compressed, inputFieldId, wrapId, previewImgId));
+      return;
+    }
+  }
+
+  // 2. Si Google (ou Safari) n'a pas copié de Blob, on fouille le code HTML secret
+  if (!handled) {
+    for (const item of items) {
+      if (item.type === 'text/html') {
+        item.getAsString(html => {
+          // On cherche une URL d'image cachée dans la balise img src="..."
+          const match = html.match(/src=["'](.*?)["']/);
+          if (match && match[1] && (match[1].startsWith('http') || match[1].startsWith('data:'))) {
+            document.getElementById(inputFieldId).value = match[1];
+            updateImagePreview(inputFieldId, wrapId, previewImgId);
+          }
+        });
       }
     }
   }
@@ -561,14 +582,7 @@ function renderCollection() {
       const card = document.createElement('div');
       card.className = viewMode === 'grid' ? `grid-item-card ${item.editionType === 'Collector' ? 'is-collector' : ''}` : `tile-card ${item.editionType === 'Collector' ? 'is-collector' : ''}`;
       
-      // Modification pour empêcher le clic accidentel pendant le drag
-      card.onclick = (e) => {
-        if (viewWrap.classList.contains('is-dragging')) {
-          e.preventDefault();
-          return;
-        }
-        window.openCollectionDetail(index);
-      };
+      card.onclick = () => window.openCollectionDetail(index);
 
       const title = escapeHTML(item.title);
       const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="${viewMode==='grid'?'grid-item-cover':'tile-cover'}" onerror="this.outerHTML='<div class=\\'grid-item-cover-placeholder\\'>📦</div>'">` : `<div class="grid-item-cover-placeholder">📦</div>`;
@@ -585,36 +599,14 @@ function renderCollection() {
 
     container.appendChild(viewWrap);
 
-    // --- NOUVEAUTÉ : Système Drag-to-Scroll pour la frise sur PC ---
+    // --- NOUVEAUTÉ : Défilement horizontal avec la molette de la souris (Spécial PC) ---
     if (viewMode !== 'grid') {
-      let isDown = false;
-      let startX;
-      let scrollLeft;
-
-      viewWrap.addEventListener('mousedown', (e) => {
-        isDown = true;
-        viewWrap.classList.add('active');
-        viewWrap.classList.remove('is-dragging'); // Reset du flag de drag
-        startX = e.pageX - viewWrap.offsetLeft;
-        scrollLeft = viewWrap.scrollLeft;
-      });
-      viewWrap.addEventListener('mouseleave', () => {
-        isDown = false;
-        viewWrap.classList.remove('active');
-      });
-      viewWrap.addEventListener('mouseup', () => {
-        isDown = false;
-        viewWrap.classList.remove('active');
-        // On laisse le flag is-dragging un court instant pour empêcher le clic
-        setTimeout(() => viewWrap.classList.remove('is-dragging'), 50);
-      });
-      viewWrap.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        viewWrap.classList.add('is-dragging'); // Indique qu'on est en train de glisser
-        const x = e.pageX - viewWrap.offsetLeft;
-        const walk = (x - startX) * 2; // Vitesse de glissement (*2)
-        viewWrap.scrollLeft = scrollLeft - walk;
+      viewWrap.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          // Convertit le mouvement vertical de la molette en mouvement horizontal fluide
+          viewWrap.scrollBy({ left: e.deltaY > 0 ? 250 : -250, behavior: 'smooth' });
+        }
       });
     }
   }
