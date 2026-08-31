@@ -127,7 +127,7 @@ function setSyncStatus(text, color = 'var(--clay-green)') {
 
 function formatMoney(amount) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0); }
 
-// --- Fonctions Images & Supabase Storage ---
+// --- Fonctions Images & Supabase Storage (SÉCURISÉ & SYNCHRONISÉ) ---
 async function compressImageFile(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -156,9 +156,15 @@ async function compressImageFile(file) {
 async function deleteFileFromSupabaseStorage(photoUrl) {
   if (!supabaseClient || !photoUrl || !photoUrl.includes('collection-photos/')) return;
   try {
-    const filePath = photoUrl.split('/collection-photos/')[1];
-    if (filePath) await supabaseClient.storage.from('collection-photos').remove([filePath]);
-  } catch (err) {}
+    // Extraction propre du nom du fichier dans le bucket Supabase
+    const parts = photoUrl.split('/collection-photos/');
+    if (parts.length > 1) {
+      const filePath = parts[1].split('?')[0]; // Supprime d'éventuels paramètres d'URL
+      await supabaseClient.storage.from('collection-photos').remove([filePath]);
+    }
+  } catch (err) {
+    console.warn("Erreur lors de la suppression du fichier Storage :", err);
+  }
 }
 
 async function uploadDirectFile(file, inputFieldId, wrapId, previewImgId) {
@@ -314,7 +320,12 @@ function renderAddFormGallery() {
     const wrapper = document.createElement('div'); wrapper.className = 'gallery-thumb-wrapper';
     const thumb = document.createElement('img'); thumb.src = photoUrl; thumb.className = 'gallery-thumb';
     const delBtn = document.createElement('button'); delBtn.className = 'btn-delete-gallery-photo'; delBtn.innerHTML = '✕';
-    delBtn.onclick = (e) => { e.stopPropagation(); tempFormPhotos.splice(idx, 1); renderAddFormGallery(); };
+    delBtn.onclick = (e) => { 
+      e.stopPropagation(); 
+      deleteFileFromSupabaseStorage(photoUrl); // Nettoyage Storage immédiat
+      tempFormPhotos.splice(idx, 1); 
+      renderAddFormGallery(); 
+    };
     wrapper.appendChild(thumb); wrapper.appendChild(delBtn); grid.appendChild(wrapper);
   });
 }
@@ -404,7 +415,6 @@ function renderWishlist() {
     const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${escapeHTML(item.store)}</span>` : '';
     const collectorBadge = item.editionType === 'Collector' ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
     const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
-    // Gestion du badge Vinyle (format édition structuré)
     const vinylBadge = (item.platform === 'Vinyle' && item.vinylEdition) ? `<span class="badge-state">🎵 ${escapeHTML(item.vinylEdition)}</span>` : '';
 
     const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
@@ -528,7 +538,6 @@ function renderCollection() {
       const playBadge = (item.gameplay && item.gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${escapeHTML(item.gameplay)}</span>` : '';
       const collectorBadge = isCollector ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
       const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
-      // Gestion du badge Vinyle (format édition structuré)
       const vinylBadge = (item.platform === 'Vinyle' && item.vinylEdition) ? `<span class="badge-state">🎵 ${escapeHTML(item.vinylEdition)}</span>` : '';
 
       const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
@@ -617,8 +626,10 @@ function renderCollection() {
 }
 
 // --- Fonctions CRUD et UI ---
-window.deleteWishlistItem = function(index) {
+window.deleteWishlistItem = async function(index) {
   if (confirm("Supprimer l'article ?")) {
+    const item = wishlist[index];
+    if (item && item.image) await deleteFileFromSupabaseStorage(item.image);
     wishlist.splice(index, 1);
     saveData();
   }
@@ -696,7 +707,6 @@ window.openCollectionDetail = function(index) {
 // --- Modales et Formulaires ---
 function getDynamicFieldsHtml(prefix, platform, data = {}) {
   if (platform === 'Vinyle') {
-    // Menu déroulant structuré pour les éditions de vinyles
     const currentEdition = data.vinylEdition || 'Pochette standard 1 LP';
     return `
       <div class="form-row">
