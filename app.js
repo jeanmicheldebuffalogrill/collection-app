@@ -896,13 +896,22 @@ function handlePointerDown(e) {
   e.stopPropagation();
   const category = e.target.getAttribute('data-cat');
   if (!category) return;
+  
   isTopRipActive = true;
   activeCategory = category;
   startTopX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
   currentTopDragX = 0;
   
   const boosterCard = document.getElementById(`booster-${category}`);
-  if (boosterCard) boosterCard.classList.add('shake');
+  if (boosterCard) {
+    // --- NOUVEAUTÉ : Forcer la mise à plat immédiate ---
+    boosterCard.style.setProperty('--rx', '0deg');
+    boosterCard.style.setProperty('--ry', '0deg');
+    boosterCard.style.setProperty('--glare-opacity', '0');
+    
+    // Ajout de la vibration
+    boosterCard.classList.add('shake');
+  }
   startPokemonRipSound();
 
   window.addEventListener('pointermove', onPointerMove);
@@ -927,8 +936,15 @@ function onPointerMove(moveEvent) {
 function onPointerUp() {
   if (!isTopRipActive) return;
   isTopRipActive = false;
+  
   const boosterCard = document.getElementById(`booster-${activeCategory}`);
-  if (boosterCard) boosterCard.classList.remove('shake');
+  if (boosterCard) {
+    boosterCard.classList.remove('shake');
+    // On s'assure qu'il reste plat à la fin de la secousse
+    boosterCard.style.setProperty('--rx', '0deg');
+    boosterCard.style.setProperty('--ry', '0deg');
+  }
+  
   const success = currentTopDragX > 40;
   stopPokemonRipSound(success);
   
@@ -969,7 +985,9 @@ document.querySelectorAll('.tcg-crimp-top').forEach(el => { el.addEventListener(
 const boosters3D = document.querySelectorAll('.tcg-booster');
 boosters3D.forEach(booster => {
   function handleTilt(e) {
-    if (isTopRipActive) return; // Ne pas tilter pendant la déchirure
+    // NOUVEAUTÉ : Si on a cliqué sur la languette, on ignore l'inclinaison
+    if (isTopRipActive) return; 
+    
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     
