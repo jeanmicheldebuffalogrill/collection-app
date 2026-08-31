@@ -136,25 +136,79 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .search-bar-input { width: 100%; padding: 14px 18px; font-size: 0.9rem; background: var(--surface); border-radius: 22px; box-shadow: var(--clay-card); margin-bottom: 12px; }
 .controls { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; }
 
-.item-card { background: var(--surface); border-radius: 30px; padding: 16px; margin-bottom: 16px; display: flex; gap: 16px; box-shadow: var(--clay-card); cursor: pointer; transition: transform 0.2s ease; content-visibility: auto; contain-intrinsic-size: 140px; }
+/* --- CORRECTION RADICALE DU CHEVAUCHEMENT --- */
+.item-card { 
+  background: var(--surface); 
+  border-radius: 30px; 
+  padding: 16px; 
+  margin-bottom: 16px; 
+  display: flex; 
+  gap: 16px; 
+  box-shadow: var(--clay-card); 
+  cursor: pointer; 
+  transition: transform 0.2s ease; 
+  position: relative; /* Indispensable pour le positionnement absolu des boutons */
+  overflow: hidden; 
+}
+
 .item-card:hover { transform: translateY(-4px); }
 .item-card.status-take { border-left: 10px solid var(--clay-green); }
 .item-card.status-think { border-left: 10px solid var(--clay-yellow); }
 .item-card.status-pass { border-left: 10px solid var(--clay-pink); }
 .item-card.is-collector { border: 2px solid #f1c40f; box-shadow: 16px 16px 35px rgba(0, 0, 0, 0.7), 0 0 15px rgba(241, 196, 15, 0.25); }
-
 .badge-collector { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); color: #161922; font-weight: 900; }
 .item-cover { width: 80px; height: 108px; border-radius: 20px; object-fit: cover; background: var(--bg); flex-shrink: 0; box-shadow: var(--clay-btn); }
 .item-cover-placeholder { width: 80px; height: 108px; border-radius: 20px; background: var(--bg); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: var(--clay-btn); }
-.item-content { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
 
-/* CORRECTION RADICALE : L'en-tête autorise le retour à la ligne du titre et isole les boutons sur une colonne latérale fixe */
-.card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; width: 100%; }
-.item-info { flex: 1; min-width: 0; padding-right: 2px; }
-.item-info h3 { font-size: 1rem; font-weight: 900; margin-bottom: 4px; white-space: normal; overflow-wrap: break-word; word-break: break-word; line-height: 1.25; }
+.item-content { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 6px; 
+  flex: 1; 
+  min-width: 0; 
+}
 
-.actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-top: -2px; }
-.btn-action { background: var(--bg); border: none; cursor: pointer; padding: 7px 9px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); box-shadow: var(--clay-btn); }
+/* L'en-tête ne gère plus la position des boutons, il protège juste l'espace à droite */
+.card-header { 
+  display: block; 
+  width: 100%; 
+  padding-right: 95px; /* Laisse toujours un espace vide de 95px à droite pour les boutons */
+}
+
+.item-info { width: 100%; }
+
+.item-info h3 { 
+  font-size: 1.05rem; 
+  font-weight: 900; 
+  margin-bottom: 6px; 
+  white-space: normal; /* Force le retour à la ligne */
+  word-break: break-word; /* Coupe les mots si trop longs */
+  line-height: 1.25; 
+}
+
+/* Les boutons sont épinglés de force tout en haut à droite de la carte */
+.actions { 
+  position: absolute; 
+  top: 16px; 
+  right: 16px; 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  z-index: 10;
+}
+
+.btn-action { 
+  background: var(--bg); 
+  border: none; 
+  cursor: pointer; 
+  padding: 8px 10px; 
+  border-radius: 14px; 
+  font-size: 0.8rem; 
+  font-weight: 800; 
+  color: var(--text-muted); 
+  box-shadow: var(--clay-btn); 
+}
+/* ------------------------------------------ */
 
 .item-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-weight: 700; }
 .badge { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-purple); color: var(--clay-purple-text); font-weight: 900; }
