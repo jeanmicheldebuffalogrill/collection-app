@@ -177,7 +177,7 @@ async function uploadDirectFile(file, inputFieldId, wrapId, previewImgId) {
   }
 }
 
-// --- NOUVEAU SYSTÈME DE COLLAGE INTELLIGENT ---
+// --- SYSTÈME DE COLLAGE INTELLIGENT ---
 function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
   if (!e.clipboardData) return;
   
@@ -185,18 +185,14 @@ function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
   const htmlItem = items.find(i => i.type === 'text/html');
   const imageItem = items.find(i => i.type.startsWith('image/'));
   
-  // 1. Si on a copié depuis Google Images (présence de code HTML)
   if (htmlItem) {
-    e.preventDefault(); // Empêche le collage du code bizarre dans le texte
+    e.preventDefault();
     htmlItem.getAsString(html => {
-      // On fouille le code pour extraire l'adresse web de l'image
       const match = html.match(/src=["'](https?:\/\/[^"']+)["']/);
       if (match && match[1]) {
-        // Succès ! On utilise l'adresse web directement (Aucun upload = super rapide)
         document.getElementById(inputFieldId).value = match[1];
         updateImagePreview(inputFieldId, wrapId, previewImgId);
       } else if (imageItem) {
-        // En cas d'échec de la recherche, on tente l'upload classique
         const file = imageItem.getAsFile();
         if (file) compressImageFile(file).then(c => uploadDirectFile(c, inputFieldId, wrapId, previewImgId));
       }
@@ -204,7 +200,6 @@ function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
     return;
   }
 
-  // 2. Si c'est une capture d'écran ou un fichier local pur
   if (imageItem) {
     e.preventDefault();
     const file = imageItem.getAsFile();
@@ -600,7 +595,7 @@ function renderCollection() {
 
     container.appendChild(viewWrap);
 
-    // --- NOUVEAUTÉ : Défilement horizontal avec la molette de la souris ---
+    // --- Défilement horizontal avec la molette de la souris ---
     if (viewMode !== 'grid') {
       viewWrap.addEventListener('wheel', (e) => {
         if (e.deltaY !== 0) {
@@ -720,9 +715,23 @@ function toggleFormFields(prefix, platform) {
   if (prefix === 'w-' || prefix === 'edit-') updateSearchButton(prefix, platform);
 }
 
-// Ouvertures
-document.getElementById('btnOpenAddWishlist')?.addEventListener('click', () => { document.getElementById('wishlistForm').reset(); toggleFormFields('w-', document.getElementById('w-platform').value); document.getElementById('add-wishlist-modal').style.display = 'flex'; });
-document.getElementById('btnOpenAddCollection')?.addEventListener('click', () => { document.getElementById('collectionForm').reset(); tempFormPhotos = []; renderAddFormGallery(); toggleFormFields('c-', document.getElementById('c-platform').value); document.getElementById('add-collection-modal').style.display = 'flex'; });
+// Ouvertures (Avec réinitialisation des images)
+document.getElementById('btnOpenAddWishlist')?.addEventListener('click', () => { 
+  document.getElementById('wishlistForm').reset(); 
+  updateImagePreview('w-image', 'w-preview-wrap', 'w-preview');
+  toggleFormFields('w-', document.getElementById('w-platform').value); 
+  document.getElementById('add-wishlist-modal').style.display = 'flex'; 
+});
+
+document.getElementById('btnOpenAddCollection')?.addEventListener('click', () => { 
+  document.getElementById('collectionForm').reset(); 
+  updateImagePreview('c-image', 'c-preview-wrap', 'c-preview');
+  tempFormPhotos = []; 
+  renderAddFormGallery(); 
+  toggleFormFields('c-', document.getElementById('c-platform').value); 
+  document.getElementById('add-collection-modal').style.display = 'flex'; 
+});
+
 document.getElementById('btnDetailEdit')?.addEventListener('click', () => { document.getElementById('detail-modal').style.display = 'none'; window.openEditCollectionModal(currentDetailCollectionIndex); });
 document.getElementById('btnDetailDelete')?.addEventListener('click', () => { if (confirm("Supprimer ?")) { document.getElementById('detail-modal').style.display = 'none'; window.deleteCollectionItem(currentDetailCollectionIndex); } });
 
