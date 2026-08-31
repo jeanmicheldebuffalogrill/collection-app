@@ -127,6 +127,209 @@ function setSyncStatus(text, color = 'var(--clay-green)') {
 
 function formatMoney(amount) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0); }
 
+// --- Fonctions Images & Supabase Storage (RESTORED) ---
+async function compressImageFile(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 1200;
+        let width = img.width; let height = img.height;
+        if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+        else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          const compressedFile = new File([blob], file.name || 'image.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+          resolve(compressedFile);
+        }, 'image/jpeg', 0.82);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function deleteFileFromSupabaseStorage(photoUrl) {
+  if (!supabaseClient || !photoUrl || !photoUrl.includes('collection-photos/')) return;
+  try {
+    const filePath = photoUrl.split('/collection-photos/')[1];
+    if (filePath) await supabaseClient.storage.from('collection-photos').remove([filePath]);
+  } catch (err) {}
+}
+
+async function uploadDirectFile(file, inputFieldId, wrapId, previewImgId) {
+  if (!supabaseClient) { alert("Cloud non disponible."); return; }
+  try {
+    setSyncStatus('⏳ Upload...', 'var(--clay-yellow)');
+    const filePath = `photo_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
+    const { error } = await supabaseClient.storage.from('collection-photos').upload(filePath, file, { cacheControl: '3600', upsert: false });
+    if (error) throw error;
+    const { data: publicUrlData } = supabaseClient.storage.from('collection-photos').getPublicUrl(filePath);
+    document.getElementById(inputFieldId).value = publicUrlData.publicUrl;
+    updateImagePreview(inputFieldId, wrapId, previewImgId);
+    setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
+  } catch (err) {
+    alert("Erreur upload."); setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
+  }
+}
+
+function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
+  if (e.clipboardData && e.clipboardData.items) {
+    for (const item of e.clipboardData.items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        compressImageFile(file).then(compressed => uploadDirectFile(compressed, inputFieldId, wrapId, previewImgId));
+        return;
+      }
+    }
+  }
+}
+
+async function handleCoverUpload(event, inputFieldId, wrapId, previewImgId) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (!supabaseClient) { alert("Cloud non disponible."); return; }
+  try {
+    setSyncStatus('⏳ Upload...', 'var(--clay-yellow)');
+    const compressed = await compressImageFile(file);
+    const filePath = `photo_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
+    const { error } = await supabaseClient.storage.from('collection-photos').upload(filePath, compressed, { cacheControl: '3600', upsert: false });
+    if (error) throw error;
+    const { data: publicUrlData } = supabaseClient.storage.from('collection-photos').getPublicUrl(filePath);
+    document.getElementById(inputFieldId).value = publicUrlData.publicUrl;
+    updateImagePreview(inputFieldId, wrapId, previewImgId);
+    setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
+  } catch (err) {
+    alert("Erreur upload."); setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
+  } finally { event.target.value = ''; }
+}
+
+function updateImagePreview(inputFieldId, wrapId, previewImgId) {
+  const val = document.getElementById(inputFieldId).value.trim();
+  const wrap = document.getElementById(wrapId);
+  const img = document.getElementById(previewImgId);
+  if (val) { img.src = val; wrap.style.display = 'flex'; } 
+  else { img.src = ''; wrap.style.display = 'none'; }
+}
+
+async function clearImageFieldAndStorage(imageFieldId, wrapId, previewImgId) {
+  const inputField = document.getElementById(imageFieldId);
+  if (inputField && inputField.value) await deleteFileFromSupabaseStorage(inputField.value);
+  inputField.value = '';
+  updateImagePreview(imageFieldId, wrapId, previewImgId);
+}
+
+function openGoogleImagesTab(titleFieldId, platformFieldId) {
+  const title = document.getElementById(titleFieldId).value.trim();
+  const platform = document.getElementById(platformFieldId).value;
+  if (!title) { alert("Saisir un nom."); return; }
+  let keyword = 'jaquette';
+  if (platform === 'Vinyle') keyword = 'pochette vinyle';
+  if (platform === 'Blu-ray') keyword = 'jaquette blu-ray';
+  window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(keyword + ' ' + title)}`, '_blank');
+}
+
+// Branchement des écouteurs pour les images
+const coverConfigs = [
+  { prefix: 'w-', searchBtn: 'btnSearchCoverW', input: 'inputCoverW', remove: 'btnRemoveCoverW', imgInput: 'w-image', wrap: 'w-preview-wrap', prev: 'w-preview', titleField: 'w-title', platField: 'w-platform' },
+  { prefix: 'c-', searchBtn: 'btnSearchCoverC', input: 'inputCoverC', remove: 'btnRemoveCoverC', imgInput: 'c-image', wrap: 'c-preview-wrap', prev: 'c-preview', titleField: 'c-title', platField: 'c-platform' },
+  { prefix: 'edit-', searchBtn: 'btnSearchCoverEW', input: 'inputCoverEW', remove: 'btnRemoveCoverEW', imgInput: 'edit-image', wrap: 'edit-preview-wrap', prev: 'edit-preview', titleField: 'edit-title', platField: 'edit-platform' },
+  { prefix: 'edit-c-', searchBtn: 'btnSearchCoverEC', input: 'inputCoverEC', remove: 'btnRemoveCoverEC', imgInput: 'edit-c-image', wrap: 'edit-c-preview-wrap', prev: 'edit-c-preview', titleField: 'edit-c-title', platField: 'edit-c-platform' }
+];
+
+coverConfigs.forEach(cfg => {
+  document.getElementById(cfg.searchBtn)?.addEventListener('click', () => openGoogleImagesTab(cfg.titleField, cfg.platField));
+  document.getElementById(cfg.input)?.addEventListener('change', (e) => handleCoverUpload(e, cfg.imgInput, cfg.wrap, cfg.prev));
+  document.getElementById(cfg.remove)?.addEventListener('click', () => clearImageFieldAndStorage(cfg.imgInput, cfg.wrap, cfg.prev));
+  const textInput = document.getElementById(cfg.imgInput);
+  if (textInput) {
+    textInput.addEventListener('input', () => updateImagePreview(cfg.imgInput, cfg.wrap, cfg.prev));
+    textInput.addEventListener('paste', (e) => handleDirectPaste(e, cfg.imgInput, cfg.wrap, cfg.prev));
+  }
+});
+
+
+// --- Galeries Photos (RESTORED) ---
+async function handleAddCollectionPhoto(event) {
+  if (currentDetailCollectionIndex === null) return;
+  const file = event.target.files[0];
+  if (!file || !supabaseClient) return;
+  try {
+    const compressed = await compressImageFile(file);
+    const filePath = `photo_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
+    const { error } = await supabaseClient.storage.from('collection-photos').upload(filePath, compressed);
+    if (error) throw error;
+    const { data: publicUrlData } = supabaseClient.storage.from('collection-photos').getPublicUrl(filePath);
+    const item = collection[currentDetailCollectionIndex];
+    if (!item.photos) item.photos = [];
+    item.photos.push(publicUrlData.publicUrl);
+    saveData();
+    renderDetailGallery();
+  } catch (e) { alert("Erreur photo."); }
+  event.target.value = '';
+}
+
+async function handleAddFormGalleryPhoto(event) {
+  const file = event.target.files[0];
+  if (!file || !supabaseClient) return;
+  try {
+    const compressed = await compressImageFile(file);
+    const filePath = `photo_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
+    const { error } = await supabaseClient.storage.from('collection-photos').upload(filePath, compressed);
+    if (error) throw error;
+    const { data: publicUrlData } = supabaseClient.storage.from('collection-photos').getPublicUrl(filePath);
+    tempFormPhotos.push(publicUrlData.publicUrl);
+    renderAddFormGallery();
+  } catch (e) { alert("Erreur photo."); }
+  event.target.value = '';
+}
+
+function renderAddFormGallery() {
+  const grid = document.getElementById('addCollectionGalleryGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  tempFormPhotos.forEach((photoUrl, idx) => {
+    const wrapper = document.createElement('div'); wrapper.className = 'gallery-thumb-wrapper';
+    const thumb = document.createElement('img'); thumb.src = photoUrl; thumb.className = 'gallery-thumb';
+    const delBtn = document.createElement('button'); delBtn.className = 'btn-delete-gallery-photo'; delBtn.innerHTML = '✕';
+    delBtn.onclick = (e) => { e.stopPropagation(); tempFormPhotos.splice(idx, 1); renderAddFormGallery(); };
+    wrapper.appendChild(thumb); wrapper.appendChild(delBtn); grid.appendChild(wrapper);
+  });
+}
+
+function renderDetailGallery() {
+  if (currentDetailCollectionIndex === null) return;
+  const item = collection[currentDetailCollectionIndex];
+  if (!item.photos) item.photos = [];
+  const grid = document.getElementById('detailGalleryGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  item.photos.forEach((photoUrl, photoIndex) => {
+    const wrapper = document.createElement('div'); wrapper.className = 'gallery-thumb-wrapper';
+    const thumb = document.createElement('img'); thumb.src = photoUrl; thumb.className = 'gallery-thumb';
+    thumb.onclick = () => window.openLightbox(photoUrl);
+    const deleteBtn = document.createElement('button'); deleteBtn.className = 'btn-delete-gallery-photo'; deleteBtn.innerHTML = '✕';
+    deleteBtn.onclick = async (e) => {
+      e.stopPropagation();
+      if (confirm("Supprimer ?")) {
+        await deleteFileFromSupabaseStorage(photoUrl);
+        item.photos.splice(photoIndex, 1);
+        saveData(); renderDetailGallery();
+      }
+    };
+    wrapper.appendChild(thumb); wrapper.appendChild(deleteBtn); grid.appendChild(wrapper);
+  });
+}
+
+document.getElementById('inputAddDetailPhoto')?.addEventListener('change', handleAddCollectionPhoto);
+document.getElementById('inputGalleryC')?.addEventListener('change', handleAddFormGalleryPhoto);
+
+
 // --- Rendu Optmisé Wishlist ---
 function renderWishlist() {
   const monthFilter = document.getElementById('w-monthFilter')?.value || 'all';
@@ -188,6 +391,7 @@ function renderWishlist() {
     if (item.platform === 'Vinyle' && artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${artist}</div>`;
 
     const q = encodeURIComponent(`${item.title} ${item.platform}`);
+    const searchLinkHtml = item.platform === 'Vinyle' ? `<a class="btn-market discogs" href="https://www.discogs.com/fr/search/?q=${encodeURIComponent([item.artist, item.title].filter(Boolean).join(' '))}&type=release&format_exact=Vinyl" target="_blank">🎵 Discogs</a>` : `<a class="btn-market collector" href="https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}" target="_blank">🏆 Collector</a>`;
 
     card.innerHTML = `
       ${coverHtml}
@@ -210,7 +414,7 @@ function renderWishlist() {
           </div>
         </div>
         <div class="market-links" onclick="event.stopPropagation();">
-          <a class="btn-market collector" href="https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}" target="_blank">🏆 Collector</a>
+          ${searchLinkHtml}
           <a class="btn-market" href="https://www.e.leclerc/recherche?q=${q}" target="_blank">Leclerc</a>
           <a class="btn-market" href="https://www.fnac.com/SearchResult/ResultList.aspx?Search=${q}" target="_blank">Fnac</a>
           <a class="btn-market" href="https://www.amazon.fr/s?k=${q}" target="_blank">Amazon</a>
@@ -258,6 +462,27 @@ function renderCollection() {
   filtered.forEach(i => { totalVal += parseFloat(i.price) || 0; });
   if(document.getElementById('collectionTotalValue')) document.getElementById('collectionTotalValue').textContent = formatMoney(totalVal);
   if(document.getElementById('collectionItemTotal')) document.getElementById('collectionItemTotal').textContent = filtered.length;
+
+  // Breakdown Chart
+  const platformStats = {};
+  filtered.forEach(i => {
+    const p = i.platform || 'Autre';
+    if (!platformStats[p]) platformStats[p] = { count: 0, total: 0 };
+    platformStats[p].count += 1;
+    platformStats[p].total += parseFloat(i.price) || 0;
+  });
+  const breakdownGrid = document.getElementById('platformBreakdownGrid');
+  if (breakdownGrid) {
+    breakdownGrid.innerHTML = '';
+    Object.keys(platformStats).sort((a,b)=>platformStats[b].total - platformStats[a].total).forEach(plat => {
+      const data = platformStats[plat];
+      const chip = document.createElement('div');
+      chip.className = `platform-chip ${currentPlatformFilter === plat ? 'active' : ''}`;
+      chip.onclick = () => { document.getElementById('c-filterPlatform').value = (document.getElementById('c-filterPlatform').value === plat) ? 'all' : plat; renderCollection(); };
+      chip.innerHTML = `<div class="platform-chip-name">${escapeHTML(plat)} ${currentPlatformFilter === plat ? '✓' : ''}</div><div class="platform-chip-value">${formatMoney(data.total)}</div><div class="platform-chip-count">${data.count} obj.</div>`;
+      breakdownGrid.appendChild(chip);
+    });
+  }
 
   const container = document.getElementById('collectionContainer');
   if(!container) return;
@@ -352,7 +577,6 @@ function renderCollection() {
   }
 }
 
-
 // --- Fonctions CRUD et UI ---
 window.deleteWishlistItem = function(index) {
   if (confirm("Supprimer l'article ?")) {
@@ -361,8 +585,15 @@ window.deleteWishlistItem = function(index) {
   }
 }
 
-window.deleteCollectionItem = function(index) {
+window.deleteCollectionItem = async function(index) {
   if (confirm("Supprimer l'objet ?")) {
+    const item = collection[index];
+    if (item) {
+      if (item.image) await deleteFileFromSupabaseStorage(item.image);
+      if (item.photos && item.photos.length > 0) {
+        for (const photoUrl of item.photos) await deleteFileFromSupabaseStorage(photoUrl);
+      }
+    }
     collection.splice(index, 1);
     saveData();
   }
@@ -389,63 +620,100 @@ window.openLightbox = function(src) {
   document.getElementById('lightbox-modal').style.display = 'flex';
 }
 
-// --- Modales et Formulaires ---
-
-// Fonction utilitaire : Champs dynamiques selon plateforme
-function getDynamicFieldsHtml(prefix, platform, data = {}) {
-  if (platform === 'Vinyle') {
-    return `<div class="form-row"><input type="text" id="${prefix}artist" placeholder="Artiste / Groupe" value="${data.artist || ''}"><input type="text" id="${prefix}edition" placeholder="Édition" value="${data.edition || ''}"></div>`;
-  } else if (platform === 'Blu-ray') {
-    return `<div class="form-row"><select id="${prefix}blurayType" style="width:100%;"><option value="Version normale" ${data.blurayType === 'Version normale' ? 'selected' : ''}>🎬 Version normale</option><option value="Steelbook" ${data.blurayType === 'Steelbook' ? 'selected' : ''}>📀 Steelbook</option></select></div>`;
+window.openCollectionDetail = function(index) {
+  currentDetailCollectionIndex = index;
+  const item = collection[index];
+  const coverContainer = document.getElementById('detail-cover-container');
+  coverContainer.innerHTML = item.image ? `<img src="${escapeHTML(item.image)}" class="detail-cover-large" onclick="window.openLightbox(this.src)" onerror="this.outerHTML='<div class=\\'detail-cover-large\\'>📦</div>'">` : `<div class="detail-cover-large">📦</div>`;
+  document.getElementById('detail-title').textContent = item.title;
+  
+  const isCollector = item.editionType === 'Collector';
+  document.getElementById('detail-meta').innerHTML = `<span class="badge">${escapeHTML(item.platform)}</span>${isCollector ? '<span class="badge-collector">✨ COLLECTOR</span>' : ''}${item.state ? `<span class="badge-state">${escapeHTML(item.state)}</span>` : ''}<span style="font-weight:900; color:var(--clay-yellow);">${item.price ? formatMoney(item.price) : 'Non estimé'}</span>`;
+  
+  let specificInfoHtml = `<div><strong>Acheté chez :</strong> ${escapeHTML(item.store) || 'Non renseigné'}</div>`;
+  if (item.platform === 'Vinyle') {
+    if (item.artist) specificInfoHtml += `<div><strong>Artiste :</strong> ${escapeHTML(item.artist)}</div>`;
+  } else if (item.platform === 'Blu-ray') {
+    if (item.blurayType) specificInfoHtml += `<div><strong>Format :</strong> ${escapeHTML(item.blurayType)}</div>`;
   } else {
+    if (item.gameplay) specificInfoHtml += `<div><strong>Progression :</strong> ${escapeHTML(item.gameplay)}</div>`;
+  }
+  let datesDisplay = [];
+  if (item.releaseDate) datesDisplay.push(`Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
+  if (item.buyDate) datesDisplay.push(`Achat : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
+  specificInfoHtml += `<div><strong>Dates :</strong> ${datesDisplay.length > 0 ? datesDisplay.join(' • ') : 'Non fixées'}</div>`;
+  
+  document.getElementById('detail-dynamic-infos').innerHTML = specificInfoHtml;
+  document.getElementById('detail-notes-container').innerHTML = item.note ? `<strong>Notes :</strong> ${escapeHTML(item.note)}` : '<em>Aucune note.</em>';
+  
+  renderDetailGallery();
+  document.getElementById('detail-modal').style.display = 'flex';
+}
+
+// --- Modales et Formulaires ---
+function getDynamicFieldsHtml(prefix, platform, data = {}) {
+  if (platform === 'Vinyle') return `<div class="form-row"><input type="text" id="${prefix}artist" placeholder="Artiste / Groupe" value="${data.artist || ''}"><input type="text" id="${prefix}edition" placeholder="Édition" value="${data.edition || ''}"></div>`;
+  else if (platform === 'Blu-ray') return `<div class="form-row"><select id="${prefix}blurayType" style="width:100%;"><option value="Version normale" ${data.blurayType === 'Version normale' ? 'selected' : ''}>🎬 Version normale</option><option value="Steelbook" ${data.blurayType === 'Steelbook' ? 'selected' : ''}>📀 Steelbook</option></select></div>`;
+  else {
     if (prefix === 'w-' || prefix === 'edit-') return ``;
     return `<div class="form-row"><select id="${prefix}gameplay"><option value="Non commencé" ${data.gameplay === 'Non commencé' ? 'selected' : ''}>⏳ Non commencé</option><option value="En cours" ${data.gameplay === 'En cours' ? 'selected' : ''}>🎮 En cours</option><option value="Terminé" ${data.gameplay === 'Terminé' ? 'selected' : ''}>🏆 Terminé</option><option value="Non applicable" ${data.gameplay === 'Non applicable' ? 'selected' : ''}>⚪ Non applicable</option></select></div>`;
+  }
+}
+
+function updateSearchButton(prefix, platform) {
+  const btn = document.getElementById(prefix + 'searchBtn');
+  if (!btn) return;
+  if (platform === 'Vinyle') { btn.textContent = '🎵 Rechercher sur Discogs'; btn.style.background = 'var(--clay-purple)'; btn.style.color = 'var(--clay-purple-text)'; } 
+  else { btn.textContent = '🏆 Rechercher sur EditionCollector'; btn.style.background = 'var(--clay-yellow)'; btn.style.color = 'var(--clay-yellow-text)'; }
+}
+
+function handleCustomSearch(prefix) {
+  const title = document.getElementById(prefix + 'title')?.value.trim() || '';
+  const platform = document.getElementById(prefix + 'platform')?.value || '';
+  const artist = document.getElementById(prefix + 'artist')?.value.trim() || '';
+  if (!title && !artist) { alert("Saisir nom ou artiste."); return; }
+  if (platform === 'Vinyle') {
+    window.open(`https://www.discogs.com/fr/search/?q=${encodeURIComponent([artist, title].filter(Boolean).join(' '))}&type=release&format_exact=Vinyl`, '_blank');
+  } else {
+    window.open(`https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}`, '_blank');
   }
 }
 
 function toggleFormFields(prefix, platform) {
   const container = document.getElementById(prefix + 'dynamic-fields');
   if (container) container.innerHTML = getDynamicFieldsHtml(prefix, platform);
+  if (prefix === 'w-' || prefix === 'edit-') updateSearchButton(prefix, platform);
 }
 
-// Ouverture Modales Ajout
-document.getElementById('btnOpenAddWishlist')?.addEventListener('click', () => {
-  document.getElementById('wishlistForm').reset();
-  toggleFormFields('w-', document.getElementById('w-platform').value);
-  document.getElementById('add-wishlist-modal').style.display = 'flex';
-});
+// Ouvertures
+document.getElementById('btnOpenAddWishlist')?.addEventListener('click', () => { document.getElementById('wishlistForm').reset(); toggleFormFields('w-', document.getElementById('w-platform').value); document.getElementById('add-wishlist-modal').style.display = 'flex'; });
+document.getElementById('btnOpenAddCollection')?.addEventListener('click', () => { document.getElementById('collectionForm').reset(); tempFormPhotos = []; renderAddFormGallery(); toggleFormFields('c-', document.getElementById('c-platform').value); document.getElementById('add-collection-modal').style.display = 'flex'; });
+document.getElementById('btnDetailEdit')?.addEventListener('click', () => { document.getElementById('detail-modal').style.display = 'none'; window.openEditCollectionModal(currentDetailCollectionIndex); });
+document.getElementById('btnDetailDelete')?.addEventListener('click', () => { if (confirm("Supprimer ?")) { document.getElementById('detail-modal').style.display = 'none'; window.deleteCollectionItem(currentDetailCollectionIndex); } });
 
-document.getElementById('btnOpenAddCollection')?.addEventListener('click', () => {
-  document.getElementById('collectionForm').reset();
-  tempFormPhotos = [];
-  toggleFormFields('c-', document.getElementById('c-platform').value);
-  document.getElementById('add-collection-modal').style.display = 'flex';
-});
-
-// Fermeture Modales Ajout
+// Fermetures
 document.getElementById('btnCloseAddWishlist')?.addEventListener('click', () => document.getElementById('add-wishlist-modal').style.display = 'none');
 document.getElementById('btnCloseAddCollection')?.addEventListener('click', () => document.getElementById('add-collection-modal').style.display = 'none');
+document.getElementById('btnCloseDetail')?.addEventListener('click', () => { document.getElementById('detail-modal').style.display = 'none'; currentDetailCollectionIndex = null; });
 
-// Formulaires Soumissions
+// Boutons Recherches personnalisées
+document.getElementById('w-searchBtn')?.addEventListener('click', () => handleCustomSearch('w-'));
+document.getElementById('edit-searchBtn')?.addEventListener('click', () => handleCustomSearch('edit-'));
+
+
+// Soumissions
 document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const platform = document.getElementById('w-platform').value;
   let extraData = { platform };
-  if (platform === 'Vinyle') {
-    extraData.artist = document.getElementById('w-artist')?.value.trim() || '';
-  } else if (platform === 'Blu-ray') {
-    extraData.blurayType = document.getElementById('w-blurayType')?.value || 'Version normale';
-  }
+  if (platform === 'Vinyle') extraData.artist = document.getElementById('w-artist')?.value.trim() || '';
+  else if (platform === 'Blu-ray') extraData.blurayType = document.getElementById('w-blurayType')?.value || 'Version normale';
   wishlist.unshift({
     id: crypto.randomUUID ? crypto.randomUUID() : `w_${Date.now()}`,
-    title: document.getElementById('w-title').value.trim(),
-    price: document.getElementById('w-price').value,
-    editionType: document.getElementById('w-editionType').value,
-    store: document.getElementById('w-store').value,
-    releaseDate: document.getElementById('w-releaseDate').value,
-    image: document.getElementById('w-image').value.trim(),
-    status: document.getElementById('w-status').value,
-    ...extraData
+    title: document.getElementById('w-title').value.trim(), price: document.getElementById('w-price').value,
+    editionType: document.getElementById('w-editionType').value, store: document.getElementById('w-store').value,
+    releaseDate: document.getElementById('w-releaseDate').value, image: document.getElementById('w-image').value.trim(),
+    status: document.getElementById('w-status').value, ...extraData
   });
   document.getElementById('add-wishlist-modal').style.display = 'none';
   saveData();
@@ -455,26 +723,16 @@ document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const platform = document.getElementById('c-platform').value;
   let extraData = { platform };
-  if (platform === 'Vinyle') {
-    extraData.artist = document.getElementById('c-artist')?.value.trim() || '';
-  } else if (platform === 'Blu-ray') {
-    extraData.blurayType = document.getElementById('c-blurayType')?.value || 'Version normale';
-  } else {
-    extraData.gameplay = document.getElementById('c-gameplay')?.value || 'Non commencé';
-  }
+  if (platform === 'Vinyle') extraData.artist = document.getElementById('c-artist')?.value.trim() || '';
+  else if (platform === 'Blu-ray') extraData.blurayType = document.getElementById('c-blurayType')?.value || 'Version normale';
+  else extraData.gameplay = document.getElementById('c-gameplay')?.value || 'Non commencé';
   collection.unshift({
     id: crypto.randomUUID ? crypto.randomUUID() : `c_${Date.now()}`,
-    title: document.getElementById('c-title').value.trim(),
-    price: document.getElementById('c-price').value,
-    editionType: document.getElementById('c-editionType').value,
-    store: document.getElementById('c-store').value,
-    state: document.getElementById('c-state').value,
-    releaseDate: document.getElementById('c-releaseDate').value,
-    buyDate: document.getElementById('c-buyDate').value,
-    image: document.getElementById('c-image').value.trim(),
-    note: document.getElementById('c-note').value.trim(),
-    photos: [...tempFormPhotos],
-    ...extraData
+    title: document.getElementById('c-title').value.trim(), price: document.getElementById('c-price').value,
+    editionType: document.getElementById('c-editionType').value, store: document.getElementById('c-store').value,
+    state: document.getElementById('c-state').value, releaseDate: document.getElementById('c-releaseDate').value,
+    buyDate: document.getElementById('c-buyDate').value, image: document.getElementById('c-image').value.trim(),
+    note: document.getElementById('c-note').value.trim(), photos: [...tempFormPhotos], ...extraData
   });
   document.getElementById('add-collection-modal').style.display = 'none';
   saveData();
@@ -483,42 +741,28 @@ document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
 // --- Modification (Edit) ---
 window.openEditModal = function(index) {
   const item = wishlist[index];
-  document.getElementById('edit-index').value = index;
-  document.getElementById('edit-title').value = item.title;
-  document.getElementById('edit-platform').value = item.platform;
-  document.getElementById('edit-price').value = item.price || '';
-  document.getElementById('edit-editionType').value = item.editionType || 'Standard';
-  toggleFormFields('edit-', item.platform, item);
-  document.getElementById('edit-store').value = item.store || 'Non renseigné';
-  document.getElementById('edit-releaseDate').value = item.releaseDate || '';
-  document.getElementById('edit-image').value = item.image || '';
-  document.getElementById('edit-status').value = item.status || 'À prendre';
-  document.getElementById('edit-modal').style.display = 'flex';
+  document.getElementById('edit-index').value = index; document.getElementById('edit-title').value = item.title;
+  document.getElementById('edit-platform').value = item.platform; document.getElementById('edit-price').value = item.price || '';
+  document.getElementById('edit-editionType').value = item.editionType || 'Standard'; toggleFormFields('edit-', item.platform, item);
+  document.getElementById('edit-store').value = item.store || 'Non renseigné'; document.getElementById('edit-releaseDate').value = item.releaseDate || '';
+  document.getElementById('edit-image').value = item.image || ''; updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview');
+  document.getElementById('edit-status').value = item.status || 'À prendre'; document.getElementById('edit-modal').style.display = 'flex';
 }
 
 window.openEditCollectionModal = function(index) {
   const item = collection[index];
-  document.getElementById('edit-c-index').value = index;
-  document.getElementById('edit-c-title').value = item.title;
-  document.getElementById('edit-c-platform').value = item.platform;
-  document.getElementById('edit-c-price').value = item.price || '';
-  document.getElementById('edit-c-editionType').value = item.editionType || 'Standard';
-  toggleFormFields('edit-c-', item.platform, item);
-  document.getElementById('edit-c-store').value = item.store || 'Non renseigné';
-  document.getElementById('edit-c-state').value = item.state || '✨ Neuf sous blister';
-  document.getElementById('edit-c-releaseDate').value = item.releaseDate || '';
-  document.getElementById('edit-c-buyDate').value = item.buyDate || '';
-  document.getElementById('edit-c-image').value = item.image || '';
-  document.getElementById('edit-c-note').value = item.note || '';
-  document.getElementById('edit-collection-modal').style.display = 'flex';
+  document.getElementById('edit-c-index').value = index; document.getElementById('edit-c-title').value = item.title;
+  document.getElementById('edit-c-platform').value = item.platform; document.getElementById('edit-c-price').value = item.price || '';
+  document.getElementById('edit-c-editionType').value = item.editionType || 'Standard'; toggleFormFields('edit-c-', item.platform, item);
+  document.getElementById('edit-c-store').value = item.store || 'Non renseigné'; document.getElementById('edit-c-state').value = item.state || '✨ Neuf sous blister';
+  document.getElementById('edit-c-releaseDate').value = item.releaseDate || ''; document.getElementById('edit-c-buyDate').value = item.buyDate || '';
+  document.getElementById('edit-c-image').value = item.image || ''; updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview');
+  document.getElementById('edit-c-note').value = item.note || ''; document.getElementById('edit-collection-modal').style.display = 'flex';
 }
 
-// Fermeture des modales de modification
 document.getElementById('btnCloseEditWishlist')?.addEventListener('click', () => document.getElementById('edit-modal').style.display = 'none');
 document.getElementById('btnCloseEditCollection')?.addEventListener('click', () => document.getElementById('edit-collection-modal').style.display = 'none');
-document.getElementById('btnCloseLightbox')?.addEventListener('click', () => document.getElementById('lightbox-modal').style.display = 'none');
 
-// Sauvegarde des modifications
 document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => {
   const index = parseInt(document.getElementById('edit-index').value, 10);
   if (isNaN(index) || !wishlist[index]) return;
@@ -528,18 +772,12 @@ document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => 
   else if (platform === 'Blu-ray') extraData.blurayType = document.getElementById('edit-blurayType')?.value;
   
   wishlist[index] = {
-    ...wishlist[index],
-    title: document.getElementById('edit-title').value.trim(),
-    price: document.getElementById('edit-price').value,
-    editionType: document.getElementById('edit-editionType').value,
-    store: document.getElementById('edit-store').value,
-    releaseDate: document.getElementById('edit-releaseDate').value,
-    image: document.getElementById('edit-image').value.trim(),
-    status: document.getElementById('edit-status').value,
-    ...extraData
+    ...wishlist[index], title: document.getElementById('edit-title').value.trim(), price: document.getElementById('edit-price').value,
+    editionType: document.getElementById('edit-editionType').value, store: document.getElementById('edit-store').value,
+    releaseDate: document.getElementById('edit-releaseDate').value, image: document.getElementById('edit-image').value.trim(),
+    status: document.getElementById('edit-status').value, ...extraData
   };
-  document.getElementById('edit-modal').style.display = 'none';
-  saveData();
+  document.getElementById('edit-modal').style.display = 'none'; saveData();
 });
 
 document.getElementById('btnSaveEditCollection')?.addEventListener('click', () => {
@@ -552,28 +790,19 @@ document.getElementById('btnSaveEditCollection')?.addEventListener('click', () =
   else extraData.gameplay = document.getElementById('edit-c-gameplay')?.value;
   
   collection[index] = {
-    ...collection[index],
-    title: document.getElementById('edit-c-title').value.trim(),
-    price: document.getElementById('edit-c-price').value,
-    editionType: document.getElementById('edit-c-editionType').value,
-    store: document.getElementById('edit-c-store').value,
-    state: document.getElementById('edit-c-state').value,
-    releaseDate: document.getElementById('edit-c-releaseDate').value,
-    buyDate: document.getElementById('edit-c-buyDate').value,
-    image: document.getElementById('edit-c-image').value.trim(),
-    note: document.getElementById('edit-c-note').value.trim(),
-    ...extraData
+    ...collection[index], title: document.getElementById('edit-c-title').value.trim(), price: document.getElementById('edit-c-price').value,
+    editionType: document.getElementById('edit-c-editionType').value, store: document.getElementById('edit-c-store').value,
+    state: document.getElementById('edit-c-state').value, releaseDate: document.getElementById('edit-c-releaseDate').value,
+    buyDate: document.getElementById('edit-c-buyDate').value, image: document.getElementById('edit-c-image').value.trim(),
+    note: document.getElementById('edit-c-note').value.trim(), ...extraData
   };
-  document.getElementById('edit-collection-modal').style.display = 'none';
-  saveData();
+  document.getElementById('edit-collection-modal').style.display = 'none'; saveData();
 });
 
-// Écouteurs de changement de plateforme pour régénérer les champs dynamiques
-document.getElementById('w-platform')?.addEventListener('change', function() { toggleFormFields('w-', this.value); });
+document.getElementById('w-platform')?.addEventListener('change', function() { toggleFormFields('w-', this.value); updateSearchButton('w-', this.value); });
 document.getElementById('c-platform')?.addEventListener('change', function() { toggleFormFields('c-', this.value); });
-document.getElementById('edit-platform')?.addEventListener('change', function() { toggleFormFields('edit-', this.value); });
+document.getElementById('edit-platform')?.addEventListener('change', function() { toggleFormFields('edit-', this.value); updateSearchButton('edit-', this.value); });
 document.getElementById('edit-c-platform')?.addEventListener('change', function() { toggleFormFields('edit-c-', this.value); });
-
 
 // --- Onglets ---
 function switchTab(tabId) {
@@ -587,6 +816,8 @@ function switchTab(tabId) {
 document.getElementById('tabBtnWishlist')?.addEventListener('click', () => switchTab('Wishlist'));
 document.getElementById('tabBtnCollection')?.addEventListener('click', () => switchTab('Collection'));
 document.getElementById('tabBtnRandom')?.addEventListener('click', () => switchTab('Random'));
+
+document.getElementById('btnResetPlatform')?.addEventListener('click', () => { document.getElementById('c-filterPlatform').value = 'all'; renderCollection(); });
 
 // --- Filtres Helper ---
 function checkDateMatch(itemDateStr, filterValue) {
@@ -709,7 +940,10 @@ function onPointerUp() {
   const crimpElFinal = document.getElementById(`crimp-${activeCategory}`);
   if (success) {
     const flash = document.getElementById('flash-overlay');
-    if (flash) { flash.style.display = 'block'; setTimeout(() => flash.style.display = 'none', 400); }
+    if (flash) { 
+      flash.style.display = 'block'; 
+      setTimeout(() => { flash.style.display = 'none'; }, 400); 
+    }
     if (crimpElFinal) {
       crimpElFinal.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
       crimpElFinal.style.transform = 'translateX(220px) rotate(15deg)';
@@ -729,9 +963,7 @@ function onPointerUp() {
   }
 }
 
-document.querySelectorAll('.tcg-crimp-top').forEach(el => {
-  el.addEventListener('pointerdown', handlePointerDown);
-});
+document.querySelectorAll('.tcg-crimp-top').forEach(el => { el.addEventListener('pointerdown', handlePointerDown); });
 
 function triggerGachaponReveal(category) {
   lastGachaponCategory = category;
@@ -743,9 +975,13 @@ function triggerGachaponReveal(category) {
   
   if (pool.length === 0) { alert("Aucun objet dans cette catégorie !"); return; }
   const winner = pool[Math.floor(Math.random() * pool.length)];
+  const index = collection.indexOf(winner);
   
   document.getElementById('gachaponCoverContainer').innerHTML = winner.image ? `<img src="${escapeHTML(winner.image)}" class="gachapon-cover-large">` : `<div class="gachapon-cover-large">📦</div>`;
   document.getElementById('gachaponTitle').textContent = winner.title;
+  
+  document.getElementById('btnGachaponDetail').onclick = () => { document.getElementById('gachapon-modal').style.display = 'none'; window.openCollectionDetail(index); };
+  
   document.getElementById('gachapon-modal').style.display = 'flex';
 }
 
@@ -757,5 +993,7 @@ document.getElementById('btnGachaponReroll')?.addEventListener('click', () => {
 
 // Init de base au chargement de la page
 window.addEventListener('DOMContentLoaded', () => {
+  toggleFormFields('w-', document.getElementById('w-platform')?.value || 'PS5');
+  toggleFormFields('c-', document.getElementById('c-platform')?.value || 'PS5');
   checkAuth();
 });
