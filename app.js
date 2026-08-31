@@ -353,7 +353,7 @@ function renderWishlist() {
   const platF = document.getElementById('w-filterPlatform')?.value || 'all';
   const storeF = document.getElementById('w-filterStore')?.value || 'all';
   const statF = document.getElementById('w-filterStatus')?.value || 'all';
-  const editionF = document.getElementById('w-filterEdition')?.value || 'all'; // AJOUTÉ
+  const editionF = document.getElementById('w-filterEdition')?.value || 'all';
   const sortBy = document.getElementById('w-sortBy')?.value || 'newest';
   const searchQuery = (document.getElementById('w-searchBar')?.value || '').toLowerCase().trim();
 
@@ -363,7 +363,7 @@ function renderWishlist() {
     const matchPlat = (platF === 'all' || i.platform === platF);
     const matchStore = (storeF === 'all' || i.store === storeF);
     const matchStat = (statF === 'all' || i.status === statF);
-    const matchEdition = (editionF === 'all' || (i.editionType || 'Standard') === editionF); // AJOUTÉ
+    const matchEdition = (editionF === 'all' || (i.editionType || 'Standard') === editionF);
     const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery));
     
     if (matchMonth) {
@@ -404,6 +404,9 @@ function renderWishlist() {
     const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${escapeHTML(item.store)}</span>` : '';
     const collectorBadge = item.editionType === 'Collector' ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
     const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
+    // Gestion du badge Vinyle (format édition structuré)
+    const vinylBadge = (item.platform === 'Vinyle' && item.vinylEdition) ? `<span class="badge-state">🎵 ${escapeHTML(item.vinylEdition)}</span>` : '';
+
     const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
     let subtitle = '';
@@ -421,7 +424,7 @@ function renderWishlist() {
             ${subtitle}
             <div class="item-meta">
               <span class="badge">${escapeHTML(item.platform)}</span>
-              ${collectorBadge} ${blurayBadge}
+              ${collectorBadge} ${blurayBadge} ${vinylBadge}
               <span class="badge-status ${badgeStatusClass}">${statusText}</span>
               ${storeBadge} <span>${priceStr}</span> <span>•</span> <span>${dateStr}</span>
             </div>
@@ -524,9 +527,10 @@ function renderCollection() {
       const stateBadge = item.state ? `<span class="badge-state">${escapeHTML(item.state)}</span>` : '';
       const playBadge = (item.gameplay && item.gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${escapeHTML(item.gameplay)}</span>` : '';
       const collectorBadge = isCollector ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
-      // AJOUTÉ : Badge Steelbook pour la collection
       const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
-      
+      // Gestion du badge Vinyle (format édition structuré)
+      const vinylBadge = (item.platform === 'Vinyle' && item.vinylEdition) ? `<span class="badge-state">🎵 ${escapeHTML(item.vinylEdition)}</span>` : '';
+
       const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
       let subtitle = '';
@@ -547,7 +551,7 @@ function renderCollection() {
               ${subtitle}
               <div class="item-meta">
                 <span class="badge">${escapeHTML(item.platform)}</span>
-                ${collectorBadge} ${blurayBadge} ${stateBadge} ${playBadge} ${storeBadge}
+                ${collectorBadge} ${blurayBadge} ${vinylBadge} ${stateBadge} ${playBadge} ${storeBadge}
                 <span style="font-weight:900; color:var(--clay-yellow);">${valStr}</span>
               </div>
               <div class="item-meta" style="margin-top:2px;"><span>${datesDisplay.join(' • ')}</span></div>
@@ -663,13 +667,15 @@ window.openCollectionDetail = function(index) {
   document.getElementById('detail-title').textContent = item.title;
   
   const isCollector = item.editionType === 'Collector';
-  // AJOUTÉ : Badge Steelbook et Collector dans la modale de détail
   const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
-  document.getElementById('detail-meta').innerHTML = `<span class="badge">${escapeHTML(item.platform)}</span>${isCollector ? '<span class="badge-collector">✨ COLLECTOR</span>' : ''}${blurayBadge}${item.state ? `<span class="badge-state">${escapeHTML(item.state)}</span>` : ''}<span style="font-weight:900; color:var(--clay-yellow);">${item.price ? formatMoney(item.price) : 'Non estimé'}</span>`;
+  const vinylBadge = (item.platform === 'Vinyle' && item.vinylEdition) ? `<span class="badge-state">🎵 ${escapeHTML(item.vinylEdition)}</span>` : '';
+  
+  document.getElementById('detail-meta').innerHTML = `<span class="badge">${escapeHTML(item.platform)}</span>${isCollector ? '<span class="badge-collector">✨ COLLECTOR</span>' : ''}${blurayBadge}${vinylBadge}${item.state ? `<span class="badge-state">${escapeHTML(item.state)}</span>` : ''}<span style="font-weight:900; color:var(--clay-yellow);">${item.price ? formatMoney(item.price) : 'Non estimé'}</span>`;
   
   let specificInfoHtml = `<div><strong>Acheté chez :</strong> ${escapeHTML(item.store) || 'Non renseigné'}</div>`;
   if (item.platform === 'Vinyle') {
     if (item.artist) specificInfoHtml += `<div><strong>Artiste :</strong> ${escapeHTML(item.artist)}</div>`;
+    if (item.vinylEdition) specificInfoHtml += `<div><strong>Édition :</strong> ${escapeHTML(item.vinylEdition)}</div>`;
   } else if (item.platform === 'Blu-ray') {
     if (item.blurayType) specificInfoHtml += `<div><strong>Format :</strong> ${escapeHTML(item.blurayType)}</div>`;
   } else {
@@ -689,9 +695,22 @@ window.openCollectionDetail = function(index) {
 
 // --- Modales et Formulaires ---
 function getDynamicFieldsHtml(prefix, platform, data = {}) {
-  if (platform === 'Vinyle') return `<div class="form-row"><input type="text" id="${prefix}artist" placeholder="Artiste / Groupe" value="${data.artist || ''}"><input type="text" id="${prefix}edition" placeholder="Édition" value="${data.edition || ''}"></div>`;
-  else if (platform === 'Blu-ray') return `<div class="form-row"><select id="${prefix}blurayType" style="width:100%;"><option value="Version normale" ${data.blurayType === 'Version normale' ? 'selected' : ''}>🎬 Version normale</option><option value="Steelbook" ${data.blurayType === 'Steelbook' ? 'selected' : ''}>📀 Steelbook</option></select></div>`;
-  else {
+  if (platform === 'Vinyle') {
+    // Menu déroulant structuré pour les éditions de vinyles
+    const currentEdition = data.vinylEdition || 'Pochette standard 1 LP';
+    return `
+      <div class="form-row">
+        <input type="text" id="${prefix}artist" placeholder="Artiste / Groupe" value="${data.artist || ''}">
+        <select id="${prefix}vinylEdition" style="width:100%;">
+          <option value="Pochette standard 1 LP" ${currentEdition === 'Pochette standard 1 LP' ? 'selected' : ''}>🎵 Pochette standard 1 LP</option>
+          <option value="Pochette standard 2 LP" ${currentEdition === 'Pochette standard 2 LP' ? 'selected' : ''}>🎵 Pochette standard 2 LP</option>
+          <option value="Gatefold 1 LP" ${currentEdition === 'Gatefold 1 LP' ? 'selected' : ''}>🎵 Gatefold 1 LP</option>
+          <option value="Gatefold 2 LP" ${currentEdition === 'Gatefold 2 LP' ? 'selected' : ''}>🎵 Gatefold 2 LP</option>
+        </select>
+      </div>`;
+  } else if (platform === 'Blu-ray') {
+    return `<div class="form-row"><select id="${prefix}blurayType" style="width:100%;"><option value="Version normale" ${data.blurayType === 'Version normale' ? 'selected' : ''}>🎬 Version normale</option><option value="Steelbook" ${data.blurayType === 'Steelbook' ? 'selected' : ''}>📀 Steelbook</option></select></div>`;
+  } else {
     if (prefix === 'w-' || prefix === 'edit-') return ``;
     return `<div class="form-row"><select id="${prefix}gameplay"><option value="Non commencé" ${data.gameplay === 'Non commencé' ? 'selected' : ''}>⏳ Non commencé</option><option value="En cours" ${data.gameplay === 'En cours' ? 'selected' : ''}>🎮 En cours</option><option value="Terminé" ${data.gameplay === 'Terminé' ? 'selected' : ''}>🏆 Terminé</option><option value="Non applicable" ${data.gameplay === 'Non applicable' ? 'selected' : ''}>⚪ Non applicable</option></select></div>`;
   }
@@ -757,8 +776,12 @@ document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const platform = document.getElementById('w-platform').value;
   let extraData = { platform };
-  if (platform === 'Vinyle') extraData.artist = document.getElementById('w-artist')?.value.trim() || '';
-  else if (platform === 'Blu-ray') extraData.blurayType = document.getElementById('w-blurayType')?.value || 'Version normale';
+  if (platform === 'Vinyle') {
+    extraData.artist = document.getElementById('w-artist')?.value.trim() || '';
+    extraData.vinylEdition = document.getElementById('w-vinylEdition')?.value || 'Pochette standard 1 LP';
+  } else if (platform === 'Blu-ray') {
+    extraData.blurayType = document.getElementById('w-blurayType')?.value || 'Version normale';
+  }
   wishlist.unshift({
     id: crypto.randomUUID ? crypto.randomUUID() : `w_${Date.now()}`,
     title: document.getElementById('w-title').value.trim(), price: document.getElementById('w-price').value,
@@ -774,9 +797,14 @@ document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const platform = document.getElementById('c-platform').value;
   let extraData = { platform };
-  if (platform === 'Vinyle') extraData.artist = document.getElementById('c-artist')?.value.trim() || '';
-  else if (platform === 'Blu-ray') extraData.blurayType = document.getElementById('c-blurayType')?.value || 'Version normale';
-  else extraData.gameplay = document.getElementById('c-gameplay')?.value || 'Non commencé';
+  if (platform === 'Vinyle') {
+    extraData.artist = document.getElementById('c-artist')?.value.trim() || '';
+    extraData.vinylEdition = document.getElementById('c-vinylEdition')?.value || 'Pochette standard 1 LP';
+  } else if (platform === 'Blu-ray') {
+    extraData.blurayType = document.getElementById('c-blurayType')?.value || 'Version normale';
+  } else {
+    extraData.gameplay = document.getElementById('c-gameplay')?.value || 'Non commencé';
+  }
   collection.unshift({
     id: crypto.randomUUID ? crypto.randomUUID() : `c_${Date.now()}`,
     title: document.getElementById('c-title').value.trim(), price: document.getElementById('c-price').value,
@@ -819,8 +847,12 @@ document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => 
   if (isNaN(index) || !wishlist[index]) return;
   const platform = document.getElementById('edit-platform').value;
   let extraData = { platform };
-  if (platform === 'Vinyle') extraData.artist = document.getElementById('edit-artist')?.value.trim();
-  else if (platform === 'Blu-ray') extraData.blurayType = document.getElementById('edit-blurayType')?.value;
+  if (platform === 'Vinyle') {
+    extraData.artist = document.getElementById('edit-artist')?.value.trim();
+    extraData.vinylEdition = document.getElementById('edit-vinylEdition')?.value;
+  } else if (platform === 'Blu-ray') {
+    extraData.blurayType = document.getElementById('edit-blurayType')?.value;
+  }
   
   wishlist[index] = {
     ...wishlist[index], title: document.getElementById('edit-title').value.trim(), price: document.getElementById('edit-price').value,
@@ -836,9 +868,14 @@ document.getElementById('btnSaveEditCollection')?.addEventListener('click', () =
   if (isNaN(index) || !collection[index]) return;
   const platform = document.getElementById('edit-c-platform').value;
   let extraData = { platform };
-  if (platform === 'Vinyle') extraData.artist = document.getElementById('edit-c-artist')?.value.trim();
-  else if (platform === 'Blu-ray') extraData.blurayType = document.getElementById('edit-c-blurayType')?.value;
-  else extraData.gameplay = document.getElementById('edit-c-gameplay')?.value;
+  if (platform === 'Vinyle') {
+    extraData.artist = document.getElementById('edit-c-artist')?.value.trim();
+    extraData.vinylEdition = document.getElementById('edit-c-vinylEdition')?.value;
+  } else if (platform === 'Blu-ray') {
+    extraData.blurayType = document.getElementById('edit-c-blurayType')?.value;
+  } else {
+    extraData.gameplay = document.getElementById('edit-c-gameplay')?.value;
+  }
   
   collection[index] = {
     ...collection[index], title: document.getElementById('edit-c-title').value.trim(), price: document.getElementById('edit-c-price').value,
@@ -932,7 +969,7 @@ document.getElementById('c-searchBar')?.addEventListener('input', renderCollecti
 document.getElementById('w-filterPlatform')?.addEventListener('change', renderWishlist);
 document.getElementById('w-filterStore')?.addEventListener('change', renderWishlist);
 document.getElementById('w-filterStatus')?.addEventListener('change', renderWishlist);
-document.getElementById('w-filterEdition')?.addEventListener('change', renderWishlist); // AJOUTÉ
+document.getElementById('w-filterEdition')?.addEventListener('change', renderWishlist);
 document.getElementById('w-monthFilter')?.addEventListener('change', renderWishlist);
 document.getElementById('w-sortBy')?.addEventListener('change', renderWishlist);
 document.getElementById('w-searchBar')?.addEventListener('input', renderWishlist);
