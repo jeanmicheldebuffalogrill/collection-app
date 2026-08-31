@@ -148,10 +148,13 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .item-cover-placeholder { width: 80px; height: 108px; border-radius: 20px; background: var(--bg); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: var(--clay-btn); }
 .item-content { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
 
-/* CORRECTION TITRES LONGS & BOUTONS D'ACTION */
-.card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.item-info { flex: 1; min-width: 0; }
-.item-info h3 { font-size: 1.05rem; font-weight: 900; margin-bottom: 4px; white-space: normal; overflow-wrap: break-word; word-break: break-word; line-height: 1.25; }
+/* CORRECTION RADICALE : L'en-tête autorise le retour à la ligne du titre et isole les boutons sur une colonne latérale fixe */
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; width: 100%; }
+.item-info { flex: 1; min-width: 0; padding-right: 2px; }
+.item-info h3 { font-size: 1rem; font-weight: 900; margin-bottom: 4px; white-space: normal; overflow-wrap: break-word; word-break: break-word; line-height: 1.25; }
+
+.actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-top: -2px; }
+.btn-action { background: var(--bg); border: none; cursor: pointer; padding: 7px 9px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); box-shadow: var(--clay-btn); }
 
 .item-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-weight: 700; }
 .badge { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-purple); color: var(--clay-purple-text); font-weight: 900; }
@@ -167,8 +170,6 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .btn-market { font-size: 0.72rem; padding: 6px 12px; border-radius: 12px; background: var(--bg); color: var(--clay-blue); text-decoration: none; font-weight: 800; box-shadow: var(--clay-btn); }
 .btn-market.collector { background: var(--clay-yellow); color: var(--clay-yellow-text); }
 .btn-market.discogs { background: var(--clay-purple); color: var(--clay-purple-text); }
-.actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-.btn-action { background: var(--bg); border: none; cursor: pointer; padding: 8px 10px; border-radius: 14px; font-size: 0.8rem; font-weight: 800; color: var(--text-muted); box-shadow: var(--clay-btn); }
 
 /* Vues Grille et Timeline */
 .grid-collection-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 2px 4px 20px 4px; }
