@@ -560,7 +560,16 @@ function renderCollection() {
       const index = collection.indexOf(item);
       const card = document.createElement('div');
       card.className = viewMode === 'grid' ? `grid-item-card ${item.editionType === 'Collector' ? 'is-collector' : ''}` : `tile-card ${item.editionType === 'Collector' ? 'is-collector' : ''}`;
-      card.onclick = () => window.openCollectionDetail(index);
+      
+      // Modification pour empêcher le clic accidentel pendant le drag
+      card.onclick = (e) => {
+        if (viewWrap.classList.contains('is-dragging')) {
+          e.preventDefault();
+          return;
+        }
+        window.openCollectionDetail(index);
+      };
+
       const title = escapeHTML(item.title);
       const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="${viewMode==='grid'?'grid-item-cover':'tile-cover'}" onerror="this.outerHTML='<div class=\\'grid-item-cover-placeholder\\'>📦</div>'">` : `<div class="grid-item-cover-placeholder">📦</div>`;
       const priceStr = item.price ? formatMoney(item.price) : '—';
@@ -573,7 +582,41 @@ function renderCollection() {
       }
       viewWrap.appendChild(card);
     });
+
     container.appendChild(viewWrap);
+
+    // --- NOUVEAUTÉ : Système Drag-to-Scroll pour la frise sur PC ---
+    if (viewMode !== 'grid') {
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+
+      viewWrap.addEventListener('mousedown', (e) => {
+        isDown = true;
+        viewWrap.classList.add('active');
+        viewWrap.classList.remove('is-dragging'); // Reset du flag de drag
+        startX = e.pageX - viewWrap.offsetLeft;
+        scrollLeft = viewWrap.scrollLeft;
+      });
+      viewWrap.addEventListener('mouseleave', () => {
+        isDown = false;
+        viewWrap.classList.remove('active');
+      });
+      viewWrap.addEventListener('mouseup', () => {
+        isDown = false;
+        viewWrap.classList.remove('active');
+        // On laisse le flag is-dragging un court instant pour empêcher le clic
+        setTimeout(() => viewWrap.classList.remove('is-dragging'), 50);
+      });
+      viewWrap.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        viewWrap.classList.add('is-dragging'); // Indique qu'on est en train de glisser
+        const x = e.pageX - viewWrap.offsetLeft;
+        const walk = (x - startX) * 2; // Vitesse de glissement (*2)
+        viewWrap.scrollLeft = scrollLeft - walk;
+      });
+    }
   }
 }
 
