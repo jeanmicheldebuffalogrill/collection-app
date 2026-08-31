@@ -494,6 +494,12 @@ function renderCollection() {
       chip.className = `platform-chip ${currentPlatformFilter === plat ? 'active' : ''}`;
       chip.onclick = () => { 
         document.getElementById('c-filterPlatform').value = (document.getElementById('c-filterPlatform').value === plat) ? 'all' : plat; 
+        
+        // CORRECTION: Réinitialisation des sous-filtres lors du clic sur les étiquettes
+        if(document.getElementById('c-filterGameplay')) document.getElementById('c-filterGameplay').value = 'all';
+        if(document.getElementById('c-filterVinylEdition')) document.getElementById('c-filterVinylEdition').value = 'all';
+        if(document.getElementById('c-filterBlurayType')) document.getElementById('c-filterBlurayType').value = 'all';
+        
         updateDynamicCollectionFilters();
         renderCollection(); 
       };
@@ -952,8 +958,12 @@ document.getElementById('tabBtnWishlist')?.addEventListener('click', () => switc
 document.getElementById('tabBtnCollection')?.addEventListener('click', () => switchTab('Collection'));
 document.getElementById('tabBtnRandom')?.addEventListener('click', () => switchTab('Random'));
 
+// CORRECTION DU BOUTON TOUT VOIR (Remise à zéro de tous les sous-filtres)
 document.getElementById('btnResetPlatform')?.addEventListener('click', () => { 
   document.getElementById('c-filterPlatform').value = 'all'; 
+  if(document.getElementById('c-filterGameplay')) document.getElementById('c-filterGameplay').value = 'all';
+  if(document.getElementById('c-filterVinylEdition')) document.getElementById('c-filterVinylEdition').value = 'all';
+  if(document.getElementById('c-filterBlurayType')) document.getElementById('c-filterBlurayType').value = 'all';
   updateDynamicCollectionFilters();
   renderCollection(); 
 });
