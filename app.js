@@ -1,4 +1,4 @@
-// Sécurité Anti-XSS : Nettoie toutes les entrées utilisateurs
+// --- Sécurité Anti-XSS ---
 function escapeHTML(str) {
   if (typeof str !== 'string') return str;
   return str.replace(/[&<>'"]/g, tag => ({
@@ -11,19 +11,24 @@ const SUPABASE_ANON_KEY = 'sb_publishable_GxHaTOPwaJvrkc-qjYfV6w_MsZZyV6X';
 let supabaseClient = null;
 
 try {
-  if (window.supabase) {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-} catch (e) {
-  console.warn("Supabase non chargé :", e);
-}
+  if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (e) { console.warn("Supabase non chargé :", e); }
 
-// Variables d'état
+// --- Variables Globales ---
 let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
 let collection = JSON.parse(localStorage.getItem('app_collection_cloud_v1')) || [];
 let currentDetailCollectionIndex = null;
 let lastGachaponCategory = 'all';
 let tempFormPhotos = [];
+
+// --- Gachapon Audio Variables ---
+let audioCtx = null;
+let tcgRipOsc = null;
+let tcgRipGain = null;
+let isTopRipActive = false;
+let activeCategory = null;
+let startTopX = 0;
+let currentTopDragX = 0;
 
 // --- Authentification ---
 async function checkAuth() {
@@ -39,7 +44,7 @@ async function checkAuth() {
   }
 }
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!supabaseClient) return;
   const email = document.getElementById('authEmail').value;
@@ -55,7 +60,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   }
 });
 
-document.getElementById('btnLogout').addEventListener('click', async () => {
+document.getElementById('btnLogout')?.addEventListener('click', async () => {
   if (!supabaseClient) return;
   await supabaseClient.auth.signOut();
   document.getElementById('auth-screen').style.display = 'flex';
@@ -63,7 +68,7 @@ document.getElementById('btnLogout').addEventListener('click', async () => {
   document.getElementById('authPassword').value = '';
 });
 
-// --- Initialisation ---
+// --- Initialisation & Sync ---
 function initApp() {
   wishlist = wishlist.map(item => item.id ? item : { ...item, id: crypto.randomUUID ? crypto.randomUUID() : `w_${Date.now()}` });
   collection = collection.map(item => item.id ? item : { ...item, id: crypto.randomUUID ? crypto.randomUUID() : `c_${Date.now()}` });
@@ -122,7 +127,7 @@ function setSyncStatus(text, color = 'var(--clay-green)') {
 
 function formatMoney(amount) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0); }
 
-// --- Rendu Optmisé (DocumentFragment & Anti-XSS) ---
+// --- Rendu Optmisé Wishlist ---
 function renderWishlist() {
   const monthFilter = document.getElementById('w-monthFilter')?.value || 'all';
   const platF = document.getElementById('w-filterPlatform')?.value || 'all';
@@ -132,65 +137,55 @@ function renderWishlist() {
   const searchQuery = (document.getElementById('w-searchBar')?.value || '').toLowerCase().trim();
 
   let totalConfirmed = 0, totalPending = 0;
-  wishlist.forEach(i => {
-    const p = parseFloat(i.price) || 0;
-    if (checkDateMatch(i.releaseDate, monthFilter)) {
-      if (i.status === 'À prendre') totalConfirmed += p;
-      if (i.status === 'En réflexion') totalPending += p;
-    }
-  });
-
-  document.getElementById('labelConfirmed').textContent = monthFilter !== 'all' ? 'Prévu (sélection)' : 'Total prévu';
-  document.getElementById('labelPotential').textContent = monthFilter !== 'all' ? 'Potentiel (sélection)' : 'Total potentiel';
-  document.getElementById('totalConfirmed').textContent = formatMoney(totalConfirmed);
-  document.getElementById('totalPotential').textContent = formatMoney(totalConfirmed + totalPending);
-
-  const container = document.getElementById('wishlistContainer');
-  container.innerHTML = '';
-
   let filtered = wishlist.filter(i => {
     const matchMonth = checkDateMatch(i.releaseDate, monthFilter);
     const matchPlat = (platF === 'all' || i.platform === platF);
     const matchStore = (storeF === 'all' || i.store === storeF);
     const matchStat = (statF === 'all' || i.status === statF);
     const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery));
+    
+    if (matchMonth) {
+      const p = parseFloat(i.price) || 0;
+      if (i.status === 'À prendre') totalConfirmed += p;
+      if (i.status === 'En réflexion') totalPending += p;
+    }
     return matchMonth && matchPlat && matchStore && matchStat && matchSearch;
   });
 
+  if(document.getElementById('labelConfirmed')) document.getElementById('labelConfirmed').textContent = monthFilter !== 'all' ? 'Prévu (sélection)' : 'Total prévu';
+  if(document.getElementById('labelPotential')) document.getElementById('labelPotential').textContent = monthFilter !== 'all' ? 'Potentiel (sélection)' : 'Total potentiel';
+  if(document.getElementById('totalConfirmed')) document.getElementById('totalConfirmed').textContent = formatMoney(totalConfirmed);
+  if(document.getElementById('totalPotential')) document.getElementById('totalPotential').textContent = formatMoney(totalConfirmed + totalPending);
+
+  const container = document.getElementById('wishlistContainer');
+  if(!container) return;
+  container.innerHTML = '';
+
   filtered = sortItems(filtered, sortBy);
-  
-  // Utilisation de Fragment pour optimiser le rendu massif
   const fragment = document.createDocumentFragment();
 
   filtered.forEach(item => {
     const index = wishlist.indexOf(item);
     const card = document.createElement('div');
     
-    // Nettoyage XSS
     const title = escapeHTML(item.title);
     const artist = escapeHTML(item.artist);
-    const director = escapeHTML(item.director);
     const priceStr = item.price ? formatMoney(item.price) : 'Prix non fixé';
-    const store = escapeHTML(item.store);
-    const image = escapeHTML(item.image);
     
     let statusClass = item.status === 'En réflexion' ? 'status-think' : item.status === 'Je passe' ? 'status-pass' : 'status-take';
     let badgeStatusClass = item.status === 'En réflexion' ? 'think' : item.status === 'Je passe' ? 'pass' : 'take';
     let statusText = item.status === 'En réflexion' ? '⏳ En réflexion' : item.status === 'Je passe' ? '❌ Je passe' : '✅ Je prends';
-    const isCollector = item.editionType === 'Collector';
     
-    card.className = `item-card ${statusClass} ${isCollector ? 'is-collector' : ''}`;
-
+    card.className = `item-card ${statusClass} ${item.editionType === 'Collector' ? 'is-collector' : ''}`;
+    
     const dateStr = item.releaseDate ? `📅 ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}` : '📅 Sans date';
-    const storeBadge = (store && store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${store}</span>` : '';
-    const collectorBadge = isCollector ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
+    const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${escapeHTML(item.store)}</span>` : '';
+    const collectorBadge = item.editionType === 'Collector' ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
     const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
-
-    const coverHtml = image ? `<img src="${image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
+    const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
     let subtitle = '';
     if (item.platform === 'Vinyle' && artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${artist}</div>`;
-    if (item.platform === 'Blu-ray' && director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">De ${director}</div>`;
 
     const q = encodeURIComponent(`${item.title} ${item.platform}`);
 
@@ -203,23 +198,18 @@ function renderWishlist() {
             ${subtitle}
             <div class="item-meta">
               <span class="badge">${escapeHTML(item.platform)}</span>
-              ${collectorBadge}
-              ${blurayBadge}
+              ${collectorBadge} ${blurayBadge}
               <span class="badge-status ${badgeStatusClass}">${statusText}</span>
-              ${storeBadge}
-              <span>${priceStr}</span>
-              <span>•</span>
-              <span>${dateStr}</span>
+              ${storeBadge} <span>${priceStr}</span> <span>•</span> <span>${dateStr}</span>
             </div>
           </div>
           <div class="actions" onclick="event.stopPropagation();">
-            <button class="btn-action btn-edit" title="Modifier" onclick="window.openEditModal(${index})">✏️</button>
-            <button class="btn-action btn-transfer" title="Transférer" onclick="window.moveToCollection(${index})">📥</button>
-            <button class="btn-action btn-delete" title="Supprimer" onclick="window.deleteWishlistItem(${index})">✕</button>
+            <button class="btn-action btn-edit" onclick="window.openEditModal(${index})">✏️</button>
+            <button class="btn-action btn-transfer" onclick="window.moveToCollection(${index})">📥</button>
+            <button class="btn-action btn-delete" onclick="window.deleteWishlistItem(${index})">✕</button>
           </div>
         </div>
         <div class="market-links" onclick="event.stopPropagation();">
-          <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Recherche :</span>
           <a class="btn-market collector" href="https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}" target="_blank">🏆 Collector</a>
           <a class="btn-market" href="https://www.e.leclerc/recherche?q=${q}" target="_blank">Leclerc</a>
           <a class="btn-market" href="https://www.fnac.com/SearchResult/ResultList.aspx?Search=${q}" target="_blank">Fnac</a>
@@ -233,8 +223,9 @@ function renderWishlist() {
   container.appendChild(fragment);
 }
 
+// --- Rendu Optmisé Collection ---
 function renderCollection() {
-  document.getElementById('collectionCount').textContent = collection.length;
+  if(document.getElementById('collectionCount')) document.getElementById('collectionCount').textContent = collection.length;
 
   const monthFilter = document.getElementById('c-monthFilter')?.value || 'all';
   const releaseFilter = document.getElementById('c-releaseFilter')?.value || 'all';
@@ -247,7 +238,7 @@ function renderCollection() {
   const sortBy = document.getElementById('c-sortBy')?.value || 'newest';
   const searchQuery = (document.getElementById('c-searchBar')?.value || '').toLowerCase().trim();
 
-  document.getElementById('collectionFiltersBar').style.display = viewMode.startsWith('timeline') ? 'none' : 'flex';
+  if(document.getElementById('collectionFiltersBar')) document.getElementById('collectionFiltersBar').style.display = viewMode.startsWith('timeline') ? 'none' : 'flex';
 
   let filtered = collection.filter(i => {
     const matchBuy = checkDateMatch(i.buyDate, monthFilter);
@@ -265,10 +256,11 @@ function renderCollection() {
 
   let totalVal = 0;
   filtered.forEach(i => { totalVal += parseFloat(i.price) || 0; });
-  document.getElementById('collectionTotalValue').textContent = formatMoney(totalVal);
-  document.getElementById('collectionItemTotal').textContent = filtered.length;
+  if(document.getElementById('collectionTotalValue')) document.getElementById('collectionTotalValue').textContent = formatMoney(totalVal);
+  if(document.getElementById('collectionItemTotal')) document.getElementById('collectionItemTotal').textContent = filtered.length;
 
   const container = document.getElementById('collectionContainer');
+  if(!container) return;
   container.innerHTML = '';
   
   const fragment = document.createDocumentFragment();
@@ -280,35 +272,23 @@ function renderCollection() {
       
       const title = escapeHTML(item.title);
       const artist = escapeHTML(item.artist);
-      const director = escapeHTML(item.director);
-      const image = escapeHTML(item.image);
-      const store = escapeHTML(item.store);
-      const state = escapeHTML(item.state);
-      const gameplay = escapeHTML(item.gameplay);
-      const note = escapeHTML(item.note);
-
       const isCollector = item.editionType === 'Collector';
       card.className = `item-card ${isCollector ? 'is-collector' : ''}`;
       
       const valStr = item.price ? formatMoney(item.price) : 'Non estimé';
-      const storeBadge = (store && store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${store}</span>` : '';
-      const stateBadge = state ? `<span class="badge-state">${state}</span>` : '';
-      const playBadge = (gameplay && gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${gameplay}</span>` : '';
+      const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${escapeHTML(item.store)}</span>` : '';
+      const stateBadge = item.state ? `<span class="badge-state">${escapeHTML(item.state)}</span>` : '';
+      const playBadge = (item.gameplay && item.gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${escapeHTML(item.gameplay)}</span>` : '';
       const collectorBadge = isCollector ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
-      const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
-
-      const coverHtml = image ? `<img src="${image}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
+      const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
       let subtitle = '';
       if (item.platform === 'Vinyle' && artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${artist}</div>`;
-      if (item.platform === 'Blu-ray' && director) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">De ${director}</div>`;
 
       let datesDisplay = [];
       if (item.releaseDate) datesDisplay.push(`📅 Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
       if (item.buyDate) datesDisplay.push(`🛒 Acheté : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
-      const datesStr = datesDisplay.length > 0 ? datesDisplay.join(' • ') : '📅 Dates non fixées';
 
-      const noteHtml = note ? `<div class="item-note">📝 ${note}</div>` : '';
       const q = encodeURIComponent(`${item.title} ${item.platform}`);
 
       card.innerHTML = `
@@ -320,23 +300,18 @@ function renderCollection() {
               ${subtitle}
               <div class="item-meta">
                 <span class="badge">${escapeHTML(item.platform)}</span>
-                ${collectorBadge}
-                ${blurayBadge}
-                ${stateBadge}
-                ${playBadge}
-                ${storeBadge}
+                ${collectorBadge} ${stateBadge} ${playBadge} ${storeBadge}
                 <span style="font-weight:900; color:var(--clay-yellow);">${valStr}</span>
               </div>
-              <div class="item-meta" style="margin-top:2px;"><span>${datesStr}</span></div>
-              ${noteHtml}
+              <div class="item-meta" style="margin-top:2px;"><span>${datesDisplay.join(' • ')}</span></div>
+              ${item.note ? `<div class="item-note">📝 ${escapeHTML(item.note)}</div>` : ''}
             </div>
             <div class="actions" onclick="event.stopPropagation();">
-              <button class="btn-action btn-edit" title="Modifier" onclick="window.openEditCollectionModal(${index})">✏️</button>
-              <button class="btn-action btn-delete" title="Supprimer" onclick="window.deleteCollectionItem(${index})">✕</button>
+              <button class="btn-action btn-edit" onclick="window.openEditCollectionModal(${index})">✏️</button>
+              <button class="btn-action btn-delete" onclick="window.deleteCollectionItem(${index})">✕</button>
             </div>
           </div>
           <div class="market-links" onclick="event.stopPropagation();">
-            <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Argus :</span>
             <a class="btn-market pricecharting" href="https://www.pricecharting.com/search-products?type=prices&q=${q}" target="_blank">📈 PriceCharting</a>
             <a class="btn-market" href="https://www.ebay.fr/sch/i.html?_nkw=${q}&LH_Complete=1&LH_Sold=1" target="_blank">🔍 eBay</a>
             <a class="btn-market" href="https://www.leboncoin.fr/recherche?text=${q}" target="_blank">🟠 LBC</a>
@@ -348,10 +323,9 @@ function renderCollection() {
     });
     container.appendChild(fragment);
   } else {
-    // Rendu grille ou Timeline (simplifié pour concision, suit le même principe d'échappement)
+    // Grille ou Timeline
     const viewWrap = document.createElement('div');
     viewWrap.className = viewMode === 'grid' ? 'grid-collection-container' : 'timeline-h-container';
-    
     if (viewMode !== 'grid') {
       const dateKey = viewMode === 'timeline-release' ? 'releaseDate' : 'buyDate';
       filtered.sort((a, b) => (a[dateKey] || '9999-12-31').localeCompare(b[dateKey] || '9999-12-31'));
@@ -360,20 +334,17 @@ function renderCollection() {
     filtered.forEach(item => {
       const index = collection.indexOf(item);
       const card = document.createElement('div');
-      const isCollector = item.editionType === 'Collector';
-      card.className = viewMode === 'grid' ? `grid-item-card ${isCollector ? 'is-collector' : ''}` : `tile-card ${isCollector ? 'is-collector' : ''}`;
+      card.className = viewMode === 'grid' ? `grid-item-card ${item.editionType === 'Collector' ? 'is-collector' : ''}` : `tile-card ${item.editionType === 'Collector' ? 'is-collector' : ''}`;
       card.onclick = () => window.openCollectionDetail(index);
-      
       const title = escapeHTML(item.title);
-      const image = escapeHTML(item.image);
-      const coverHtml = image ? `<img src="${image}" class="${viewMode==='grid'?'grid-item-cover':'tile-cover'}" onerror="this.outerHTML='<div class=\\'grid-item-cover-placeholder\\'>📦</div>'">` : `<div class="grid-item-cover-placeholder">📦</div>`;
+      const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="${viewMode==='grid'?'grid-item-cover':'tile-cover'}" onerror="this.outerHTML='<div class=\\'grid-item-cover-placeholder\\'>📦</div>'">` : `<div class="grid-item-cover-placeholder">📦</div>`;
       const priceStr = item.price ? formatMoney(item.price) : '—';
       
       if (viewMode === 'grid') {
-        card.innerHTML = `${coverHtml}<div style="display:flex; flex-direction:column; gap:2px; min-width:0;"><div class="grid-item-title">${title}</div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;"><span class="badge" style="font-size:0.62rem; padding:3px 7px;">${escapeHTML(item.platform)}</span><span style="font-size:0.82rem; font-weight:900; color:var(--clay-yellow);">${priceStr}</span></div></div>`;
+        card.innerHTML = `${coverHtml}<div style="display:flex; flex-direction:column; gap:2px;"><div class="grid-item-title">${title}</div><div style="display:flex; justify-content:space-between;"><span class="badge" style="font-size:0.62rem;">${escapeHTML(item.platform)}</span><span style="font-size:0.82rem; font-weight:900; color:var(--clay-yellow);">${priceStr}</span></div></div>`;
       } else {
         const itemDate = item[viewMode === 'timeline-release' ? 'releaseDate' : 'buyDate'] ? new Date(item[viewMode === 'timeline-release' ? 'releaseDate' : 'buyDate']).getFullYear() : 'N/A';
-        card.innerHTML = `${coverHtml}<div class="tile-info"><div class="tile-title">${title}</div><div class="tile-meta"><span class="badge" style="font-size:0.65rem; padding:3px 8px;">${escapeHTML(item.platform)}</span><span style="font-size:0.72rem; font-weight:800; color:var(--clay-blue);">📅 ${itemDate}</span></div><div style="font-size:0.85rem; font-weight:900; color:var(--clay-yellow);">${priceStr}</div></div>`;
+        card.innerHTML = `${coverHtml}<div class="tile-info"><div class="tile-title">${title}</div><div class="tile-meta"><span class="badge" style="font-size:0.65rem;">${escapeHTML(item.platform)}</span><span style="font-size:0.72rem; color:var(--clay-blue);">📅 ${itemDate}</span></div><div style="font-size:0.85rem; font-weight:900; color:var(--clay-yellow);">${priceStr}</div></div>`;
       }
       viewWrap.appendChild(card);
     });
@@ -381,26 +352,17 @@ function renderCollection() {
   }
 }
 
-// --- Fonctions CRUD et UI Accessibles Globalement ---
 
-window.deleteWishlistItem = async function(index) {
+// --- Fonctions CRUD et UI ---
+window.deleteWishlistItem = function(index) {
   if (confirm("Supprimer l'article ?")) {
-    const item = wishlist[index];
-    if (item && item.image) await deleteFileFromSupabaseStorage(item.image);
     wishlist.splice(index, 1);
     saveData();
   }
 }
 
-window.deleteCollectionItem = async function(index) {
+window.deleteCollectionItem = function(index) {
   if (confirm("Supprimer l'objet ?")) {
-    const item = collection[index];
-    if (item) {
-      if (item.image) await deleteFileFromSupabaseStorage(item.image);
-      if (item.photos && item.photos.length > 0) {
-        for (const photoUrl of item.photos) await deleteFileFromSupabaseStorage(photoUrl);
-      }
-    }
     collection.splice(index, 1);
     saveData();
   }
@@ -419,23 +381,82 @@ window.moveToCollection = function(index) {
   });
   wishlist.splice(index, 1);
   saveData();
-  document.getElementById('tabBtnCollection').click();
+  switchTab('Collection');
 }
 
 window.openLightbox = function(src) {
   document.getElementById('lightbox-img').src = src;
   document.getElementById('lightbox-modal').style.display = 'flex';
 }
-document.getElementById('btnCloseLightbox').onclick = () => document.getElementById('lightbox-modal').style.display = 'none';
 
-// Ajout Collection Submit
-document.getElementById('collectionForm').addEventListener('submit', (e) => {
+// --- Modales et Formulaires ---
+
+// Fonction utilitaire : Champs dynamiques selon plateforme
+function getDynamicFieldsHtml(prefix, platform, data = {}) {
+  if (platform === 'Vinyle') {
+    return `<div class="form-row"><input type="text" id="${prefix}artist" placeholder="Artiste / Groupe" value="${data.artist || ''}"><input type="text" id="${prefix}edition" placeholder="Édition" value="${data.edition || ''}"></div>`;
+  } else if (platform === 'Blu-ray') {
+    return `<div class="form-row"><select id="${prefix}blurayType" style="width:100%;"><option value="Version normale" ${data.blurayType === 'Version normale' ? 'selected' : ''}>🎬 Version normale</option><option value="Steelbook" ${data.blurayType === 'Steelbook' ? 'selected' : ''}>📀 Steelbook</option></select></div>`;
+  } else {
+    if (prefix === 'w-' || prefix === 'edit-') return ``;
+    return `<div class="form-row"><select id="${prefix}gameplay"><option value="Non commencé" ${data.gameplay === 'Non commencé' ? 'selected' : ''}>⏳ Non commencé</option><option value="En cours" ${data.gameplay === 'En cours' ? 'selected' : ''}>🎮 En cours</option><option value="Terminé" ${data.gameplay === 'Terminé' ? 'selected' : ''}>🏆 Terminé</option><option value="Non applicable" ${data.gameplay === 'Non applicable' ? 'selected' : ''}>⚪ Non applicable</option></select></div>`;
+  }
+}
+
+function toggleFormFields(prefix, platform) {
+  const container = document.getElementById(prefix + 'dynamic-fields');
+  if (container) container.innerHTML = getDynamicFieldsHtml(prefix, platform);
+}
+
+// Ouverture Modales Ajout
+document.getElementById('btnOpenAddWishlist')?.addEventListener('click', () => {
+  document.getElementById('wishlistForm').reset();
+  toggleFormFields('w-', document.getElementById('w-platform').value);
+  document.getElementById('add-wishlist-modal').style.display = 'flex';
+});
+
+document.getElementById('btnOpenAddCollection')?.addEventListener('click', () => {
+  document.getElementById('collectionForm').reset();
+  tempFormPhotos = [];
+  toggleFormFields('c-', document.getElementById('c-platform').value);
+  document.getElementById('add-collection-modal').style.display = 'flex';
+});
+
+// Fermeture Modales Ajout
+document.getElementById('btnCloseAddWishlist')?.addEventListener('click', () => document.getElementById('add-wishlist-modal').style.display = 'none');
+document.getElementById('btnCloseAddCollection')?.addEventListener('click', () => document.getElementById('add-collection-modal').style.display = 'none');
+
+// Formulaires Soumissions
+document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const platform = document.getElementById('w-platform').value;
+  let extraData = { platform };
+  if (platform === 'Vinyle') {
+    extraData.artist = document.getElementById('w-artist')?.value.trim() || '';
+  } else if (platform === 'Blu-ray') {
+    extraData.blurayType = document.getElementById('w-blurayType')?.value || 'Version normale';
+  }
+  wishlist.unshift({
+    id: crypto.randomUUID ? crypto.randomUUID() : `w_${Date.now()}`,
+    title: document.getElementById('w-title').value.trim(),
+    price: document.getElementById('w-price').value,
+    editionType: document.getElementById('w-editionType').value,
+    store: document.getElementById('w-store').value,
+    releaseDate: document.getElementById('w-releaseDate').value,
+    image: document.getElementById('w-image').value.trim(),
+    status: document.getElementById('w-status').value,
+    ...extraData
+  });
+  document.getElementById('add-wishlist-modal').style.display = 'none';
+  saveData();
+});
+
+document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const platform = document.getElementById('c-platform').value;
   let extraData = { platform };
   if (platform === 'Vinyle') {
     extraData.artist = document.getElementById('c-artist')?.value.trim() || '';
-    extraData.edition = document.getElementById('c-edition')?.value.trim() || '';
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('c-blurayType')?.value || 'Version normale';
   } else {
@@ -457,24 +478,117 @@ document.getElementById('collectionForm').addEventListener('submit', (e) => {
   });
   document.getElementById('add-collection-modal').style.display = 'none';
   saveData();
-  e.target.reset();
-  tempFormPhotos = [];
 });
 
-// Onglets
+// --- Modification (Edit) ---
+window.openEditModal = function(index) {
+  const item = wishlist[index];
+  document.getElementById('edit-index').value = index;
+  document.getElementById('edit-title').value = item.title;
+  document.getElementById('edit-platform').value = item.platform;
+  document.getElementById('edit-price').value = item.price || '';
+  document.getElementById('edit-editionType').value = item.editionType || 'Standard';
+  toggleFormFields('edit-', item.platform, item);
+  document.getElementById('edit-store').value = item.store || 'Non renseigné';
+  document.getElementById('edit-releaseDate').value = item.releaseDate || '';
+  document.getElementById('edit-image').value = item.image || '';
+  document.getElementById('edit-status').value = item.status || 'À prendre';
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+window.openEditCollectionModal = function(index) {
+  const item = collection[index];
+  document.getElementById('edit-c-index').value = index;
+  document.getElementById('edit-c-title').value = item.title;
+  document.getElementById('edit-c-platform').value = item.platform;
+  document.getElementById('edit-c-price').value = item.price || '';
+  document.getElementById('edit-c-editionType').value = item.editionType || 'Standard';
+  toggleFormFields('edit-c-', item.platform, item);
+  document.getElementById('edit-c-store').value = item.store || 'Non renseigné';
+  document.getElementById('edit-c-state').value = item.state || '✨ Neuf sous blister';
+  document.getElementById('edit-c-releaseDate').value = item.releaseDate || '';
+  document.getElementById('edit-c-buyDate').value = item.buyDate || '';
+  document.getElementById('edit-c-image').value = item.image || '';
+  document.getElementById('edit-c-note').value = item.note || '';
+  document.getElementById('edit-collection-modal').style.display = 'flex';
+}
+
+// Fermeture des modales de modification
+document.getElementById('btnCloseEditWishlist')?.addEventListener('click', () => document.getElementById('edit-modal').style.display = 'none');
+document.getElementById('btnCloseEditCollection')?.addEventListener('click', () => document.getElementById('edit-collection-modal').style.display = 'none');
+document.getElementById('btnCloseLightbox')?.addEventListener('click', () => document.getElementById('lightbox-modal').style.display = 'none');
+
+// Sauvegarde des modifications
+document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => {
+  const index = parseInt(document.getElementById('edit-index').value, 10);
+  if (isNaN(index) || !wishlist[index]) return;
+  const platform = document.getElementById('edit-platform').value;
+  let extraData = { platform };
+  if (platform === 'Vinyle') extraData.artist = document.getElementById('edit-artist')?.value.trim();
+  else if (platform === 'Blu-ray') extraData.blurayType = document.getElementById('edit-blurayType')?.value;
+  
+  wishlist[index] = {
+    ...wishlist[index],
+    title: document.getElementById('edit-title').value.trim(),
+    price: document.getElementById('edit-price').value,
+    editionType: document.getElementById('edit-editionType').value,
+    store: document.getElementById('edit-store').value,
+    releaseDate: document.getElementById('edit-releaseDate').value,
+    image: document.getElementById('edit-image').value.trim(),
+    status: document.getElementById('edit-status').value,
+    ...extraData
+  };
+  document.getElementById('edit-modal').style.display = 'none';
+  saveData();
+});
+
+document.getElementById('btnSaveEditCollection')?.addEventListener('click', () => {
+  const index = parseInt(document.getElementById('edit-c-index').value, 10);
+  if (isNaN(index) || !collection[index]) return;
+  const platform = document.getElementById('edit-c-platform').value;
+  let extraData = { platform };
+  if (platform === 'Vinyle') extraData.artist = document.getElementById('edit-c-artist')?.value.trim();
+  else if (platform === 'Blu-ray') extraData.blurayType = document.getElementById('edit-c-blurayType')?.value;
+  else extraData.gameplay = document.getElementById('edit-c-gameplay')?.value;
+  
+  collection[index] = {
+    ...collection[index],
+    title: document.getElementById('edit-c-title').value.trim(),
+    price: document.getElementById('edit-c-price').value,
+    editionType: document.getElementById('edit-c-editionType').value,
+    store: document.getElementById('edit-c-store').value,
+    state: document.getElementById('edit-c-state').value,
+    releaseDate: document.getElementById('edit-c-releaseDate').value,
+    buyDate: document.getElementById('edit-c-buyDate').value,
+    image: document.getElementById('edit-c-image').value.trim(),
+    note: document.getElementById('edit-c-note').value.trim(),
+    ...extraData
+  };
+  document.getElementById('edit-collection-modal').style.display = 'none';
+  saveData();
+});
+
+// Écouteurs de changement de plateforme pour régénérer les champs dynamiques
+document.getElementById('w-platform')?.addEventListener('change', function() { toggleFormFields('w-', this.value); });
+document.getElementById('c-platform')?.addEventListener('change', function() { toggleFormFields('c-', this.value); });
+document.getElementById('edit-platform')?.addEventListener('change', function() { toggleFormFields('edit-', this.value); });
+document.getElementById('edit-c-platform')?.addEventListener('change', function() { toggleFormFields('edit-c-', this.value); });
+
+
+// --- Onglets ---
 function switchTab(tabId) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tabBtn' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.add('active');
+  document.getElementById('tabBtn' + tabId).classList.add('active');
   document.getElementById('tab-' + tabId.toLowerCase()).classList.add('active');
   if(tabId === 'Wishlist') renderWishlist();
   if(tabId === 'Collection') renderCollection();
 }
-document.getElementById('tabBtnWishlist').onclick = () => switchTab('Wishlist');
-document.getElementById('tabBtnCollection').onclick = () => switchTab('Collection');
-document.getElementById('tabBtnRandom').onclick = () => switchTab('Random');
+document.getElementById('tabBtnWishlist')?.addEventListener('click', () => switchTab('Wishlist'));
+document.getElementById('tabBtnCollection')?.addEventListener('click', () => switchTab('Collection'));
+document.getElementById('tabBtnRandom')?.addEventListener('click', () => switchTab('Random'));
 
-// Filtres Helper
+// --- Filtres Helper ---
 function checkDateMatch(itemDateStr, filterValue) {
   if (filterValue === 'all') return true;
   if (filterValue === 'nodate') return !itemDateStr;
@@ -521,14 +635,127 @@ function updateMonthFilterDropdowns() {
   populateHierarchicalDropdown(document.getElementById('w-monthFilter'), wishlist.map(i=>i.releaseDate), "Tout le calendrier");
 }
 
-// Event Listeners UI basiques
-document.getElementById('c-filterPlatform').addEventListener('change', renderCollection);
-document.getElementById('c-viewMode').addEventListener('change', renderCollection);
-document.getElementById('c-sortBy').addEventListener('change', renderCollection);
-document.getElementById('c-searchBar').addEventListener('input', renderCollection);
-document.getElementById('w-searchBar').addEventListener('input', renderWishlist);
+// Filtres UI 
+document.getElementById('c-filterPlatform')?.addEventListener('change', renderCollection);
+document.getElementById('c-filterStore')?.addEventListener('change', renderCollection);
+document.getElementById('c-filterEdition')?.addEventListener('change', renderCollection);
+document.getElementById('c-filterState')?.addEventListener('change', renderCollection);
+document.getElementById('c-filterGameplay')?.addEventListener('change', renderCollection);
+document.getElementById('c-viewMode')?.addEventListener('change', renderCollection);
+document.getElementById('c-sortBy')?.addEventListener('change', renderCollection);
+document.getElementById('c-monthFilter')?.addEventListener('change', renderCollection);
+document.getElementById('c-releaseFilter')?.addEventListener('change', renderCollection);
+document.getElementById('c-searchBar')?.addEventListener('input', renderCollection);
 
-// Init
+document.getElementById('w-filterPlatform')?.addEventListener('change', renderWishlist);
+document.getElementById('w-filterStore')?.addEventListener('change', renderWishlist);
+document.getElementById('w-filterStatus')?.addEventListener('change', renderWishlist);
+document.getElementById('w-monthFilter')?.addEventListener('change', renderWishlist);
+document.getElementById('w-sortBy')?.addEventListener('change', renderWishlist);
+document.getElementById('w-searchBar')?.addEventListener('input', renderWishlist);
+
+
+// --- Gachapon & Audio ---
+function getAudioContext() { if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } if (audioCtx.state === 'suspended') { audioCtx.resume(); } return audioCtx; }
+function startPokemonRipSound() { try { const ctx = getAudioContext(); const bufferSize = ctx.sampleRate * 0.25; const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate); const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) { data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize); } tcgRipOsc = ctx.createBufferSource(); tcgRipOsc.buffer = buffer; tcgRipOsc.loop = true; const filter = ctx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.setValueAtTime(3600, ctx.currentTime); filter.Q.setValueAtTime(8, ctx.currentTime); tcgRipGain = ctx.createGain(); tcgRipGain.gain.setValueAtTime(0.01, ctx.currentTime); tcgRipOsc.connect(filter); filter.connect(tcgRipGain); tcgRipGain.connect(ctx.destination); tcgRipOsc.start(); } catch(e) {} }
+function updatePokemonRipVolume(progress) { if (tcgRipGain && audioCtx) { const vol = Math.min(Math.max(progress * 0.5, 0.05), 0.45); tcgRipGain.gain.setValueAtTime(vol, audioCtx.currentTime); } }
+function stopPokemonRipSound(success) { try { if (tcgRipOsc && tcgRipGain && audioCtx) { if (success) { const osc = audioCtx.createOscillator(); const popGain = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(440, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.06); popGain.gain.setValueAtTime(0.35, audioCtx.currentTime); popGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06); osc.connect(popGain); popGain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.06); } tcgRipGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04); setTimeout(() => { tcgRipOsc.stop(); tcgRipOsc.disconnect(); }, 50); } } catch(e) {} }
+
+function handlePointerDown(e) {
+  e.stopPropagation();
+  const category = e.target.getAttribute('data-cat');
+  if (!category) return;
+  isTopRipActive = true;
+  activeCategory = category;
+  startTopX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+  currentTopDragX = 0;
+  
+  const boosterCard = document.getElementById(`booster-${category}`);
+  if (boosterCard) boosterCard.classList.add('shake');
+  startPokemonRipSound();
+
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('touchmove', onPointerMove, {passive: false});
+  window.addEventListener('touchend', onPointerUp);
+}
+
+function onPointerMove(moveEvent) {
+  if (!isTopRipActive) return;
+  const currentX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0].clientX) || 0;
+  currentTopDragX = currentX - startTopX;
+  const crimpEl = document.getElementById(`crimp-${activeCategory}`);
+  if (currentTopDragX > 0 && crimpEl) {
+    let pull = Math.min(currentTopDragX, 150);
+    crimpEl.style.transform = `translateX(${pull}px)`;
+    crimpEl.style.opacity = `${1 - (pull / 200)}`;
+    updatePokemonRipVolume(pull / 150);
+  }
+}
+
+function onPointerUp() {
+  if (!isTopRipActive) return;
+  isTopRipActive = false;
+  const boosterCard = document.getElementById(`booster-${activeCategory}`);
+  if (boosterCard) boosterCard.classList.remove('shake');
+  const success = currentTopDragX > 40;
+  stopPokemonRipSound(success);
+  
+  window.removeEventListener('pointermove', onPointerMove);
+  window.removeEventListener('pointerup', onPointerUp);
+  window.removeEventListener('touchmove', onPointerMove);
+  window.removeEventListener('touchend', onPointerUp);
+  
+  const crimpElFinal = document.getElementById(`crimp-${activeCategory}`);
+  if (success) {
+    const flash = document.getElementById('flash-overlay');
+    if (flash) { flash.style.display = 'block'; setTimeout(() => flash.style.display = 'none', 400); }
+    if (crimpElFinal) {
+      crimpElFinal.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
+      crimpElFinal.style.transform = 'translateX(220px) rotate(15deg)';
+      crimpElFinal.style.opacity = '0';
+    }
+    setTimeout(() => {
+      if (crimpElFinal) { crimpElFinal.style.transform = ''; crimpElFinal.style.opacity = ''; crimpElFinal.style.transition = ''; }
+      triggerGachaponReveal(activeCategory);
+    }, 350);
+  } else {
+    if (crimpElFinal) {
+      crimpElFinal.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      crimpElFinal.style.transform = 'translateX(0px)';
+      crimpElFinal.style.opacity = '1';
+      setTimeout(() => crimpElFinal.style.transition = '', 300);
+    }
+  }
+}
+
+document.querySelectorAll('.tcg-crimp-top').forEach(el => {
+  el.addEventListener('pointerdown', handlePointerDown);
+});
+
+function triggerGachaponReveal(category) {
+  lastGachaponCategory = category;
+  let pool = [];
+  if (category === 'game') pool = collection.filter(i => i.platform !== 'Vinyle' && i.platform !== 'Blu-ray');
+  else if (category === 'vinyl') pool = collection.filter(i => i.platform === 'Vinyle');
+  else if (category === 'movie') pool = collection.filter(i => i.platform === 'Blu-ray');
+  else pool = collection;
+  
+  if (pool.length === 0) { alert("Aucun objet dans cette catégorie !"); return; }
+  const winner = pool[Math.floor(Math.random() * pool.length)];
+  
+  document.getElementById('gachaponCoverContainer').innerHTML = winner.image ? `<img src="${escapeHTML(winner.image)}" class="gachapon-cover-large">` : `<div class="gachapon-cover-large">📦</div>`;
+  document.getElementById('gachaponTitle').textContent = winner.title;
+  document.getElementById('gachapon-modal').style.display = 'flex';
+}
+
+document.getElementById('btnCloseGachapon')?.addEventListener('click', () => document.getElementById('gachapon-modal').style.display = 'none');
+document.getElementById('btnGachaponReroll')?.addEventListener('click', () => {
+  document.getElementById('gachapon-modal').style.display = 'none';
+  triggerGachaponReveal(lastGachaponCategory);
+});
+
+// Init de base au chargement de la page
 window.addEventListener('DOMContentLoaded', () => {
   checkAuth();
 });
