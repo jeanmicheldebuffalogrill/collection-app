@@ -173,41 +173,42 @@ async function uploadDirectFile(file, inputFieldId, wrapId, previewImgId) {
     updateImagePreview(inputFieldId, wrapId, previewImgId);
     setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
   } catch (err) {
-    alert("Erreur upload."); setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
+    alert("Erreur upload: " + err.message); setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
   }
 }
 
-// --- NOUVEAU SYSTÈME DE COLLAGE ROBUSTE ---
+// --- NOUVEAU SYSTÈME DE COLLAGE INTELLIGENT ---
 function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
   if (!e.clipboardData) return;
-  const items = e.clipboardData.items;
-  let handled = false;
-
-  // 1. Chercher un vrai fichier image (Copier l'image -> Blob)
-  for (const item of items) {
-    if (item.type.indexOf('image') === 0) {
-      e.preventDefault();
-      handled = true;
-      const file = item.getAsFile();
-      compressImageFile(file).then(compressed => uploadDirectFile(compressed, inputFieldId, wrapId, previewImgId));
-      return;
-    }
+  
+  const items = Array.from(e.clipboardData.items);
+  const htmlItem = items.find(i => i.type === 'text/html');
+  const imageItem = items.find(i => i.type.startsWith('image/'));
+  
+  // 1. Si on a copié depuis Google Images (présence de code HTML)
+  if (htmlItem) {
+    e.preventDefault(); // Empêche le collage du code bizarre dans le texte
+    htmlItem.getAsString(html => {
+      // On fouille le code pour extraire l'adresse web de l'image
+      const match = html.match(/src=["'](https?:\/\/[^"']+)["']/);
+      if (match && match[1]) {
+        // Succès ! On utilise l'adresse web directement (Aucun upload = super rapide)
+        document.getElementById(inputFieldId).value = match[1];
+        updateImagePreview(inputFieldId, wrapId, previewImgId);
+      } else if (imageItem) {
+        // En cas d'échec de la recherche, on tente l'upload classique
+        const file = imageItem.getAsFile();
+        if (file) compressImageFile(file).then(c => uploadDirectFile(c, inputFieldId, wrapId, previewImgId));
+      }
+    });
+    return;
   }
 
-  // 2. Si Google (ou Safari) n'a pas copié de Blob, on fouille le code HTML secret
-  if (!handled) {
-    for (const item of items) {
-      if (item.type === 'text/html') {
-        item.getAsString(html => {
-          // On cherche une URL d'image cachée dans la balise img src="..."
-          const match = html.match(/src=["'](.*?)["']/);
-          if (match && match[1] && (match[1].startsWith('http') || match[1].startsWith('data:'))) {
-            document.getElementById(inputFieldId).value = match[1];
-            updateImagePreview(inputFieldId, wrapId, previewImgId);
-          }
-        });
-      }
-    }
+  // 2. Si c'est une capture d'écran ou un fichier local pur
+  if (imageItem) {
+    e.preventDefault();
+    const file = imageItem.getAsFile();
+    if (file) compressImageFile(file).then(c => uploadDirectFile(c, inputFieldId, wrapId, previewImgId));
   }
 }
 
@@ -226,7 +227,7 @@ async function handleCoverUpload(event, inputFieldId, wrapId, previewImgId) {
     updateImagePreview(inputFieldId, wrapId, previewImgId);
     setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
   } catch (err) {
-    alert("Erreur upload."); setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
+    alert("Erreur upload: " + err.message); setSyncStatus('⚠️ Erreur upload', 'var(--clay-pink)');
   } finally { event.target.value = ''; }
 }
 
@@ -599,12 +600,11 @@ function renderCollection() {
 
     container.appendChild(viewWrap);
 
-    // --- NOUVEAUTÉ : Défilement horizontal avec la molette de la souris (Spécial PC) ---
+    // --- NOUVEAUTÉ : Défilement horizontal avec la molette de la souris ---
     if (viewMode !== 'grid') {
       viewWrap.addEventListener('wheel', (e) => {
         if (e.deltaY !== 0) {
           e.preventDefault();
-          // Convertit le mouvement vertical de la molette en mouvement horizontal fluide
           viewWrap.scrollBy({ left: e.deltaY > 0 ? 250 : -250, behavior: 'smooth' });
         }
       });
