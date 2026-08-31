@@ -365,7 +365,7 @@ function renderWishlist() {
   if(!container) return;
   container.innerHTML = '';
 
-  filtered = sortItems(filtered, sortBy);
+  filtered = sortItems(filtered, sortBy, false);
   const fragment = document.createDocumentFragment();
 
   filtered.forEach(item => {
@@ -459,7 +459,7 @@ function renderCollection() {
     return viewMode.startsWith('timeline') ? (matchBuy && matchRelease && matchSearch) : (matchBuy && matchRelease && matchPlat && matchStore && matchEdition && matchState && matchPlay && matchSearch);
   });
 
-  filtered = sortItems(filtered, sortBy);
+  filtered = sortItems(filtered, sortBy, true);
 
   let totalVal = 0;
   filtered.forEach(i => { totalVal += parseFloat(i.price) || 0; });
@@ -919,10 +919,18 @@ function checkDateMatch(itemDateStr, filterValue) {
   return itemDateStr.startsWith(filterValue);
 }
 
-function sortItems(arr, sortBy) {
+function sortItems(arr, sortBy, isCollection = false) {
   return arr.slice().sort((a, b) => {
     if (sortBy === 'az') return (a.title || '').localeCompare(b.title || '');
     if (sortBy === 'price-desc') return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
+    if (sortBy === 'newest') {
+      const dateA = isCollection ? (a.buyDate || a.releaseDate || '') : (a.releaseDate || '');
+      const dateB = isCollection ? (b.buyDate || b.releaseDate || '') : (b.releaseDate || '');
+      if (!dateA && !dateB) return 0;
+      if (!dateA) return 1;
+      if (!dateB) return -1;
+      return dateB.localeCompare(dateA); // Plus récent au plus ancien
+    }
     return 0;
   });
 }
