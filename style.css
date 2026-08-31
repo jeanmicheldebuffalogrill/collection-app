@@ -22,16 +22,23 @@
   --clay-btn: 8px 8px 18px rgba(0, 0, 0, 0.5), -6px -6px 14px rgba(45, 53, 77, 0.4), inset 3px 3px 6px rgba(255, 255, 255, 0.2), inset -3px -3px 6px rgba(0, 0, 0, 0.5);
   --clay-inset: inset 6px 6px 12px rgba(0, 0, 0, 0.7), inset -6px -6px 12px rgba(45, 53, 77, 0.5);
   --text-pop: 2px 2px 4px rgba(0, 0, 0, 0.9), -1px -1px 1px rgba(255, 255, 255, 0.25);
+
+  /* Variables d'ordre d'affichage (Niveau 1) */
+  --z-overlay: 1000;
+  --z-gachapon: 3500;
+  --z-flash: 9000;
+  --z-lightbox: 9999;
+  --z-lightbox-btn: 10000;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
 
 html, body { max-width: 100%; overflow-x: hidden; background: var(--bg); color: var(--text); }
-body { padding: env(safe-area-inset-top, 24px) 16px env(safe-area-inset-bottom, 24px) 16px; display: flex; justify-content: center; }
+body { -webkit-font-smoothing: antialiased; padding: env(safe-area-inset-top, 24px) 16px env(safe-area-inset-bottom, 24px) 16px; display: flex; justify-content: center; }
 .container { width: 100%; max-width: 480px; }
 
 /* Écran Auth */
-#auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+#auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: var(--z-lightbox); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
 .auth-box { background: var(--surface); padding: 32px 24px; border-radius: 36px; width: 100%; max-width: 400px; box-shadow: var(--clay-card); text-align: center; }
 .auth-box h2 { font-size: 1.5rem; font-weight: 900; margin-bottom: 24px; text-shadow: var(--text-pop); }
 
@@ -73,7 +80,7 @@ body { padding: env(safe-area-inset-top, 24px) 16px env(safe-area-inset-bottom, 
 .platform-chip-count { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
 
 /* Modales & Formulaires */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10, 12, 18, 0.85); backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center; padding: 16px; padding-bottom: env(safe-area-inset-bottom, 16px); }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10, 12, 18, 0.85); backdrop-filter: blur(10px); z-index: var(--z-overlay); align-items: center; justify-content: center; padding: 16px; padding-bottom: env(safe-area-inset-bottom, 16px); }
 
 .modal-box { 
   background: var(--surface); 
@@ -239,10 +246,9 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   flex-direction: column; 
   gap: 8px; 
   box-shadow: var(--clay-card); 
-  min-width: 0; /* Empêche le texte de forcer la grille à s'élargir */
+  min-width: 0; 
 }
 
-/* Force les conteneurs internes de la carte à respecter la taille parent */
 .grid-item-card > div {
   min-width: 0;
   width: 100%;
@@ -270,7 +276,6 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .tile-cover { width: 100%; height: 270px; border-radius: 20px; object-fit: cover; box-shadow: var(--clay-btn); }
 .tile-cover-placeholder { width: 100%; height: 270px; border-radius: 20px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: var(--clay-btn); }
 .tile-title { font-size: 1rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
 
 /* =========================================
    GACHAPON BOOSTERS - EFFET PLASTIQUE FOIL
@@ -356,7 +361,7 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   position: fixed; 
   inset: 0; 
   background: rgba(0, 0, 0, 0.95); 
-  z-index: 9999;
+  z-index: var(--z-lightbox);
   align-items: center; 
   justify-content: center; 
   padding: 20px; 
@@ -388,10 +393,10 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: var(--z-lightbox-btn);
 }
 
 .btn-close-lightbox:active { box-shadow: var(--clay-inset); }
 
-#flash-overlay { display: none; position: fixed; inset: 0; background: #ffffff; z-index: 9000; animation: flash-fade 0.4s ease-out forwards; }
+#flash-overlay { display: none; position: fixed; inset: 0; background: #ffffff; z-index: var(--z-flash); animation: flash-fade 0.4s ease-out forwards; }
 @keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
