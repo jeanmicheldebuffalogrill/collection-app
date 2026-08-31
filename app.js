@@ -21,6 +21,22 @@ let currentDetailCollectionIndex = null;
 let lastGachaponCategory = 'all';
 let tempFormPhotos = [];
 
+// --- Configurations des listes (Niveau 2 : Centralisation) ---
+const APP_CONFIG = {
+  platforms: {
+    groups: [
+      { label: "Jeux Vidéo", options: [{v:"PS5", l:"PlayStation 5"}, {v:"Switch", l:"Nintendo Switch"}, {v:"Switch 2", l:"Nintendo Switch 2"}, {v:"3DS", l:"3DS"}, {v:"DS", l:"DS"}, {v:"GBA", l:"Game Boy Advance"}, {v:"GBC", l:"Game Boy Color"}] },
+      { label: "Autres Médias", options: [{v:"Vinyle", l:"🎵 Vinyle"}, {v:"Blu-ray", l:"🎬 Blu-ray / 4K"}, {v:"Vêtement", l:"👕 Vêtement"}, {v:"Autre", l:"📦 Autre"}] }
+    ],
+    filters: [
+      {v:"PS5", l:"PS5"}, {v:"Switch", l:"Switch"}, {v:"Switch 2", l:"Switch 2"}, {v:"3DS", l:"3DS"}, {v:"DS", l:"DS"}, {v:"GBA", l:"GBA"}, {v:"GBC", l:"GBC"}, {v:"Vinyle", l:"Vinyles"}, {v:"Blu-ray", l:"Blu-ray"}, {v:"Vêtement", l:"Vêtements"}
+    ]
+  },
+  stores: [
+    "Fnac", "Leclerc", "Amazon", "Cdiscount", "Auchan", "Carrefour", "Bloods Records", "Vinted", "Leboncoin", "eBay", {v: "Autre", l: "Autre enseigne"}
+  ]
+};
+
 // --- Gachapon Audio Variables ---
 let audioCtx = null;
 let tcgRipOsc = null;
@@ -29,6 +45,66 @@ let isTopRipActive = false;
 let activeCategory = null;
 let startTopX = 0;
 let currentTopDragX = 0;
+
+// --- Initialisation automatique des menus déroulants ---
+function initDropdowns() {
+  ['w-platform', 'c-platform', 'edit-platform', 'edit-c-platform'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+      el.innerHTML = '';
+      APP_CONFIG.platforms.groups.forEach(group => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = group.label;
+        group.options.forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt.v; option.textContent = opt.l;
+          optgroup.appendChild(option);
+        });
+        el.appendChild(optgroup);
+      });
+    }
+  });
+
+  ['w-filterPlatform', 'c-filterPlatform'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+      el.innerHTML = '<option value="all">Tous supports</option>';
+      APP_CONFIG.platforms.filters.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.v; option.textContent = opt.l;
+        el.appendChild(option);
+      });
+    }
+  });
+
+  ['w-store', 'c-store', 'edit-store', 'edit-c-store'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+      const defaultLabel = (id.startsWith('w') || id === 'edit-store') ? "🏪 Lieu de préco / achat" : "🏪 Acheté chez...";
+      el.innerHTML = `<option value="Non renseigné">${defaultLabel}</option>`;
+      APP_CONFIG.stores.forEach(store => {
+        const option = document.createElement('option');
+        option.value = typeof store === 'string' ? store : store.v;
+        option.textContent = typeof store === 'string' ? store : store.l;
+        el.appendChild(option);
+      });
+    }
+  });
+
+  ['w-filterStore', 'c-filterStore'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+      el.innerHTML = '<option value="all">Toutes enseignes</option>';
+      APP_CONFIG.stores.forEach(store => {
+        const option = document.createElement('option');
+        const val = typeof store === 'string' ? store : store.v;
+        option.value = val;
+        option.textContent = val === "Autre" ? "Autre" : val;
+        el.appendChild(option);
+      });
+    }
+  });
+}
 
 // --- Authentification ---
 async function checkAuth() {
@@ -958,7 +1034,6 @@ document.getElementById('tabBtnWishlist')?.addEventListener('click', () => switc
 document.getElementById('tabBtnCollection')?.addEventListener('click', () => switchTab('Collection'));
 document.getElementById('tabBtnRandom')?.addEventListener('click', () => switchTab('Random'));
 
-// CORRECTION DU BOUTON TOUT VOIR (Remise à zéro de tous les sous-filtres)
 document.getElementById('btnResetPlatform')?.addEventListener('click', () => { 
   document.getElementById('c-filterPlatform').value = 'all'; 
   if(document.getElementById('c-filterGameplay')) document.getElementById('c-filterGameplay').value = 'all';
@@ -984,7 +1059,7 @@ function sortItems(arr, sortBy, isCollection = false) {
     
     if (sortBy === 'newest') {
       if (isCollection) {
-        // COLLECTION : Tri par date d'achat du plus récent au plus ancien (2024 avant 2020)
+        // COLLECTION : Tri par date d'achat du plus récent au plus ancien
         const dateA = a.buyDate || a.releaseDate || '';
         const dateB = b.buyDate || b.releaseDate || '';
         if (!dateA && !dateB) return 0;
@@ -992,7 +1067,7 @@ function sortItems(arr, sortBy, isCollection = false) {
         if (!dateB) return -1;
         return dateB.localeCompare(dateA); 
       } else {
-        // WISHLIST : Tri chronologique de la sortie la plus proche à la plus lointaine (2026 avant 2027)
+        // WISHLIST : Tri chronologique de la sortie la plus proche à la plus lointaine
         const dateA = a.releaseDate || '9999-12-31';
         const dateB = b.releaseDate || '9999-12-31';
         return dateA.localeCompare(dateB);
@@ -1175,6 +1250,7 @@ document.getElementById('btnGachaponReroll')?.addEventListener('click', () => {
 
 // Init de base au chargement de la page
 window.addEventListener('DOMContentLoaded', () => {
+  initDropdowns(); // EXÉCUTÉ EN PREMIER !
   toggleFormFields('w-', document.getElementById('w-platform')?.value || 'PS5');
   toggleFormFields('c-', document.getElementById('c-platform')?.value || 'PS5');
   updateDynamicCollectionFilters();
