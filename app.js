@@ -919,17 +919,27 @@ function checkDateMatch(itemDateStr, filterValue) {
   return itemDateStr.startsWith(filterValue);
 }
 
+// CORRECTION DU TRI ICI
 function sortItems(arr, sortBy, isCollection = false) {
   return arr.slice().sort((a, b) => {
     if (sortBy === 'az') return (a.title || '').localeCompare(b.title || '');
     if (sortBy === 'price-desc') return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
+    
     if (sortBy === 'newest') {
-      const dateA = isCollection ? (a.buyDate || a.releaseDate || '') : (a.releaseDate || '');
-      const dateB = isCollection ? (b.buyDate || b.releaseDate || '') : (b.releaseDate || '');
-      if (!dateA && !dateB) return 0;
-      if (!dateA) return 1;
-      if (!dateB) return -1;
-      return dateB.localeCompare(dateA); // Plus récent au plus ancien
+      if (isCollection) {
+        // COLLECTION : Tri par date d'achat du plus récent au plus ancien (2024 avant 2020)
+        const dateA = a.buyDate || a.releaseDate || '';
+        const dateB = b.buyDate || b.releaseDate || '';
+        if (!dateA && !dateB) return 0;
+        if (!dateA) return 1;
+        if (!dateB) return -1;
+        return dateB.localeCompare(dateA); 
+      } else {
+        // WISHLIST : Tri chronologique de la sortie la plus proche à la plus lointaine (2026 avant 2027)
+        const dateA = a.releaseDate || '9999-12-31';
+        const dateB = b.releaseDate || '9999-12-31';
+        return dateA.localeCompare(dateB);
+      }
     }
     return 0;
   });
