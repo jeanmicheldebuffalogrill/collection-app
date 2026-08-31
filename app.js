@@ -127,7 +127,7 @@ function setSyncStatus(text, color = 'var(--clay-green)') {
 
 function formatMoney(amount) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0); }
 
-// --- Fonctions Images & Supabase Storage (RESTORED TO ORIGINAL WORKING STATE) ---
+// --- Fonctions Images & Supabase Storage ---
 async function compressImageFile(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -182,7 +182,6 @@ async function uploadDirectFile(file, inputFieldId, wrapId, previewImgId) {
   }
 }
 
-// Fonction de collage direct (Intercepte l'image copiée depuis le web et l'envoie sur Supabase)
 function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
   if (!e.clipboardData || !e.clipboardData.items) return;
   for (const item of e.clipboardData.items) {
@@ -604,7 +603,6 @@ window.deleteWishlistItem = async function(index) {
     if (item && item.image) await deleteFileFromSupabaseStorage(item.image);
     wishlist.splice(index, 1);
     saveData();
-    // Suppression directe dans Supabase pour éviter le retour au rafraîchissement
     if (supabaseClient && item && item.id) {
       await supabaseClient.from('wishlist_items').delete().eq('id', item.id);
     }
@@ -622,7 +620,6 @@ window.deleteCollectionItem = async function(index) {
     }
     collection.splice(index, 1);
     saveData();
-    // Suppression directe dans Supabase pour éviter le retour au rafraîchissement
     if (supabaseClient && item && item.id) {
       await supabaseClient.from('collection_items').delete().eq('id', item.id);
     }
@@ -633,7 +630,6 @@ window.moveToCollection = function(index) {
   const item = wishlist[index];
   if (!item) return;
   
-  // Suppression de l'ancienne entrée wishlist sur Supabase Cloud
   if (supabaseClient && item.id) {
     supabaseClient.from('wishlist_items').delete().eq('id', item.id);
   }
@@ -761,6 +757,17 @@ document.getElementById('btnDetailDelete')?.addEventListener('click', () => { if
 document.getElementById('btnCloseAddWishlist')?.addEventListener('click', () => document.getElementById('add-wishlist-modal').style.display = 'none');
 document.getElementById('btnCloseAddCollection')?.addEventListener('click', () => document.getElementById('add-collection-modal').style.display = 'none');
 document.getElementById('btnCloseDetail')?.addEventListener('click', () => { document.getElementById('detail-modal').style.display = 'none'; currentDetailCollectionIndex = null; });
+
+// --- Écouteurs pour fermer la Lightbox sur PC et iPhone ---
+document.getElementById('btnCloseLightbox')?.addEventListener('click', () => {
+  document.getElementById('lightbox-modal').style.display = 'none';
+});
+
+document.getElementById('lightbox-modal')?.addEventListener('click', (e) => {
+  if (e.target.id === 'lightbox-modal') {
+    document.getElementById('lightbox-modal').style.display = 'none';
+  }
+});
 
 // Boutons Recherches personnalisées
 document.getElementById('w-searchBtn')?.addEventListener('click', () => handleCustomSearch('w-'));
