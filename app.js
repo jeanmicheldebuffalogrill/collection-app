@@ -127,7 +127,7 @@ function setSyncStatus(text, color = 'var(--clay-green)') {
 
 function formatMoney(amount) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0); }
 
-// --- Fonctions Images & Supabase Storage (RESTORED) ---
+// --- Fonctions Images & Supabase Storage ---
 async function compressImageFile(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -254,7 +254,7 @@ coverConfigs.forEach(cfg => {
 });
 
 
-// --- Galeries Photos (RESTORED) ---
+// --- Galeries Photos ---
 async function handleAddCollectionPhoto(event) {
   if (currentDetailCollectionIndex === null) return;
   const file = event.target.files[0];
@@ -886,7 +886,7 @@ document.getElementById('w-sortBy')?.addEventListener('change', renderWishlist);
 document.getElementById('w-searchBar')?.addEventListener('input', renderWishlist);
 
 
-// --- Gachapon & Audio ---
+// --- Gachapon 3D & Audio ---
 function getAudioContext() { if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } if (audioCtx.state === 'suspended') { audioCtx.resume(); } return audioCtx; }
 function startPokemonRipSound() { try { const ctx = getAudioContext(); const bufferSize = ctx.sampleRate * 0.25; const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate); const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) { data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize); } tcgRipOsc = ctx.createBufferSource(); tcgRipOsc.buffer = buffer; tcgRipOsc.loop = true; const filter = ctx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.setValueAtTime(3600, ctx.currentTime); filter.Q.setValueAtTime(8, ctx.currentTime); tcgRipGain = ctx.createGain(); tcgRipGain.gain.setValueAtTime(0.01, ctx.currentTime); tcgRipOsc.connect(filter); filter.connect(tcgRipGain); tcgRipGain.connect(ctx.destination); tcgRipOsc.start(); } catch(e) {} }
 function updatePokemonRipVolume(progress) { if (tcgRipGain && audioCtx) { const vol = Math.min(Math.max(progress * 0.5, 0.05), 0.45); tcgRipGain.gain.setValueAtTime(vol, audioCtx.currentTime); } }
@@ -918,7 +918,7 @@ function onPointerMove(moveEvent) {
   const crimpEl = document.getElementById(`crimp-${activeCategory}`);
   if (currentTopDragX > 0 && crimpEl) {
     let pull = Math.min(currentTopDragX, 150);
-    crimpEl.style.transform = `translateX(${pull}px)`;
+    crimpEl.style.transform = `translateZ(10px) translateX(${pull}px)`;
     crimpEl.style.opacity = `${1 - (pull / 200)}`;
     updatePokemonRipVolume(pull / 150);
   }
@@ -946,17 +946,17 @@ function onPointerUp() {
     }
     if (crimpElFinal) {
       crimpElFinal.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
-      crimpElFinal.style.transform = 'translateX(220px) rotate(15deg)';
+      crimpElFinal.style.transform = 'translateZ(10px) translateX(220px) rotate(15deg)';
       crimpElFinal.style.opacity = '0';
     }
     setTimeout(() => {
-      if (crimpElFinal) { crimpElFinal.style.transform = ''; crimpElFinal.style.opacity = ''; crimpElFinal.style.transition = ''; }
+      if (crimpElFinal) { crimpElFinal.style.transform = 'translateZ(10px)'; crimpElFinal.style.opacity = ''; crimpElFinal.style.transition = ''; }
       triggerGachaponReveal(activeCategory);
     }, 350);
   } else {
     if (crimpElFinal) {
       crimpElFinal.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-      crimpElFinal.style.transform = 'translateX(0px)';
+      crimpElFinal.style.transform = 'translateZ(10px) translateX(0px)';
       crimpElFinal.style.opacity = '1';
       setTimeout(() => crimpElFinal.style.transition = '', 300);
     }
@@ -964,6 +964,47 @@ function onPointerUp() {
 }
 
 document.querySelectorAll('.tcg-crimp-top').forEach(el => { el.addEventListener('pointerdown', handlePointerDown); });
+
+// Logique 3D Foil Holographique Interactive
+const boosters3D = document.querySelectorAll('.tcg-booster');
+boosters3D.forEach(booster => {
+  function handleTilt(e) {
+    if (isTopRipActive) return; // Ne pas tilter pendant la déchirure
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    const rect = booster.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -20; // 20 degrés max
+    const rotateY = ((x - centerX) / centerX) * 20;
+    
+    const glareX = (x / rect.width) * 100;
+    const glareY = (y / rect.height) * 100;
+    
+    booster.style.setProperty('--rx', `${rotateX}deg`);
+    booster.style.setProperty('--ry', `${rotateY}deg`);
+    booster.style.setProperty('--gx', `${glareX}%`);
+    booster.style.setProperty('--gy', `${glareY}%`);
+    booster.style.setProperty('--glare-opacity', '1');
+  }
+
+  function resetTilt() {
+    if (isTopRipActive) return;
+    booster.style.setProperty('--rx', '0deg');
+    booster.style.setProperty('--ry', '0deg');
+    booster.style.setProperty('--glare-opacity', '0');
+  }
+
+  booster.addEventListener('mousemove', handleTilt);
+  booster.addEventListener('mouseleave', resetTilt);
+  booster.addEventListener('touchmove', handleTilt, {passive: true});
+  booster.addEventListener('touchend', resetTilt);
+});
 
 function triggerGachaponReveal(category) {
   lastGachaponCategory = category;
