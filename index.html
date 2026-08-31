@@ -30,7 +30,7 @@
 <div id="auth-screen">
   <div class="auth-box">
     <h2>Identification</h2>
-    <form id="loginForm" style="box-shadow:none; padding:0; background:transparent;">
+    <form id="loginForm" class="form-minimal" style="box-shadow:none; padding:0; background:transparent;">
       <input type="email" id="authEmail" placeholder="Adresse e-mail" required>
       <input type="password" id="authPassword" placeholder="Mot de passe" required>
       <button type="submit" class="btn-add">Se connecter</button>
@@ -50,7 +50,7 @@
   </div>
 
   <!-- Modal Plein Écran Gachapon -->
-  <div id="gachapon-modal" class="modal-overlay" style="z-index: 3500;">
+  <div id="gachapon-modal" class="modal-overlay">
     <div class="gachapon-modal-box" id="gachaponModalBox">
       <div style="font-size: 0.75rem; font-weight: 900; color: var(--clay-yellow); text-transform: uppercase; letter-spacing: 0.05em;">✨ BOOSTER OUVERT ! ✨</div>
       <div id="gachaponCoverContainer"></div>
@@ -102,23 +102,7 @@
           <input type="text" id="w-title" placeholder="Nom du produit..." required>
         </div>
         <div class="form-row">
-          <select id="w-platform">
-            <optgroup label="Jeux Vidéo">
-              <option value="PS5">PlayStation 5</option>
-              <option value="Switch">Nintendo Switch</option>
-              <option value="Switch 2">Nintendo Switch 2</option>
-              <option value="3DS">3DS</option>
-              <option value="DS">DS</option>
-              <option value="GBA">Game Boy Advance</option>
-              <option value="GBC">Game Boy Color</option>
-            </optgroup>
-            <optgroup label="Autres Médias">
-              <option value="Vinyle">🎵 Vinyle</option>
-              <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-              <option value="Vêtement">👕 Vêtement</option>
-              <option value="Autre">📦 Autre</option>
-            </optgroup>
-          </select>
+          <select id="w-platform"></select> <!-- Rempli par le JS -->
           <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
         </div>
         <div id="w-dynamic-fields"></div>
@@ -131,20 +115,7 @@
           <input type="date" id="w-releaseDate" title="Date de sortie">
         </div>
         <div class="form-row">
-          <select id="w-store" style="width:100%;">
-            <option value="Non renseigné">🏪 Lieu de préco / achat</option>
-            <option value="Fnac">Fnac</option>
-            <option value="Leclerc">Leclerc</option>
-            <option value="Amazon">Amazon</option>
-            <option value="Cdiscount">Cdiscount</option>
-            <option value="Auchan">Auchan</option>
-            <option value="Carrefour">Carrefour</option>
-            <option value="Bloods Records">Bloods Records</option>
-            <option value="Vinted">Vinted</option>
-            <option value="Leboncoin">Leboncoin</option>
-            <option value="eBay">eBay</option>
-            <option value="Autre">Autre enseigne</option>
-          </select>
+          <select id="w-store" style="width:100%;"></select> <!-- Rempli par le JS -->
         </div>
         <div class="image-section">
           <div class="image-action-grid">
@@ -182,23 +153,7 @@
           <input type="text" id="c-title" placeholder="Nom de l'objet possédé..." required>
         </div>
         <div class="form-row">
-          <select id="c-platform">
-            <optgroup label="Jeux Vidéo">
-              <option value="PS5">PlayStation 5</option>
-              <option value="Switch">Nintendo Switch</option>
-              <option value="Switch 2">Nintendo Switch 2</option>
-              <option value="3DS">3DS</option>
-              <option value="DS">DS</option>
-              <option value="GBA">Game Boy Advance</option>
-              <option value="GBC">Game Boy Color</option>
-            </optgroup>
-            <optgroup label="Autres Médias">
-              <option value="Vinyle">🎵 Vinyle</option>
-              <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-              <option value="Vêtement">👕 Vêtement</option>
-              <option value="Autre">📦 Autre</option>
-            </optgroup>
-          </select>
+          <select id="c-platform"></select> <!-- Rempli par le JS -->
           <input type="number" id="c-price" placeholder="Valeur (€)" step="0.01">
         </div>
         <div id="c-dynamic-fields"></div>
@@ -216,20 +171,7 @@
           </select>
         </div>
         <div class="form-row">
-          <select id="c-store" style="width:100%;">
-            <option value="Non renseigné">🏪 Acheté chez...</option>
-            <option value="Fnac">Fnac</option>
-            <option value="Leclerc">Leclerc</option>
-            <option value="Amazon">Amazon</option>
-            <option value="Cdiscount">Cdiscount</option>
-            <option value="Auchan">Auchan</option>
-            <option value="Carrefour">Carrefour</option>
-            <option value="Bloods Records">Bloods Records</option>
-            <option value="Vinted">Vinted</option>
-            <option value="Leboncoin">Leboncoin</option>
-            <option value="eBay">eBay</option>
-            <option value="Autre">Autre enseigne</option>
-          </select>
+          <select id="c-store" style="width:100%;"></select> <!-- Rempli par le JS -->
         </div>
         <div class="form-row">
           <div><label style="font-size:0.7rem; color:var(--text-muted);">Sortie :</label><input type="date" id="c-releaseDate"></div>
@@ -274,23 +216,7 @@
       <input type="hidden" id="edit-index">
       <input type="text" id="edit-title" placeholder="Nom du produit" required>
       <div class="form-row">
-        <select id="edit-platform">
-          <optgroup label="Jeux Vidéo">
-            <option value="PS5">PlayStation 5</option>
-            <option value="Switch">Nintendo Switch</option>
-            <option value="Switch 2">Nintendo Switch 2</option>
-            <option value="3DS">3DS</option>
-            <option value="DS">DS</option>
-            <option value="GBA">Game Boy Advance</option>
-            <option value="GBC">Game Boy Color</option>
-          </optgroup>
-          <optgroup label="Autres Médias">
-            <option value="Vinyle">🎵 Vinyle</option>
-            <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-            <option value="Vêtement">👕 Vêtement</option>
-            <option value="Autre">📦 Autre</option>
-          </optgroup>
-        </select>
+        <select id="edit-platform"></select> <!-- Rempli par le JS -->
         <input type="number" id="edit-price" placeholder="Prix (€)" step="0.01">
       </div>
       <div id="edit-dynamic-fields"></div>
@@ -300,20 +226,7 @@
         <input type="date" id="edit-releaseDate" title="Date de sortie">
       </div>
       <div class="form-row">
-        <select id="edit-store" style="width:100%;">
-          <option value="Non renseigné">🏪 Lieu de préco / achat</option>
-          <option value="Fnac">Fnac</option>
-          <option value="Leclerc">Leclerc</option>
-          <option value="Amazon">Amazon</option>
-          <option value="Cdiscount">Cdiscount</option>
-          <option value="Auchan">Auchan</option>
-          <option value="Carrefour">Carrefour</option>
-          <option value="Bloods Records">Bloods Records</option>
-          <option value="Vinted">Vinted</option>
-          <option value="Leboncoin">Leboncoin</option>
-          <option value="eBay">eBay</option>
-          <option value="Autre">Autre enseigne</option>
-        </select>
+        <select id="edit-store" style="width:100%;"></select> <!-- Rempli par le JS -->
       </div>
       <div class="image-section">
         <div class="image-action-grid">
@@ -345,23 +258,7 @@
       <input type="hidden" id="edit-c-index">
       <input type="text" id="edit-c-title" placeholder="Nom du produit" required>
       <div class="form-row">
-        <select id="edit-c-platform">
-          <optgroup label="Jeux Vidéo">
-            <option value="PS5">PlayStation 5</option>
-            <option value="Switch">Nintendo Switch</option>
-            <option value="Switch 2">Nintendo Switch 2</option>
-            <option value="3DS">3DS</option>
-            <option value="DS">DS</option>
-            <option value="GBA">Game Boy Advance</option>
-            <option value="GBC">Game Boy Color</option>
-          </optgroup>
-          <optgroup label="Autres Médias">
-            <option value="Vinyle">🎵 Vinyle</option>
-            <option value="Blu-ray">🎬 Blu-ray / 4K</option>
-            <option value="Vêtement">👕 Vêtement</option>
-            <option value="Autre">📦 Autre</option>
-          </optgroup>
-        </select>
+        <select id="edit-c-platform"></select> <!-- Rempli par le JS -->
         <input type="number" id="edit-c-price" placeholder="Valeur (€)" step="0.01">
       </div>
       <div id="edit-c-dynamic-fields"></div>
@@ -376,20 +273,7 @@
         </select>
       </div>
       <div class="form-row">
-        <select id="edit-c-store" style="width:100%;">
-          <option value="Non renseigné">🏪 Acheté chez...</option>
-          <option value="Fnac">Fnac</option>
-          <option value="Leclerc">Leclerc</option>
-          <option value="Amazon">Amazon</option>
-          <option value="Cdiscount">Cdiscount</option>
-          <option value="Auchan">Auchan</option>
-          <option value="Carrefour">Carrefour</option>
-          <option value="Bloods Records">Bloods Records</option>
-          <option value="Vinted">Vinted</option>
-          <option value="Leboncoin">Leboncoin</option>
-          <option value="eBay">eBay</option>
-          <option value="Autre">Autre enseigne</option>
-        </select>
+        <select id="edit-c-store" style="width:100%;"></select> <!-- Rempli par le JS -->
       </div>
       <div class="form-row">
         <div><label style="font-size:0.7rem; color:var(--text-muted);">Sortie :</label><input type="date" id="edit-c-releaseDate"></div>
@@ -450,8 +334,8 @@
     <input type="text" id="w-searchBar" class="search-bar-input" placeholder="🔍 Rechercher dans la wishlist...">
     <div class="month-filter-box"><label>📅 Période :</label><select id="w-monthFilter"><option value="all">Tout le calendrier</option></select></div>
     <div class="controls">
-      <select id="w-filterPlatform"><option value="all">Tous supports</option><option value="PS5">PS5</option><option value="Switch">Switch</option><option value="Switch 2">Switch 2</option><option value="3DS">3DS</option><option value="DS">DS</option><option value="GBA">GBA</option><option value="GBC">GBC</option><option value="Vinyle">Vinyles</option><option value="Blu-ray">Blu-ray</option><option value="Vêtement">Vêtements</option></select>
-      <select id="w-filterStore"><option value="all">Toutes enseignes</option><option value="Fnac">Fnac</option><option value="Leclerc">Leclerc</option><option value="Amazon">Amazon</option><option value="Cdiscount">Cdiscount</option><option value="Auchan">Auchan</option><option value="Carrefour">Carrefour</option><option value="Bloods Records">Bloods Records</option><option value="Vinted">Vinted</option><option value="Leboncoin">Leboncoin</option><option value="eBay">eBay</option></select>
+      <select id="w-filterPlatform"></select> <!-- Rempli par le JS -->
+      <select id="w-filterStore"></select> <!-- Rempli par le JS -->
       <select id="w-filterStatus"><option value="all">Tous statuts</option><option value="À prendre">Je prends</option><option value="En réflexion">En réflexion</option><option value="Je passe">Je passe</option></select>
     </div>
     <div class="controls">
@@ -495,8 +379,8 @@
     <div class="month-filter-box"><label>📅 Sortie :</label><select id="c-releaseFilter"><option value="all">Toutes les sorties</option></select></div>
 
     <div class="controls" id="collectionFiltersBar">
-      <select id="c-filterPlatform"><option value="all">Tous supports</option><option value="PS5">PS5</option><option value="Switch">Switch</option><option value="Switch 2">Switch 2</option><option value="3DS">3DS</option><option value="DS">DS</option><option value="GBA">GBA</option><option value="GBC">GBC</option><option value="Vinyle">Vinyles</option><option value="Blu-ray">Blu-ray</option><option value="Vêtement">Vêtements</option></select>
-      <select id="c-filterStore"><option value="all">Toutes enseignes</option><option value="Fnac">Fnac</option><option value="Leclerc">Leclerc</option><option value="Amazon">Amazon</option><option value="Cdiscount">Cdiscount</option><option value="Auchan">Auchan</option><option value="Carrefour">Carrefour</option><option value="Bloods Records">Bloods Records</option><option value="Vinted">Vinted</option><option value="Leboncoin">Leboncoin</option><option value="eBay">eBay</option></select>
+      <select id="c-filterPlatform"></select> <!-- Rempli par le JS -->
+      <select id="c-filterStore"></select> <!-- Rempli par le JS -->
     </div>
     
     <!-- Filtres Modifiés pour être Dynamiques -->
