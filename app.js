@@ -353,6 +353,7 @@ function renderWishlist() {
   const platF = document.getElementById('w-filterPlatform')?.value || 'all';
   const storeF = document.getElementById('w-filterStore')?.value || 'all';
   const statF = document.getElementById('w-filterStatus')?.value || 'all';
+  const editionF = document.getElementById('w-filterEdition')?.value || 'all'; // AJOUTÉ
   const sortBy = document.getElementById('w-sortBy')?.value || 'newest';
   const searchQuery = (document.getElementById('w-searchBar')?.value || '').toLowerCase().trim();
 
@@ -362,6 +363,7 @@ function renderWishlist() {
     const matchPlat = (platF === 'all' || i.platform === platF);
     const matchStore = (storeF === 'all' || i.store === storeF);
     const matchStat = (statF === 'all' || i.status === statF);
+    const matchEdition = (editionF === 'all' || (i.editionType || 'Standard') === editionF); // AJOUTÉ
     const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery));
     
     if (matchMonth) {
@@ -369,7 +371,7 @@ function renderWishlist() {
       if (i.status === 'À prendre') totalConfirmed += p;
       if (i.status === 'En réflexion') totalPending += p;
     }
-    return matchMonth && matchPlat && matchStore && matchStat && matchSearch;
+    return matchMonth && matchPlat && matchStore && matchStat && matchEdition && matchSearch;
   });
 
   if(document.getElementById('labelConfirmed')) document.getElementById('labelConfirmed').textContent = monthFilter !== 'all' ? 'Prévu (sélection)' : 'Total prévu';
@@ -522,6 +524,9 @@ function renderCollection() {
       const stateBadge = item.state ? `<span class="badge-state">${escapeHTML(item.state)}</span>` : '';
       const playBadge = (item.gameplay && item.gameplay !== 'Non applicable') ? `<span class="badge-play">🎮 ${escapeHTML(item.gameplay)}</span>` : '';
       const collectorBadge = isCollector ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
+      // AJOUTÉ : Badge Steelbook pour la collection
+      const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
+      
       const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
       let subtitle = '';
@@ -542,7 +547,7 @@ function renderCollection() {
               ${subtitle}
               <div class="item-meta">
                 <span class="badge">${escapeHTML(item.platform)}</span>
-                ${collectorBadge} ${stateBadge} ${playBadge} ${storeBadge}
+                ${collectorBadge} ${blurayBadge} ${stateBadge} ${playBadge} ${storeBadge}
                 <span style="font-weight:900; color:var(--clay-yellow);">${valStr}</span>
               </div>
               <div class="item-meta" style="margin-top:2px;"><span>${datesDisplay.join(' • ')}</span></div>
@@ -658,7 +663,9 @@ window.openCollectionDetail = function(index) {
   document.getElementById('detail-title').textContent = item.title;
   
   const isCollector = item.editionType === 'Collector';
-  document.getElementById('detail-meta').innerHTML = `<span class="badge">${escapeHTML(item.platform)}</span>${isCollector ? '<span class="badge-collector">✨ COLLECTOR</span>' : ''}${item.state ? `<span class="badge-state">${escapeHTML(item.state)}</span>` : ''}<span style="font-weight:900; color:var(--clay-yellow);">${item.price ? formatMoney(item.price) : 'Non estimé'}</span>`;
+  // AJOUTÉ : Badge Steelbook et Collector dans la modale de détail
+  const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
+  document.getElementById('detail-meta').innerHTML = `<span class="badge">${escapeHTML(item.platform)}</span>${isCollector ? '<span class="badge-collector">✨ COLLECTOR</span>' : ''}${blurayBadge}${item.state ? `<span class="badge-state">${escapeHTML(item.state)}</span>` : ''}<span style="font-weight:900; color:var(--clay-yellow);">${item.price ? formatMoney(item.price) : 'Non estimé'}</span>`;
   
   let specificInfoHtml = `<div><strong>Acheté chez :</strong> ${escapeHTML(item.store) || 'Non renseigné'}</div>`;
   if (item.platform === 'Vinyle') {
@@ -925,6 +932,7 @@ document.getElementById('c-searchBar')?.addEventListener('input', renderCollecti
 document.getElementById('w-filterPlatform')?.addEventListener('change', renderWishlist);
 document.getElementById('w-filterStore')?.addEventListener('change', renderWishlist);
 document.getElementById('w-filterStatus')?.addEventListener('change', renderWishlist);
+document.getElementById('w-filterEdition')?.addEventListener('change', renderWishlist); // AJOUTÉ
 document.getElementById('w-monthFilter')?.addEventListener('change', renderWishlist);
 document.getElementById('w-sortBy')?.addEventListener('change', renderWishlist);
 document.getElementById('w-searchBar')?.addEventListener('input', renderWishlist);
