@@ -190,3 +190,14 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .btn-close-lightbox:active {
   box-shadow: var(--clay-inset);
 }
+
+/* Animation Tremblement du Booster */
+.shake {
+  animation: shake-anim 0.4s cubic-bezier(.36,.07,.19,.97) both infinite;
+}
+@keyframes shake-anim {
+  10%, 90% { transform: translate3d(-2px, 0, 0) rotate(-1deg); }
+  20%, 80% { transform: translate3d(3px, 0, 0) rotate(1deg); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0) rotate(-2deg); }
+  40%, 60% { transform: translate3d(4px, 0, 0) rotate(2deg); }
+}
