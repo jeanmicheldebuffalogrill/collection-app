@@ -75,7 +75,6 @@ body { padding: env(safe-area-inset-top, 24px) 16px env(safe-area-inset-bottom, 
 /* Modales & Formulaires */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10, 12, 18, 0.85); backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center; padding: 16px; padding-bottom: env(safe-area-inset-bottom, 16px); }
 
-/* AJUSTEMENT MOBILE : Fiche de détail parfaitement proportionnée sur iPhone max */
 .modal-box { 
   background: var(--surface); 
   border-radius: 32px; 
@@ -116,7 +115,6 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .image-preview-thumb { width: 76px; height: 102px; border-radius: 18px; object-fit: cover; background: var(--surface); box-shadow: var(--clay-card); }
 .btn-remove-preview { background: var(--clay-pink); color: var(--clay-pink-text); border: none; padding: 6px 14px; border-radius: 99px; font-size: 0.72rem; font-weight: 900; cursor: pointer; width: auto; box-shadow: var(--clay-btn); }
 
-/* AJUSTEMENT MOBILE : Image grande jaquette bien dimensionnée pour ne pas géner sur iPhone */
 .detail-cover-large {
   width: 140px;
   height: 190px;
@@ -268,9 +266,47 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   40%, 60% { transform: translate3d(4px, 0, 0) rotate(2deg); }
 }
 
-#lightbox-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92); z-index: 4000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(12px); }
-#lightbox-img { max-width: 100%; max-height: 85vh; border-radius: 30px; object-fit: contain; box-shadow: var(--clay-card); }
-.btn-close-lightbox { position: absolute; top: env(safe-area-inset-top, 24px); right: 24px; background: var(--surface); border: none; color: var(--text); width: 44px; height: 44px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: var(--clay-btn); margin-top: 16px; }
+/* --- CORRECTIF LIGHTBOX (Z-INDEX ABSOLU & CROIX TACTILE) --- */
+#lightbox-modal { 
+  display: none; 
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0, 0, 0, 0.95); 
+  z-index: 9999; /* Priorité absolue au-dessus de tout le reste */
+  align-items: center; 
+  justify-content: center; 
+  padding: 20px; 
+  backdrop-filter: blur(12px); 
+}
+
+#lightbox-img { 
+  max-width: 100%; 
+  max-height: 85vh; 
+  border-radius: 30px; 
+  object-fit: contain; 
+  box-shadow: var(--clay-card); 
+}
+
+.btn-close-lightbox { 
+  position: absolute; 
+  top: env(safe-area-inset-top, 24px); 
+  right: 24px; 
+  background: var(--surface); 
+  border: none; 
+  color: var(--text); 
+  width: 48px; 
+  height: 48px; 
+  border-radius: 50%; 
+  font-size: 1.4rem; 
+  cursor: pointer; 
+  box-shadow: var(--clay-btn); 
+  margin-top: 16px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
 .btn-close-lightbox:active { box-shadow: var(--clay-inset); }
 
 #flash-overlay { display: none; position: fixed; inset: 0; background: #ffffff; z-index: 9000; animation: flash-fade 0.4s ease-out forwards; }
