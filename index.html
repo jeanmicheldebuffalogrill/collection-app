@@ -498,18 +498,17 @@
       <select id="c-filterPlatform"><option value="all">Tous supports</option><option value="PS5">PS5</option><option value="Switch">Switch</option><option value="Switch 2">Switch 2</option><option value="3DS">3DS</option><option value="DS">DS</option><option value="GBA">GBA</option><option value="GBC">GBC</option><option value="Vinyle">Vinyles</option><option value="Blu-ray">Blu-ray</option><option value="Vêtement">Vêtements</option></select>
       <select id="c-filterStore"><option value="all">Toutes enseignes</option><option value="Fnac">Fnac</option><option value="Leclerc">Leclerc</option><option value="Amazon">Amazon</option><option value="Cdiscount">Cdiscount</option><option value="Auchan">Auchan</option><option value="Carrefour">Carrefour</option><option value="Bloods Records">Bloods Records</option><option value="Vinted">Vinted</option><option value="Leboncoin">Leboncoin</option><option value="eBay">eBay</option></select>
     </div>
+    
+    <!-- Filtres Modifiés pour être Dynamiques -->
     <div class="controls">
       <select id="c-filterEdition"><option value="all">✨ Toutes éditions</option><option value="Standard">📦 Standard</option><option value="Collector">🌟 Collector</option></select>
-      <select id="c-filterState">
-        <option value="all">Tous états</option>
-        <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
-        <option value="🟢 Occasion (Comme neuf)">🟢 Occasion (Comme neuf)</option>
-        <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
-        <option value="🟡 Occasion (Bon état)">🟡 Bon état</option>
-        <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
-      </select>
-      <select id="c-filterGameplay"><option value="all">Toutes progressions</option><option value="Non commencé">⏳ Non commencé</option><option value="En cours">🎮 En cours</option><option value="Terminé">🏆 Terminé</option></select>
+      <select id="c-filterState"><option value="all">Tous états</option><option value="✨ Neuf sous blister">✨ Neuf sous blister</option><option value="🟢 Occasion (Comme neuf)">🟢 Occasion (Comme neuf)</option><option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option><option value="🟡 Occasion (Bon état)">🟡 Bon état</option><option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option></select>
+      
+      <select id="c-filterGameplay"><option value="all">Toutes progressions</option><option value="Non commencé">⏳ Non commencé</option><option value="En cours">🎮 En cours</option><option value="Terminé">🏆 Terminé</option><option value="Non applicable">⚪ Non applicable</option></select>
+      <select id="c-filterVinylEdition" style="display:none;"><option value="all">Tous formats Vinyle</option><option value="Pochette standard 1 LP">🎵 Pochette standard 1 LP</option><option value="Pochette standard 2 LP">🎵 Pochette standard 2 LP</option><option value="Gatefold 1 LP">🎵 Gatefold 1 LP</option><option value="Gatefold 2 LP">🎵 Gatefold 2 LP</option></select>
+      <select id="c-filterBlurayType" style="display:none;"><option value="all">Tous formats Blu-ray</option><option value="Version normale">🎬 Version normale</option><option value="Steelbook">📀 Steelbook</option></select>
     </div>
+
     <div class="month-filter-box"><label>🔄 Trier :</label><select id="c-sortBy"><option value="newest">Du plus récent</option><option value="az">A-Z</option><option value="price-desc">Prix décroissant</option></select></div>
     <div class="month-filter-box" style="margin-bottom: 20px;"><label>👁️ Affichage :</label><select id="c-viewMode"><option value="list">📋 Vue Liste</option><option value="grid">🖼️ Grille Vitrine</option><option value="timeline-release">🎞️ Frise (Sortie)</option><option value="timeline-buy">🎞️ Frise (Achat)</option></select></div>
 
