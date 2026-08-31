@@ -152,11 +152,6 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 /* --- TIMELINE CONTAINER & HIDE SCROLLBARS --- */
 .timeline-h-container { 
   display: flex; gap: 16px; overflow-x: auto; padding: 10px 4px 20px 4px; scroll-snap-type: x mandatory; 
-  cursor: grab; /* Ajout du curseur grab pour PC */
-}
-.timeline-h-container.active { 
-  cursor: grabbing; 
-  scroll-snap-type: none; /* Désactive le magnétisme pendant le glissement pour plus de fluidité */
 }
 .timeline-h-container::-webkit-scrollbar { display: none; }
 .timeline-h-container { -ms-overflow-style: none; scrollbar-width: none; }
