@@ -136,7 +136,7 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .search-bar-input { width: 100%; padding: 14px 18px; font-size: 0.9rem; background: var(--surface); border-radius: 22px; box-shadow: var(--clay-card); margin-bottom: 12px; }
 .controls { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; }
 
-/* --- CORRECTION RADICALE DU CHEVAUCHEMENT --- */
+/* Cartes (Vue Liste) */
 .item-card { 
   background: var(--surface); 
   border-radius: 30px; 
@@ -147,7 +147,7 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   box-shadow: var(--clay-card); 
   cursor: pointer; 
   transition: transform 0.2s ease; 
-  position: relative; /* Indispensable pour le positionnement absolu des boutons */
+  position: relative;
   overflow: hidden; 
 }
 
@@ -168,11 +168,10 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   min-width: 0; 
 }
 
-/* L'en-tête ne gère plus la position des boutons, il protège juste l'espace à droite */
 .card-header { 
   display: block; 
   width: 100%; 
-  padding-right: 95px; /* Laisse toujours un espace vide de 95px à droite pour les boutons */
+  padding-right: 95px; 
 }
 
 .item-info { width: 100%; }
@@ -181,12 +180,11 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   font-size: 1.05rem; 
   font-weight: 900; 
   margin-bottom: 6px; 
-  white-space: normal; /* Force le retour à la ligne */
-  word-break: break-word; /* Coupe les mots si trop longs */
+  white-space: normal; 
+  word-break: break-word; 
   line-height: 1.25; 
 }
 
-/* Les boutons sont épinglés de force tout en haut à droite de la carte */
 .actions { 
   position: absolute; 
   top: 16px; 
@@ -208,7 +206,6 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   color: var(--text-muted); 
   box-shadow: var(--clay-btn); 
 }
-/* ------------------------------------------ */
 
 .item-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-weight: 700; }
 .badge { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--clay-purple); color: var(--clay-purple-text); font-weight: 900; }
@@ -225,12 +222,43 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .btn-market.collector { background: var(--clay-yellow); color: var(--clay-yellow-text); }
 .btn-market.discogs { background: var(--clay-purple); color: var(--clay-purple-text); }
 
-/* Vues Grille et Timeline */
-.grid-collection-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 2px 4px 20px 4px; }
-.grid-item-card { background: var(--surface); border-radius: 24px; padding: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--clay-card); }
+/* --- VUES GRILLE ET TIMELINE (CORRECTION DÉBORDEMENT) --- */
+.grid-collection-container { 
+  display: grid; 
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 12px; 
+  padding: 2px 4px 20px 4px; 
+  width: 100%; 
+}
+
+.grid-item-card { 
+  background: var(--surface); 
+  border-radius: 24px; 
+  padding: 10px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+  box-shadow: var(--clay-card); 
+  min-width: 0; /* Empêche le texte de forcer la grille à s'élargir */
+}
+
+/* Force les conteneurs internes de la carte à respecter la taille parent */
+.grid-item-card > div {
+  min-width: 0;
+  width: 100%;
+}
+
 .grid-item-cover { width: 100%; height: 180px; border-radius: 16px; object-fit: cover; box-shadow: var(--clay-btn); }
 .grid-item-cover-placeholder { width: 100%; height: 180px; border-radius: 16px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: var(--clay-btn); }
-.grid-item-title { font-size: 0.85rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.grid-item-title { 
+  font-size: 0.85rem; 
+  font-weight: 900; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  width: 100%; 
+}
 
 .timeline-h-container { 
   display: flex; gap: 16px; overflow-x: auto; padding: 10px 4px 20px 4px; scroll-snap-type: x mandatory; 
