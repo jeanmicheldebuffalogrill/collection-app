@@ -55,7 +55,6 @@
       <div style="font-size: 0.75rem; font-weight: 900; color: var(--clay-yellow); text-transform: uppercase; letter-spacing: 0.05em;">✨ BOOSTER OUVERT ! ✨</div>
       <div id="gachaponCoverContainer"></div>
       <h2 id="gachaponTitle" style="font-size: 1.3rem; font-weight: 900; text-shadow: var(--text-pop);"></h2>
-      <div id="gachaponMeta" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;"></div>
       <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
         <button type="button" class="btn-add" style="background: var(--clay-purple); color: var(--clay-purple-text); flex: 1;" id="btnGachaponDetail">🔍 Fiche</button>
         <button type="button" class="btn-add" style="background: var(--accent); color: white; flex: 1;" id="btnGachaponReroll">🎲 Re-tirer !</button>
@@ -140,6 +139,7 @@
             <option value="Cdiscount">Cdiscount</option>
             <option value="Auchan">Auchan</option>
             <option value="Carrefour">Carrefour</option>
+            <option value="Bloods Records">Bloods Records</option>
             <option value="Vinted">Vinted</option>
             <option value="Leboncoin">Leboncoin</option>
             <option value="eBay">eBay</option>
@@ -223,6 +223,7 @@
             <option value="Cdiscount">Cdiscount</option>
             <option value="Auchan">Auchan</option>
             <option value="Carrefour">Carrefour</option>
+            <option value="Bloods Records">Bloods Records</option>
             <option value="Vinted">Vinted</option>
             <option value="Leboncoin">Leboncoin</option>
             <option value="eBay">eBay</option>
@@ -306,6 +307,7 @@
           <option value="Cdiscount">Cdiscount</option>
           <option value="Auchan">Auchan</option>
           <option value="Carrefour">Carrefour</option>
+          <option value="Bloods Records">Bloods Records</option>
           <option value="Vinted">Vinted</option>
           <option value="Leboncoin">Leboncoin</option>
           <option value="eBay">eBay</option>
@@ -375,6 +377,7 @@
           <option value="Cdiscount">Cdiscount</option>
           <option value="Auchan">Auchan</option>
           <option value="Carrefour">Carrefour</option>
+          <option value="Bloods Records">Bloods Records</option>
           <option value="Vinted">Vinted</option>
           <option value="Leboncoin">Leboncoin</option>
           <option value="eBay">eBay</option>
@@ -441,7 +444,7 @@
     <div class="month-filter-box"><label>📅 Période :</label><select id="w-monthFilter"><option value="all">Tout le calendrier</option></select></div>
     <div class="controls">
       <select id="w-filterPlatform"><option value="all">Tous supports</option><option value="PS5">PS5</option><option value="Switch">Switch</option><option value="Switch 2">Switch 2</option><option value="3DS">3DS</option><option value="DS">DS</option><option value="GBA">GBA</option><option value="GBC">GBC</option><option value="Vinyle">Vinyles</option><option value="Blu-ray">Blu-ray</option><option value="Vêtement">Vêtements</option></select>
-      <select id="w-filterStore"><option value="all">Toutes enseignes</option><option value="Fnac">Fnac</option><option value="Leclerc">Leclerc</option><option value="Amazon">Amazon</option><option value="Cdiscount">Cdiscount</option><option value="Auchan">Auchan</option><option value="Carrefour">Carrefour</option><option value="Vinted">Vinted</option><option value="Leboncoin">Leboncoin</option><option value="eBay">eBay</option></select>
+      <select id="w-filterStore"><option value="all">Toutes enseignes</option><option value="Fnac">Fnac</option><option value="Leclerc">Leclerc</option><option value="Amazon">Amazon</option><option value="Cdiscount">Cdiscount</option><option value="Auchan">Auchan</option><option value="Carrefour">Carrefour</option><option value="Bloods Records">Bloods Records</option><option value="Vinted">Vinted</option><option value="Leboncoin">Leboncoin</option><option value="eBay">eBay</option></select>
       <select id="w-filterStatus"><option value="all">Tous statuts</option><option value="À prendre">Je prends</option><option value="En réflexion">En réflexion</option><option value="Je passe">Je passe</option></select>
     </div>
     <div class="month-filter-box" style="margin-bottom: 20px;"><label>🔄 Trier :</label><select id="w-sortBy"><option value="newest">Du plus récent</option><option value="az">A-Z</option><option value="price-desc">Prix décroissant</option></select></div>
@@ -479,7 +482,7 @@
 
     <div class="controls" id="collectionFiltersBar">
       <select id="c-filterPlatform"><option value="all">Tous supports</option><option value="PS5">PS5</option><option value="Switch">Switch</option><option value="Switch 2">Switch 2</option><option value="3DS">3DS</option><option value="DS">DS</option><option value="GBA">GBA</option><option value="GBC">GBC</option><option value="Vinyle">Vinyles</option><option value="Blu-ray">Blu-ray</option><option value="Vêtement">Vêtements</option></select>
-      <select id="c-filterStore"><option value="all">Toutes enseignes</option><option value="Fnac">Fnac</option><option value="Leclerc">Leclerc</option><option value="Amazon">Amazon</option><option value="Cdiscount">Cdiscount</option><option value="Auchan">Auchan</option><option value="Carrefour">Carrefour</option><option value="Vinted">Vinted</option><option value="Leboncoin">Leboncoin</option><option value="eBay">eBay</option></select>
+      <select id="c-filterStore"><option value="all">Toutes enseignes</option><option value="Fnac">Fnac</option><option value="Leclerc">Leclerc</option><option value="Amazon">Amazon</option><option value="Cdiscount">Cdiscount</option><option value="Auchan">Auchan</option><option value="Carrefour">Carrefour</option><option value="Bloods Records">Bloods Records</option><option value="Vinted">Vinted</option><option value="Leboncoin">Leboncoin</option><option value="eBay">eBay</option></select>
     </div>
     <div class="controls">
       <select id="c-filterEdition"><option value="all">✨ Toutes éditions</option><option value="Standard">📦 Standard</option><option value="Collector">🌟 Collector</option></select>
