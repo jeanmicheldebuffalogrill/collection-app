@@ -122,8 +122,7 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
         input.value = game.name;
         if(dateId && document.getElementById(dateId)) document.getElementById(dateId).value = dateStr;
         if(imageId && document.getElementById(imageId) && imgUrl) {
-          document.getElementById(imageId).value = imgUrl;
-          updateImagePreview(imageId, previewWrapId, previewImgId);
+          fetchAndUploadRAWGImage(imgUrl, imageId, previewWrapId, previewImgId);
         }
         
         const prefix = inputId.replace('title', ''); 
@@ -131,7 +130,6 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
           document.getElementById(prefix + 'genres').value = game.genres.map(g => g.name).join(', ');
         }
         
-        // NOUVEAU : Requête silencieuse pour l'éditeur (Option B)
         if (document.getElementById(prefix + 'publisher')) {
           fetchRAWGGameDetails(game.id).then(details => {
             if (details && details.publishers && details.publishers.length > 0) {
@@ -368,6 +366,28 @@ async function uploadDirectFile(file, inputFieldId, wrapId, previewImgId) {
   }
 }
 
+async function fetchAndUploadRAWGImage(imgUrl, inputFieldId, wrapId, previewImgId) {
+  if (!supabaseClient) {
+    document.getElementById(inputFieldId).value = imgUrl;
+    updateImagePreview(inputFieldId, wrapId, previewImgId);
+    return;
+  }
+  try {
+    setSyncStatus('⏳ Aspiration image...', 'var(--clay-yellow)');
+    document.getElementById(inputFieldId).value = imgUrl; 
+    updateImagePreview(inputFieldId, wrapId, previewImgId);
+    
+    const response = await fetch(imgUrl);
+    const blob = await response.blob();
+    const file = new File([blob], 'rawg_cover.jpg', { type: blob.type });
+    
+    await uploadDirectFile(file, inputFieldId, wrapId, previewImgId);
+  } catch (e) {
+    console.warn("CORS ou erreur de téléchargement, utilisation du lien web", e);
+    setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)'); 
+  }
+}
+
 function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
   if (!e.clipboardData || !e.clipboardData.items) return;
   for (const item of e.clipboardData.items) {
@@ -575,7 +595,6 @@ function renderWishlist() {
 
     const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
-    // Gestion du sous-titre (Artiste pour Vinyle, Éditeur pour les Jeux)
     let subtitle = '';
     if (item.platform === 'Vinyle' && item.artist) {
       subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.artist)}</div>`;
@@ -635,7 +654,6 @@ function renderCollection() {
   const sortBy = document.getElementById('c-sortBy')?.value || 'newest';
   const searchQuery = (document.getElementById('c-searchBar')?.value || '').toLowerCase().trim();
 
-  // Nouveaux filtres dynamiques
   const playF = document.getElementById('c-filterGameplay')?.value || 'all';
   const vinylF = document.getElementById('c-filterVinylEdition')?.value || 'all';
   const blurayF = document.getElementById('c-filterBlurayType')?.value || 'all';
@@ -651,7 +669,6 @@ function renderCollection() {
     const matchState = (stateF === 'all' || i.state === stateF);
     const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery)) || (i.publisher && i.publisher.toLowerCase().includes(searchQuery));
     
-    // Application des filtres spécifiques
     const matchPlay = (playF === 'all' || i.gameplay === playF);
     const matchVinyl = (vinylF === 'all' || i.vinylEdition === vinylF);
     const matchBluray = (blurayF === 'all' || i.blurayType === blurayF);
@@ -668,7 +685,6 @@ function renderCollection() {
   if(document.getElementById('collectionTotalValue')) document.getElementById('collectionTotalValue').textContent = formatMoney(totalVal);
   if(document.getElementById('collectionItemTotal')) document.getElementById('collectionItemTotal').textContent = filtered.length;
 
-  // Breakdown Chart
   const platformStats = {};
   filtered.forEach(i => {
     const p = i.platform || 'Autre';
@@ -723,7 +739,6 @@ function renderCollection() {
 
       const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
-      // Gestion du sous-titre
       let subtitle = '';
       if (item.platform === 'Vinyle' && item.artist) {
         subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.artist)}</div>`;
@@ -936,11 +951,7 @@ window.openCollectionDetail = function(index) {
 }
 
 // --- Modales et Formulaires ---
-
-// Fonction modifiée pour FIXER le bug d'effacement lors du changement de console
 function toggleFormFields(prefix, platform, data = null) {
-  // Si on ne fournit pas de data (ex: lors d'un changement de console au clic),
-  // on va extraire intelligemment ce qui a DÉJÀ été tapé/prérempli pour ne pas le perdre !
   if (!data) {
     data = {};
     ['publisher', 'genres', 'gameplay', 'artist', 'vinylEdition', 'blurayType'].forEach(field => {
@@ -972,7 +983,6 @@ function getDynamicFieldsHtml(prefix, platform, data = {}) {
   } else if (platform === 'Vêtement' || platform === 'Autre') {
     return ``;
   } else {
-    // NOUVEAU : Éditeur au lieu de Metacritic/Heures
     let html = `
       <div class="form-row">
         <input type="text" id="${prefix}publisher" placeholder="Éditeur (ex: Nintendo)" value="${data.publisher || ''}">
@@ -1041,7 +1051,6 @@ document.getElementById('lightbox-modal')?.addEventListener('click', (e) => {
   }
 });
 
-// Boutons Recherches personnalisées
 document.getElementById('w-searchBtn')?.addEventListener('click', () => handleCustomSearch('w-'));
 document.getElementById('edit-searchBtn')?.addEventListener('click', () => handleCustomSearch('edit-'));
 
@@ -1134,6 +1143,15 @@ document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => 
   const index = parseInt(document.getElementById('edit-index').value, 10);
   if (isNaN(index) || !wishlist[index]) return;
   const platform = document.getElementById('edit-platform').value;
+  
+  const oldItem = wishlist[index];
+  const newImage = document.getElementById('edit-image').value.trim();
+  
+  // Suppression image orpheline si modifiée
+  if (oldItem.image && oldItem.image !== newImage && oldItem.image.includes('supabase.co')) {
+    deleteFileFromSupabaseStorage(oldItem.image);
+  }
+
   let extraData = { platform };
   if (platform === 'Vinyle') {
     extraData.artist = document.getElementById('edit-artist')?.value.trim();
@@ -1147,7 +1165,7 @@ document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => 
   wishlist[index] = {
     ...wishlist[index], title: document.getElementById('edit-title').value.trim(), price: document.getElementById('edit-price').value,
     editionType: document.getElementById('edit-editionType').value, store: document.getElementById('edit-store').value,
-    releaseDate: document.getElementById('edit-releaseDate').value, image: document.getElementById('edit-image').value.trim(),
+    releaseDate: document.getElementById('edit-releaseDate').value, image: newImage,
     status: document.getElementById('edit-status').value, ...extraData
   };
   document.getElementById('edit-modal').style.display = 'none'; saveData();
@@ -1157,6 +1175,15 @@ document.getElementById('btnSaveEditCollection')?.addEventListener('click', () =
   const index = parseInt(document.getElementById('edit-c-index').value, 10);
   if (isNaN(index) || !collection[index]) return;
   const platform = document.getElementById('edit-c-platform').value;
+  
+  const oldItem = collection[index];
+  const newImage = document.getElementById('edit-c-image').value.trim();
+  
+  // Suppression image orpheline si modifiée
+  if (oldItem.image && oldItem.image !== newImage && oldItem.image.includes('supabase.co')) {
+    deleteFileFromSupabaseStorage(oldItem.image);
+  }
+
   let extraData = { platform };
   if (platform === 'Vinyle') {
     extraData.artist = document.getElementById('edit-c-artist')?.value.trim();
@@ -1171,13 +1198,12 @@ document.getElementById('btnSaveEditCollection')?.addEventListener('click', () =
     ...collection[index], title: document.getElementById('edit-c-title').value.trim(), price: document.getElementById('edit-c-price').value,
     editionType: document.getElementById('edit-c-editionType').value, store: document.getElementById('edit-c-store').value,
     state: document.getElementById('edit-c-state').value, releaseDate: document.getElementById('edit-c-releaseDate').value,
-    buyDate: document.getElementById('edit-c-buyDate').value, image: document.getElementById('edit-c-image').value.trim(),
+    buyDate: document.getElementById('edit-c-buyDate').value, image: newImage,
     note: document.getElementById('edit-c-note').value.trim(), ...extraData
   };
   document.getElementById('edit-collection-modal').style.display = 'none'; saveData();
 });
 
-// Écouteurs de changement de plateforme avec sauvegarde temporaire des données !
 document.getElementById('w-platform')?.addEventListener('change', function() { toggleFormFields('w-', this.value); });
 document.getElementById('c-platform')?.addEventListener('change', function() { toggleFormFields('c-', this.value); });
 document.getElementById('edit-platform')?.addEventListener('change', function() { toggleFormFields('edit-', this.value); });
