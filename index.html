@@ -137,6 +137,10 @@
           <option value="En réflexion">⏳ En réflexion</option>
           <option value="Je passe">❌ Je passe</option>
         </select>
+        
+        <!-- NOUVEAU CHAMP NOTE WISHLIST -->
+        <textarea id="w-note" placeholder="Notes & commentaires / Synopsis..."></textarea>
+
         <button type="submit" class="btn-add">+ Ajouter à la wishlist</button>
       </form>
     </div>
@@ -202,7 +206,7 @@
             <input type="file" style="display:none;" accept="image/*" id="inputGalleryC">
           </label>
         </div>
-        <textarea id="c-note" placeholder="Notes & commentaires..."></textarea>
+        <textarea id="c-note" placeholder="Notes & commentaires / Synopsis..."></textarea>
         <button type="submit" class="btn-add">+ Ajouter à la collection</button>
       </form>
     </div>
@@ -249,6 +253,10 @@
         <option value="En réflexion">⏳ En réflexion</option>
         <option value="Je passe">❌ Je passe</option>
       </select>
+      
+      <!-- NOUVEAU CHAMP NOTE EDIT WISHLIST -->
+      <textarea id="edit-note" placeholder="Notes & commentaires / Synopsis..."></textarea>
+
       <button type="button" class="btn-add" id="btnSaveEditWishlist">Enregistrer</button>
     </div>
   </div>
@@ -298,7 +306,7 @@
           <button type="button" class="btn-remove-preview" id="btnRemoveCoverEC">✕ Retirer</button>
         </div>
       </div>
-      <textarea id="edit-c-note" placeholder="Notes & commentaires..."></textarea>
+      <textarea id="edit-c-note" placeholder="Notes & commentaires / Synopsis..."></textarea>
       <button type="button" class="btn-add" id="btnSaveEditCollection">Enregistrer</button>
     </div>
   </div>
@@ -391,7 +399,6 @@
       <select id="c-filterStore"></select> <!-- Rempli par le JS -->
     </div>
     
-    <!-- Filtres Modifiés pour être Dynamiques -->
     <div class="controls">
       <select id="c-filterEdition"><option value="all">✨ Toutes éditions</option><option value="Standard">📦 Standard</option><option value="Collector">🌟 Collector</option></select>
       <select id="c-filterState"><option value="all">Tous états</option><option value="✨ Neuf sous blister">✨ Neuf sous blister</option><option value="🟢 Occasion (Comme neuf)">🟢 Occasion (Comme neuf)</option><option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option><option value="🟡 Occasion (Bon état)">🟡 Bon état</option><option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option></select>
