@@ -16,7 +16,7 @@ try {
 
 // --- API KEYS ---
 const RAWG_API_KEY = '5b06b52d45984ed39dbc551b4d72af0d'; // <-- TA CLÉ RAWG
-const TMDB_API_KEY = 'd9e6e0cc19b2c65458fcff77fef7873d'; // <-- TA NOUVELLE CLÉ TMDB
+const TMDB_API_KEY = 'd9e6e0cc19b2c65458fcff77fef7873d'; // <-- TA CLÉ TMDB
 
 // --- Variables Globales ---
 let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
@@ -171,7 +171,7 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
               const director = details.credits.crew.find(c => c.job === 'Director');
               if (director) document.getElementById(prefix + 'director').value = director.name;
             }
-            // Synopsis (injecté dans la zone de texte Notes si elle existe)
+            // Synopsis (injecté dans la zone de texte Notes de la wishlist OU de la collection)
             if (document.getElementById(prefix + 'note') && details.overview) {
               document.getElementById(prefix + 'note').value = details.overview;
             }
@@ -1096,7 +1096,9 @@ document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
     title: document.getElementById('w-title').value.trim(), price: document.getElementById('w-price').value,
     editionType: document.getElementById('w-editionType').value, store: document.getElementById('w-store').value,
     releaseDate: document.getElementById('w-releaseDate').value, image: document.getElementById('w-image').value.trim(),
-    status: document.getElementById('w-status').value, ...extraData
+    status: document.getElementById('w-status').value, 
+    note: document.getElementById('w-note').value.trim(), // NOUVEAU
+    ...extraData
   });
   document.getElementById('add-wishlist-modal').style.display = 'none'; saveData();
 });
@@ -1135,7 +1137,9 @@ window.openEditModal = function(index) {
   document.getElementById('edit-editionType').value = item.editionType || 'Standard'; toggleFormFields('edit-', item.platform, item);
   document.getElementById('edit-store').value = item.store || 'Non renseigné'; document.getElementById('edit-releaseDate').value = item.releaseDate || '';
   document.getElementById('edit-image').value = item.image || ''; updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview');
-  document.getElementById('edit-status').value = item.status || 'À prendre'; document.getElementById('edit-modal').style.display = 'flex';
+  document.getElementById('edit-status').value = item.status || 'À prendre'; 
+  document.getElementById('edit-note').value = item.note || ''; // NOUVEAU
+  document.getElementById('edit-modal').style.display = 'flex';
 }
 
 window.openEditCollectionModal = function(index) {
@@ -1171,7 +1175,9 @@ document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => 
   wishlist[index] = {
     ...wishlist[index], title: document.getElementById('edit-title').value.trim(), price: document.getElementById('edit-price').value,
     editionType: document.getElementById('edit-editionType').value, store: document.getElementById('edit-store').value,
-    releaseDate: document.getElementById('edit-releaseDate').value, image: newImage, status: document.getElementById('edit-status').value, ...extraData
+    releaseDate: document.getElementById('edit-releaseDate').value, image: newImage, status: document.getElementById('edit-status').value, 
+    note: document.getElementById('edit-note').value.trim(), // NOUVEAU
+    ...extraData
   };
   document.getElementById('edit-modal').style.display = 'none'; saveData();
 });
