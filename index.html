@@ -98,8 +98,9 @@
         <button type="button" class="btn-action" style="border:none;" id="btnCloseAddWishlist">✕</button>
       </div>
       <form id="wishlistForm" style="box-shadow:none; padding:0; margin:0; background:transparent;">
-        <div class="form-row">
-          <input type="text" id="w-title" placeholder="Nom du produit..." required>
+        <div class="form-row" style="position: relative;">
+          <input type="text" id="w-title" placeholder="Nom du produit..." required autocomplete="off">
+          <div id="w-suggestions" class="autocomplete-suggestions"></div>
         </div>
         <div class="form-row">
           <select id="w-platform"></select> <!-- Rempli par le JS -->
@@ -149,8 +150,9 @@
         <button type="button" class="btn-action" style="border:none;" id="btnCloseAddCollection">✕</button>
       </div>
       <form id="collectionForm" style="box-shadow:none; padding:0; margin:0; background:transparent;">
-        <div class="form-row">
-          <input type="text" id="c-title" placeholder="Nom de l'objet possédé..." required>
+        <div class="form-row" style="position: relative;">
+          <input type="text" id="c-title" placeholder="Nom de l'objet possédé..." required autocomplete="off">
+          <div id="c-suggestions" class="autocomplete-suggestions"></div>
         </div>
         <div class="form-row">
           <select id="c-platform"></select> <!-- Rempli par le JS -->
@@ -214,7 +216,10 @@
         <button type="button" class="btn-action" style="border:none;" id="btnCloseEditWishlist">✕</button>
       </div>
       <input type="hidden" id="edit-index">
-      <input type="text" id="edit-title" placeholder="Nom du produit" required>
+      <div style="position: relative; width: 100%;">
+        <input type="text" id="edit-title" placeholder="Nom du produit" required autocomplete="off">
+        <div id="edit-suggestions" class="autocomplete-suggestions"></div>
+      </div>
       <div class="form-row">
         <select id="edit-platform"></select> <!-- Rempli par le JS -->
         <input type="number" id="edit-price" placeholder="Prix (€)" step="0.01">
@@ -256,7 +261,10 @@
         <button type="button" class="btn-action" style="border:none;" id="btnCloseEditCollection">✕</button>
       </div>
       <input type="hidden" id="edit-c-index">
-      <input type="text" id="edit-c-title" placeholder="Nom du produit" required>
+      <div style="position: relative; width: 100%;">
+        <input type="text" id="edit-c-title" placeholder="Nom du produit" required autocomplete="off">
+        <div id="edit-c-suggestions" class="autocomplete-suggestions"></div>
+      </div>
       <div class="form-row">
         <select id="edit-c-platform"></select> <!-- Rempli par le JS -->
         <input type="number" id="edit-c-price" placeholder="Valeur (€)" step="0.01">
