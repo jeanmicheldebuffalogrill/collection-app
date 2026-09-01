@@ -17,6 +17,7 @@ try {
 // --- API KEYS ---
 const RAWG_API_KEY = '5b06b52d45984ed39dbc551b4d72af0d'; // <-- TA CLÉ RAWG
 const TMDB_API_KEY = 'd9e6e0cc19b2c65458fcff77fef7873d'; // <-- TA CLÉ TMDB
+const DISCOGS_API_TOKEN = 'DEEORXJuNHHObCrUjlgqsBvMnlJqLmTfmwpVNRIC'; // <-- TON NOUVEAU TOKEN DISCOGS
 
 // --- Variables Globales ---
 let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
@@ -83,22 +84,14 @@ async function fetchTMDBMovieDetails(movieId) {
   } catch(e) { return null; }
 }
 
-// iTunes (Vinyles / Musique) avec Proxy de secours Anti-CORS
-async function fetchITunesAlbums(query) {
-  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=album&media=music&country=FR&limit=5`;
+// Discogs (Vinyles)
+async function fetchDiscogsVinyls(query) {
+  if (!DISCOGS_API_TOKEN || DISCOGS_API_TOKEN === 'METS_TON_TOKEN_DISCOGS_ICI') return [];
   try {
-    const res = await fetch(url);
+    const res = await fetch(`https://api.discogs.com/database/search?q=${encodeURIComponent(query)}&type=release&format=vinyl&token=${DISCOGS_API_TOKEN}`);
     const data = await res.json();
-    return data.results || [];
-  } catch(e) { 
-    try {
-      const resProxy = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
-      const dataProxy = await resProxy.json();
-      return dataProxy.results || [];
-    } catch(err) {
-      return [];
-    }
-  }
+    return data.results ? data.results.slice(0, 5) : [];
+  } catch(e) { return []; }
 }
 
 function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, previewWrapId, previewImgId) {
@@ -131,10 +124,17 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
       const results = await fetchTMDBMovies(query);
       normalizedResults = results.map(m => ({ type: 'movie', id: m.id, title: m.title, img: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : '', date: m.release_date, rawData: m }));
     } else if (isVinyl) {
-      const results = await fetchITunesAlbums(query);
-      normalizedResults = results.map(a => {
-        const highResImg = a.artworkUrl100 ? a.artworkUrl100.replace('100x100bb', '600x600bb') : '';
-        return { type: 'vinyl', id: a.collectionId, title: a.collectionName, img: highResImg, date: a.releaseDate, artist: a.artistName, rawData: a };
+      const results = await fetchDiscogsVinyls(query);
+      normalizedResults = results.map(v => {
+        let artist = '';
+        let albumTitle = v.title;
+        // Discogs renvoie souvent "Artiste - Album"
+        if (v.title.includes(' - ')) {
+          const parts = v.title.split(' - ');
+          artist = parts[0];
+          albumTitle = parts.slice(1).join(' - ');
+        }
+        return { type: 'vinyl', id: v.id, title: albumTitle, img: v.cover_image || v.thumb || '', date: v.year, artist: artist, rawData: v };
       });
     }
 
@@ -145,7 +145,7 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
       const item = document.createElement('div');
       item.className = 'autocomplete-item';
       const year = itemData.date ? itemData.date.substring(0,4) : 'N/A';
-      const subtitle = itemData.type === 'vinyl' ? itemData.artist : (year !== 'N/A' ? `Sortie : ${year}` : 'Sortie : N/A');
+      const subtitle = itemData.type === 'vinyl' && itemData.artist ? itemData.artist : (year !== 'N/A' ? `Sortie : ${year}` : 'Sortie : N/A');
       
       item.innerHTML = `
         ${itemData.img ? `<img src="${itemData.img}" class="autocomplete-thumb">` : `<div class="autocomplete-thumb" style="display:flex;align-items:center;justify-content:center;font-size:10px;">📦</div>`}
@@ -157,7 +157,15 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
       
       item.onmousedown = () => { 
         input.value = itemData.title;
-        if(dateId && document.getElementById(dateId)) document.getElementById(dateId).value = itemData.date ? itemData.date.substring(0,10) : '';
+        
+        if(dateId && document.getElementById(dateId)) {
+          if (itemData.type === 'vinyl' && itemData.date) {
+             document.getElementById(dateId).value = `${itemData.date}-01-01`; // Discogs renvoie souvent juste l'année
+          } else {
+             document.getElementById(dateId).value = itemData.date ? itemData.date.substring(0,10) : '';
+          }
+        }
+        
         if(imageId && document.getElementById(imageId) && itemData.img) {
           fetchAndUploadExternalImage(itemData.img, imageId, previewWrapId, previewImgId);
         }
@@ -202,8 +210,8 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
           if (document.getElementById(prefix + 'artist') && itemData.artist) {
             document.getElementById(prefix + 'artist').value = itemData.artist;
           }
-          if (document.getElementById(prefix + 'genres') && itemData.rawData.primaryGenreName) {
-            document.getElementById(prefix + 'genres').value = itemData.rawData.primaryGenreName;
+          if (document.getElementById(prefix + 'genres') && itemData.rawData.genre) {
+            document.getElementById(prefix + 'genres').value = itemData.rawData.genre.join(', ');
           }
         }
         
