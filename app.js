@@ -82,7 +82,6 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
     const currentPlat = platform.value;
     const isGame = !['Vinyle', 'Blu-ray', 'Vêtement', 'Autre'].includes(currentPlat);
     
-    // On ne cherche que pour les jeux vidéo, et si on a tapé au moins 3 lettres
     if (query.length < 3 || !isGame) {
       suggBox.style.display = 'none';
       return;
@@ -110,13 +109,26 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
         </div>
       `;
       
-      item.onmousedown = () => { // onmousedown se déclenche avant le "blur" de l'input
+      item.onmousedown = () => { 
         input.value = game.name;
         if(dateId && document.getElementById(dateId)) document.getElementById(dateId).value = dateStr;
         if(imageId && document.getElementById(imageId) && imgUrl) {
           document.getElementById(imageId).value = imgUrl;
           updateImagePreview(imageId, previewWrapId, previewImgId);
         }
+        
+        // --- NOUVEAU : Auto-remplissage RAWG ---
+        const prefix = inputId.replace('title', ''); 
+        if (document.getElementById(prefix + 'genres') && game.genres) {
+          document.getElementById(prefix + 'genres').value = game.genres.map(g => g.name).join(', ');
+        }
+        if (document.getElementById(prefix + 'playtime') && game.playtime) {
+          document.getElementById(prefix + 'playtime').value = game.playtime;
+        }
+        if (document.getElementById(prefix + 'metacritic') && game.metacritic) {
+          document.getElementById(prefix + 'metacritic').value = game.metacritic;
+        }
+        
         suggBox.style.display = 'none';
       };
       suggBox.appendChild(item);
@@ -281,6 +293,21 @@ function setSyncStatus(text, color = 'var(--clay-green)') {
 }
 
 function formatMoney(amount) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0); }
+
+// --- Helpers pour Badges RAWG ---
+function getRawgBadgesHtml(item) {
+  let html = '';
+  if (item.genres) html += `<span class="badge-genre">${escapeHTML(item.genres)}</span>`;
+  if (item.playtime) html += `<span class="badge-time">⏱️ ~${item.playtime}h</span>`;
+  if (item.metacritic) {
+    const mc = parseInt(item.metacritic, 10);
+    let mcClass = 'high';
+    if (mc < 50) mcClass = 'low';
+    else if (mc < 75) mcClass = 'mid';
+    html += `<span class="badge-mc ${mcClass}">⭐ ${mc}</span>`;
+  }
+  return html;
+}
 
 // --- Fonctions Images & Supabase Storage ---
 async function compressImageFile(file) {
@@ -562,6 +589,7 @@ function renderWishlist() {
               <span class="badge">${escapeHTML(item.platform)}</span>
               ${collectorBadge} ${blurayBadge} ${vinylBadge}
               <span class="badge-status ${badgeStatusClass}">${statusText}</span>
+              ${getRawgBadgesHtml(item)}
               ${storeBadge} <span>${priceStr}</span> <span>•</span> <span>${dateStr}</span>
             </div>
           </div>
@@ -707,6 +735,7 @@ function renderCollection() {
               <div class="item-meta">
                 <span class="badge">${escapeHTML(item.platform)}</span>
                 ${collectorBadge} ${blurayBadge} ${vinylBadge} ${stateBadge} ${playBadge} ${storeBadge}
+                ${getRawgBadgesHtml(item)}
                 <span style="font-weight:900; color:var(--clay-yellow);">${valStr}</span>
               </div>
               <div class="item-meta" style="margin-top:2px;"><span>${datesDisplay.join(' • ')}</span></div>
@@ -876,8 +905,13 @@ window.openCollectionDetail = function(index) {
   } else if (item.platform === 'Blu-ray') {
     if (item.blurayType) specificInfoHtml += `<div><strong>Format :</strong> ${escapeHTML(item.blurayType)}</div>`;
   } else {
+    // Infos RAWG et Gameplay
+    if (item.genres) specificInfoHtml += `<div><strong>Genres :</strong> ${escapeHTML(item.genres)}</div>`;
+    if (item.metacritic) specificInfoHtml += `<div><strong>Metacritic :</strong> <span style="font-weight:900;">⭐ ${item.metacritic}/100</span></div>`;
+    if (item.playtime) specificInfoHtml += `<div><strong>Temps de jeu :</strong> ~${item.playtime} heures</div>`;
     if (item.gameplay) specificInfoHtml += `<div><strong>Progression :</strong> ${escapeHTML(item.gameplay)}</div>`;
   }
+  
   let datesDisplay = [];
   if (item.releaseDate) datesDisplay.push(`Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
   if (item.buyDate) datesDisplay.push(`Achat : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
@@ -906,9 +940,21 @@ function getDynamicFieldsHtml(prefix, platform, data = {}) {
       </div>`;
   } else if (platform === 'Blu-ray') {
     return `<div class="form-row"><select id="${prefix}blurayType" style="width:100%;"><option value="Version normale" ${data.blurayType === 'Version normale' ? 'selected' : ''}>🎬 Version normale</option><option value="Steelbook" ${data.blurayType === 'Steelbook' ? 'selected' : ''}>📀 Steelbook</option></select></div>`;
+  } else if (platform === 'Vêtement' || platform === 'Autre') {
+    return ``;
   } else {
-    if (prefix === 'w-' || prefix === 'edit-') return ``;
-    return `<div class="form-row"><select id="${prefix}gameplay"><option value="Non commencé" ${data.gameplay === 'Non commencé' ? 'selected' : ''}>⏳ Non commencé</option><option value="En cours" ${data.gameplay === 'En cours' ? 'selected' : ''}>🎮 En cours</option><option value="Terminé" ${data.gameplay === 'Terminé' ? 'selected' : ''}>🏆 Terminé</option><option value="Non applicable" ${data.gameplay === 'Non applicable' ? 'selected' : ''}>⚪ Non applicable</option></select></div>`;
+    // NOUVEAU : Champs RAWG
+    let html = `
+      <div class="form-row">
+        <input type="text" id="${prefix}genres" placeholder="Genres (ex: RPG, Action)" value="${data.genres || ''}">
+        <input type="number" id="${prefix}playtime" placeholder="Heures" value="${data.playtime || ''}" style="max-width: 120px;" title="Temps de jeu">
+        <input type="number" id="${prefix}metacritic" placeholder="Score Meta" value="${data.metacritic || ''}" style="max-width: 110px;" title="Metacritic">
+      </div>
+    `;
+    if (prefix === 'c-' || prefix === 'edit-c-') {
+      html += `<div class="form-row"><select id="${prefix}gameplay"><option value="Non commencé" ${data.gameplay === 'Non commencé' ? 'selected' : ''}>⏳ Non commencé</option><option value="En cours" ${data.gameplay === 'En cours' ? 'selected' : ''}>🎮 En cours</option><option value="Terminé" ${data.gameplay === 'Terminé' ? 'selected' : ''}>🏆 Terminé</option><option value="Non applicable" ${data.gameplay === 'Non applicable' ? 'selected' : ''}>⚪ Non applicable</option></select></div>`;
+    }
+    return html;
   }
 }
 
@@ -978,6 +1024,16 @@ document.getElementById('w-searchBtn')?.addEventListener('click', () => handleCu
 document.getElementById('edit-searchBtn')?.addEventListener('click', () => handleCustomSearch('edit-'));
 
 
+// --- Helper pour extraire les données RAWG des formulaires ---
+function getGameExtraData(prefix) {
+  let extra = {};
+  if (document.getElementById(prefix + 'gameplay')) extra.gameplay = document.getElementById(prefix + 'gameplay').value;
+  if (document.getElementById(prefix + 'genres')) extra.genres = document.getElementById(prefix + 'genres').value.trim();
+  if (document.getElementById(prefix + 'playtime')) extra.playtime = document.getElementById(prefix + 'playtime').value;
+  if (document.getElementById(prefix + 'metacritic')) extra.metacritic = document.getElementById(prefix + 'metacritic').value;
+  return extra;
+}
+
 // Soumissions
 document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -988,7 +1044,10 @@ document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
     extraData.vinylEdition = document.getElementById('w-vinylEdition')?.value || 'Pochette standard 1 LP';
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('w-blurayType')?.value || 'Version normale';
+  } else if (platform !== 'Vêtement' && platform !== 'Autre') {
+    Object.assign(extraData, getGameExtraData('w-'));
   }
+  
   wishlist.unshift({
     id: crypto.randomUUID ? crypto.randomUUID() : `w_${Date.now()}`,
     title: document.getElementById('w-title').value.trim(), price: document.getElementById('w-price').value,
@@ -1009,9 +1068,10 @@ document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
     extraData.vinylEdition = document.getElementById('c-vinylEdition')?.value || 'Pochette standard 1 LP';
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('c-blurayType')?.value || 'Version normale';
-  } else {
-    extraData.gameplay = document.getElementById('c-gameplay')?.value || 'Non commencé';
+  } else if (platform !== 'Vêtement' && platform !== 'Autre') {
+    Object.assign(extraData, getGameExtraData('c-'));
   }
+  
   collection.unshift({
     id: crypto.randomUUID ? crypto.randomUUID() : `c_${Date.now()}`,
     title: document.getElementById('c-title').value.trim(), price: document.getElementById('c-price').value,
@@ -1059,6 +1119,8 @@ document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => 
     extraData.vinylEdition = document.getElementById('edit-vinylEdition')?.value;
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('edit-blurayType')?.value;
+  } else if (platform !== 'Vêtement' && platform !== 'Autre') {
+    Object.assign(extraData, getGameExtraData('edit-'));
   }
   
   wishlist[index] = {
@@ -1080,8 +1142,8 @@ document.getElementById('btnSaveEditCollection')?.addEventListener('click', () =
     extraData.vinylEdition = document.getElementById('edit-c-vinylEdition')?.value;
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('edit-c-blurayType')?.value;
-  } else {
-    extraData.gameplay = document.getElementById('edit-c-gameplay')?.value;
+  } else if (platform !== 'Vêtement' && platform !== 'Autre') {
+    Object.assign(extraData, getGameExtraData('edit-c-'));
   }
   
   collection[index] = {
