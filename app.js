@@ -83,6 +83,15 @@ async function fetchTMDBMovieDetails(movieId) {
   } catch(e) { return null; }
 }
 
+// iTunes (Vinyles / Musique)
+async function fetchITunesAlbums(query) {
+  try {
+    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=album&limit=5`);
+    const data = await res.json();
+    return data.results || [];
+  } catch(e) { return []; }
+}
+
 function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, previewWrapId, previewImgId) {
   const input = document.getElementById(inputId);
   const suggBox = document.getElementById(suggId);
@@ -98,8 +107,9 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
     const currentPlat = platform.value;
     const isGame = !['Vinyle', 'Blu-ray', 'Vêtement', 'Autre'].includes(currentPlat);
     const isMovie = currentPlat === 'Blu-ray';
+    const isVinyl = currentPlat === 'Vinyle';
     
-    if (query.length < 3 || (!isGame && !isMovie)) {
+    if (query.length < 3 || (!isGame && !isMovie && !isVinyl)) {
       suggBox.style.display = 'none'; return;
     }
 
@@ -111,6 +121,13 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
     } else if (isMovie) {
       const results = await fetchTMDBMovies(query);
       normalizedResults = results.map(m => ({ type: 'movie', id: m.id, title: m.title, img: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : '', date: m.release_date, rawData: m }));
+    } else if (isVinyl) {
+      const results = await fetchITunesAlbums(query);
+      normalizedResults = results.map(a => {
+        // Transformation de l'image 100x100 en 600x600 pour la HD
+        const highResImg = a.artworkUrl100 ? a.artworkUrl100.replace('100x100bb', '600x600bb') : '';
+        return { type: 'vinyl', id: a.collectionId, title: a.collectionName, img: highResImg, date: a.releaseDate, artist: a.artistName, rawData: a };
+      });
     }
 
     if (normalizedResults.length === 0) { suggBox.style.display = 'none'; return; }
@@ -120,18 +137,19 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
       const item = document.createElement('div');
       item.className = 'autocomplete-item';
       const year = itemData.date ? itemData.date.substring(0,4) : 'N/A';
+      const subtitle = itemData.type === 'vinyl' ? itemData.artist : (year !== 'N/A' ? `Sortie : ${year}` : 'Sortie : N/A');
       
       item.innerHTML = `
         ${itemData.img ? `<img src="${itemData.img}" class="autocomplete-thumb">` : `<div class="autocomplete-thumb" style="display:flex;align-items:center;justify-content:center;font-size:10px;">📦</div>`}
         <div class="autocomplete-text">
           <span class="autocomplete-title">${escapeHTML(itemData.title)}</span>
-          <span class="autocomplete-date">Sortie : ${year}</span>
+          <span class="autocomplete-date">${escapeHTML(subtitle)}</span>
         </div>
       `;
       
       item.onmousedown = () => { 
         input.value = itemData.title;
-        if(dateId && document.getElementById(dateId)) document.getElementById(dateId).value = itemData.date;
+        if(dateId && document.getElementById(dateId)) document.getElementById(dateId).value = itemData.date ? itemData.date.substring(0,10) : '';
         if(imageId && document.getElementById(imageId) && itemData.img) {
           fetchAndUploadExternalImage(itemData.img, imageId, previewWrapId, previewImgId);
         }
@@ -154,28 +172,31 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
         else if (itemData.type === 'movie') {
           fetchTMDBMovieDetails(itemData.id).then(details => {
             if (!details) return;
-            // Genres
             if (document.getElementById(prefix + 'genres') && details.genres) {
               document.getElementById(prefix + 'genres').value = details.genres.map(g => g.name).join(', ');
             }
-            // Durée
             if (document.getElementById(prefix + 'runtime') && details.runtime) {
               document.getElementById(prefix + 'runtime').value = details.runtime;
             }
-            // Note TMDB
             if (document.getElementById(prefix + 'tmdbRating') && details.vote_average) {
               document.getElementById(prefix + 'tmdbRating').value = details.vote_average.toFixed(1);
             }
-            // Réalisateur (Director)
             if (document.getElementById(prefix + 'director') && details.credits && details.credits.crew) {
               const director = details.credits.crew.find(c => c.job === 'Director');
               if (director) document.getElementById(prefix + 'director').value = director.name;
             }
-            // Synopsis (injecté dans la zone de texte Notes de la wishlist OU de la collection)
             if (document.getElementById(prefix + 'note') && details.overview) {
               document.getElementById(prefix + 'note').value = details.overview;
             }
           });
+        }
+        else if (itemData.type === 'vinyl') {
+          if (document.getElementById(prefix + 'artist') && itemData.artist) {
+            document.getElementById(prefix + 'artist').value = itemData.artist;
+          }
+          if (document.getElementById(prefix + 'genres') && itemData.rawData.primaryGenreName) {
+            document.getElementById(prefix + 'genres').value = itemData.rawData.primaryGenreName;
+          }
         }
         
         suggBox.style.display = 'none';
@@ -929,6 +950,7 @@ window.openCollectionDetail = function(index) {
   if (item.platform === 'Vinyle') {
     if (item.artist) specificInfoHtml += `<div><strong>Artiste :</strong> ${escapeHTML(item.artist)}</div>`;
     if (item.vinylEdition) specificInfoHtml += `<div><strong>Édition :</strong> ${escapeHTML(item.vinylEdition)}</div>`;
+    if (item.genres) specificInfoHtml += `<div><strong>Genre musical :</strong> ${escapeHTML(item.genres)}</div>`;
   } else if (item.platform === 'Blu-ray') {
     if (item.director) specificInfoHtml += `<div><strong>Réalisateur :</strong> ${escapeHTML(item.director)}</div>`;
     if (item.genres) specificInfoHtml += `<div><strong>Genres :</strong> ${escapeHTML(item.genres)}</div>`;
@@ -983,6 +1005,9 @@ function getDynamicFieldsHtml(prefix, platform, data = {}) {
           <option value="Gatefold 1 LP" ${currentEdition === 'Gatefold 1 LP' ? 'selected' : ''}>🎵 Gatefold 1 LP</option>
           <option value="Gatefold 2 LP" ${currentEdition === 'Gatefold 2 LP' ? 'selected' : ''}>🎵 Gatefold 2 LP</option>
         </select>
+      </div>
+      <div class="form-row">
+        <input type="text" id="${prefix}genres" placeholder="Genre musical" value="${data.genres || ''}">
       </div>`;
   } else if (platform === 'Blu-ray') {
     return `
@@ -1059,7 +1084,7 @@ document.getElementById('w-searchBtn')?.addEventListener('click', () => handleCu
 document.getElementById('edit-searchBtn')?.addEventListener('click', () => handleCustomSearch('edit-'));
 
 
-// --- Helper pour extraire les données API ---
+// --- Helper pour extraire les données API unifié ---
 function getAPIFieldsData(prefix, platform) {
   let extra = {};
   if (document.getElementById(prefix + 'genres')) extra.genres = document.getElementById(prefix + 'genres').value.trim();
@@ -1086,10 +1111,8 @@ document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
     extraData.vinylEdition = document.getElementById('w-vinylEdition')?.value || 'Pochette standard 1 LP';
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('w-blurayType')?.value || 'Version normale';
-    Object.assign(extraData, getAPIFieldsData('w-', platform));
-  } else if (platform !== 'Vêtement' && platform !== 'Autre') {
-    Object.assign(extraData, getAPIFieldsData('w-', platform));
   }
+  Object.assign(extraData, getAPIFieldsData('w-', platform)); // Extraction unifiée
   
   wishlist.unshift({
     id: crypto.randomUUID ? crypto.randomUUID() : `w_${Date.now()}`,
@@ -1097,7 +1120,7 @@ document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
     editionType: document.getElementById('w-editionType').value, store: document.getElementById('w-store').value,
     releaseDate: document.getElementById('w-releaseDate').value, image: document.getElementById('w-image').value.trim(),
     status: document.getElementById('w-status').value, 
-    note: document.getElementById('w-note').value.trim(), // NOUVEAU
+    note: document.getElementById('w-note').value.trim(),
     ...extraData
   });
   document.getElementById('add-wishlist-modal').style.display = 'none'; saveData();
@@ -1113,10 +1136,8 @@ document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
     extraData.vinylEdition = document.getElementById('c-vinylEdition')?.value || 'Pochette standard 1 LP';
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('c-blurayType')?.value || 'Version normale';
-    Object.assign(extraData, getAPIFieldsData('c-', platform));
-  } else if (platform !== 'Vêtement' && platform !== 'Autre') {
-    Object.assign(extraData, getAPIFieldsData('c-', platform));
   }
+  Object.assign(extraData, getAPIFieldsData('c-', platform)); // Extraction unifiée
   
   collection.unshift({
     id: crypto.randomUUID ? crypto.randomUUID() : `c_${Date.now()}`,
@@ -1138,7 +1159,7 @@ window.openEditModal = function(index) {
   document.getElementById('edit-store').value = item.store || 'Non renseigné'; document.getElementById('edit-releaseDate').value = item.releaseDate || '';
   document.getElementById('edit-image').value = item.image || ''; updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview');
   document.getElementById('edit-status').value = item.status || 'À prendre'; 
-  document.getElementById('edit-note').value = item.note || ''; // NOUVEAU
+  document.getElementById('edit-note').value = item.note || ''; 
   document.getElementById('edit-modal').style.display = 'flex';
 }
 
@@ -1167,16 +1188,15 @@ document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => 
   if (platform === 'Vinyle') {
     extraData.artist = document.getElementById('edit-artist')?.value.trim(); extraData.vinylEdition = document.getElementById('edit-vinylEdition')?.value;
   } else if (platform === 'Blu-ray') {
-    extraData.blurayType = document.getElementById('edit-blurayType')?.value; Object.assign(extraData, getAPIFieldsData('edit-', platform));
-  } else if (platform !== 'Vêtement' && platform !== 'Autre') {
-    Object.assign(extraData, getAPIFieldsData('edit-', platform));
+    extraData.blurayType = document.getElementById('edit-blurayType')?.value;
   }
+  Object.assign(extraData, getAPIFieldsData('edit-', platform)); // Extraction unifiée
   
   wishlist[index] = {
     ...wishlist[index], title: document.getElementById('edit-title').value.trim(), price: document.getElementById('edit-price').value,
     editionType: document.getElementById('edit-editionType').value, store: document.getElementById('edit-store').value,
     releaseDate: document.getElementById('edit-releaseDate').value, image: newImage, status: document.getElementById('edit-status').value, 
-    note: document.getElementById('edit-note').value.trim(), // NOUVEAU
+    note: document.getElementById('edit-note').value.trim(), 
     ...extraData
   };
   document.getElementById('edit-modal').style.display = 'none'; saveData();
@@ -1193,10 +1213,9 @@ document.getElementById('btnSaveEditCollection')?.addEventListener('click', () =
   if (platform === 'Vinyle') {
     extraData.artist = document.getElementById('edit-c-artist')?.value.trim(); extraData.vinylEdition = document.getElementById('edit-c-vinylEdition')?.value;
   } else if (platform === 'Blu-ray') {
-    extraData.blurayType = document.getElementById('edit-c-blurayType')?.value; Object.assign(extraData, getAPIFieldsData('edit-c-', platform));
-  } else if (platform !== 'Vêtement' && platform !== 'Autre') {
-    Object.assign(extraData, getAPIFieldsData('edit-c-', platform));
+    extraData.blurayType = document.getElementById('edit-c-blurayType')?.value;
   }
+  Object.assign(extraData, getAPIFieldsData('edit-c-', platform)); // Extraction unifiée
   
   collection[index] = {
     ...collection[index], title: document.getElementById('edit-c-title').value.trim(), price: document.getElementById('edit-c-price').value,
