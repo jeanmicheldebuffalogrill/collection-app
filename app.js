@@ -659,9 +659,15 @@ function renderWishlist() {
     
     card.className = `item-card ${statusClass} ${item.editionType === 'Collector' ? 'is-collector' : ''}`;
     
-    // Affichage intelligent des deux dates (Sortie originale & Achat prévu)
+    // Affichage des deux dates (Sortie & Prévu au format Mois)
     const releaseDateFormatted = item.releaseDate ? new Date(item.releaseDate).toLocaleDateString('fr-FR') : null;
-    const targetDateFormatted = item.targetBuyDate ? new Date(item.targetBuyDate + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : null;
+    let targetDateFormatted = null;
+    if (item.targetBuyDate) {
+      const [year, month] = item.targetBuyDate.split('-');
+      if (year && month) {
+        targetDateFormatted = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      }
+    }
 
     let dateStr = '📅 Sans date';
     if (releaseDateFormatted && targetDateFormatted) {
@@ -840,7 +846,16 @@ function renderCollection() {
 
       let datesDisplay = [];
       if (item.releaseDate) datesDisplay.push(`📅 Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
-      if (item.buyDate) datesDisplay.push(`🛒 Achat : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
+      
+      if (item.buyDate) {
+        if (item.buyDate.length === 7) {
+          const [y, m] = item.buyDate.split('-');
+          const monthLabel = new Date(parseInt(y, 10), parseInt(m, 10) - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+          datesDisplay.push(`🛒 Achat : ${monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}`);
+        } else {
+          datesDisplay.push(`🛒 Achat : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
+        }
+      }
 
       const q = encodeURIComponent(`${item.title} ${item.platform}`);
 
@@ -898,7 +913,8 @@ function renderCollection() {
       if (viewMode === 'grid') {
         card.innerHTML = `${coverHtml}<div style="display:flex; flex-direction:column; gap:2px;"><div class="grid-item-title">${title}</div><div style="display:flex; justify-content:space-between;"><span class="badge" style="font-size:0.62rem;">${escapeHTML(item.platform)}</span><span style="font-size:0.82rem; font-weight:900; color:var(--clay-yellow);">${priceStr}</span></div></div>`;
       } else {
-        const itemDate = item[viewMode === 'timeline-release' ? 'releaseDate' : 'buyDate'] ? new Date(item[viewMode === 'timeline-release' ? 'releaseDate' : 'buyDate']).getFullYear() : 'N/A';
+        const rawDate = item[viewMode === 'timeline-release' ? 'releaseDate' : 'buyDate'];
+        const itemDate = rawDate ? (rawDate.length === 7 ? rawDate.split('-')[0] : new Date(rawDate).getFullYear()) : 'N/A';
         card.innerHTML = `${coverHtml}<div class="tile-info"><div class="tile-title">${title}</div><div class="tile-meta"><span class="badge" style="font-size:0.65rem;">${escapeHTML(item.platform)}</span><span style="font-size:0.72rem; color:var(--clay-blue);">📅 ${itemDate}</span></div><div style="font-size:0.85rem; font-weight:900; color:var(--clay-yellow);">${priceStr}</div></div>`;
       }
       viewWrap.appendChild(card);
@@ -959,13 +975,8 @@ window.moveToCollection = function(index) {
   if (!item) return;
   if (supabaseClient && item.id) { supabaseClient.from('wishlist_items').delete().eq('id', item.id); }
 
-  let finalBuyDate = new Date().toISOString().slice(0, 10);
-  const target = item.targetBuyDate; // Format "YYYY-MM"
-  if (target) {
-    finalBuyDate = `${target}-01`;
-  } else if (item.releaseDate) {
-    finalBuyDate = item.releaseDate;
-  }
+  // Si on a un mois d'achat prévu, on le garde au format YYYY-MM (sinon la date du jour au format YYYY-MM)
+  let finalBuyDate = item.targetBuyDate || new Date().toISOString().slice(0, 7);
 
   collection.unshift({
     ...item,
@@ -1017,7 +1028,15 @@ window.openCollectionDetail = function(index) {
   
   let datesDisplay = [];
   if (item.releaseDate) datesDisplay.push(`Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
-  if (item.buyDate) datesDisplay.push(`Achat : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
+  if (item.buyDate) {
+    if (item.buyDate.length === 7) {
+      const [y, m] = item.buyDate.split('-');
+      const ml = new Date(parseInt(y, 10), parseInt(m, 10) - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      datesDisplay.push(`Achat : ${ml.charAt(0).toUpperCase() + ml.slice(1)}`);
+    } else {
+      datesDisplay.push(`Achat : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
+    }
+  }
   specificInfoHtml += `<div><strong>Dates :</strong> ${datesDisplay.length > 0 ? datesDisplay.join(' • ') : 'Non fixées'}</div>`;
   
   document.getElementById('detail-dynamic-infos').innerHTML = specificInfoHtml;
@@ -1206,7 +1225,7 @@ document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
     store: document.getElementById('c-store').value,
     state: document.getElementById('c-state').value, 
     releaseDate: document.getElementById('c-releaseDate').value,
-    buyDate: document.getElementById('c-buyDate').value || new Date().toISOString().slice(0, 10),
+    buyDate: document.getElementById('c-buyDate').value || new Date().toISOString().slice(0, 7),
     image: document.getElementById('c-image').value.trim(),
     note: document.getElementById('c-note').value.trim(), 
     photos: [...tempFormPhotos], 
@@ -1370,7 +1389,10 @@ function sortItems(arr, sortBy, isCollection = false) {
 function populateHierarchicalDropdown(selectElement, datesList, defaultLabel) {
   if(!selectElement) return; const currentVal = selectElement.value; const yearsMap = {};
   datesList.forEach(fullDateStr => {
-    if (!fullDateStr) return; const [year, month] = fullDateStr.split('-');
+    if (!fullDateStr) return; 
+    const parts = fullDateStr.split('-');
+    const year = parts[0];
+    const month = parts[1];
     if (!year || !month) return; if (!yearsMap[year]) yearsMap[year] = new Set(); yearsMap[year].add(month);
   });
   let html = `<option value="all">${defaultLabel}</option><option value="nodate">📅 Sans date fixée</option>`;
