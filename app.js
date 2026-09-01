@@ -67,6 +67,15 @@ async function fetchRAWGGames(query) {
   } catch(e) { return []; }
 }
 
+async function fetchRAWGGameDetails(gameId) {
+  if (!RAWG_API_KEY || RAWG_API_KEY === 'METS_TA_CLE_RAWG_ICI') return null;
+  try {
+    const res = await fetch(`https://api.rawg.io/api/games/${gameId}?key=${RAWG_API_KEY}`);
+    const data = await res.json();
+    return data;
+  } catch(e) { return null; }
+}
+
 function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, previewWrapId, previewImgId) {
   const input = document.getElementById(inputId);
   const suggBox = document.getElementById(suggId);
@@ -117,16 +126,19 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
           updateImagePreview(imageId, previewWrapId, previewImgId);
         }
         
-        // --- NOUVEAU : Auto-remplissage RAWG ---
         const prefix = inputId.replace('title', ''); 
         if (document.getElementById(prefix + 'genres') && game.genres) {
           document.getElementById(prefix + 'genres').value = game.genres.map(g => g.name).join(', ');
         }
-        if (document.getElementById(prefix + 'playtime') && game.playtime) {
-          document.getElementById(prefix + 'playtime').value = game.playtime;
-        }
-        if (document.getElementById(prefix + 'metacritic') && game.metacritic) {
-          document.getElementById(prefix + 'metacritic').value = game.metacritic;
+        
+        // NOUVEAU : Requête silencieuse pour l'éditeur (Option B)
+        if (document.getElementById(prefix + 'publisher')) {
+          fetchRAWGGameDetails(game.id).then(details => {
+            if (details && details.publishers && details.publishers.length > 0) {
+              const pubInput = document.getElementById(prefix + 'publisher');
+              if (pubInput) pubInput.value = details.publishers.map(p => p.name).join(', ');
+            }
+          });
         }
         
         suggBox.style.display = 'none';
@@ -298,14 +310,6 @@ function formatMoney(amount) { return new Intl.NumberFormat('fr-FR', { style: 'c
 function getRawgBadgesHtml(item) {
   let html = '';
   if (item.genres) html += `<span class="badge-genre">${escapeHTML(item.genres)}</span>`;
-  if (item.playtime) html += `<span class="badge-time">⏱️ ~${item.playtime}h</span>`;
-  if (item.metacritic) {
-    const mc = parseInt(item.metacritic, 10);
-    let mcClass = 'high';
-    if (mc < 50) mcClass = 'low';
-    else if (mc < 75) mcClass = 'mid';
-    html += `<span class="badge-mc ${mcClass}">⭐ ${mc}</span>`;
-  }
   return html;
 }
 
@@ -555,7 +559,6 @@ function renderWishlist() {
     const card = document.createElement('div');
     
     const title = escapeHTML(item.title);
-    const artist = escapeHTML(item.artist);
     const priceStr = item.price ? formatMoney(item.price) : 'Prix non fixé';
     
     let statusClass = item.status === 'En réflexion' ? 'status-think' : item.status === 'Je passe' ? 'status-pass' : 'status-take';
@@ -572,8 +575,13 @@ function renderWishlist() {
 
     const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
+    // Gestion du sous-titre (Artiste pour Vinyle, Éditeur pour les Jeux)
     let subtitle = '';
-    if (item.platform === 'Vinyle' && artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${artist}</div>`;
+    if (item.platform === 'Vinyle' && item.artist) {
+      subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.artist)}</div>`;
+    } else if (item.publisher) {
+      subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.publisher)}</div>`;
+    }
 
     const q = encodeURIComponent(`${item.title} ${item.platform}`);
     const searchLinkHtml = item.platform === 'Vinyle' ? `<a class="btn-market discogs" href="https://www.discogs.com/fr/search/?q=${encodeURIComponent([item.artist, item.title].filter(Boolean).join(' '))}&type=release&format_exact=Vinyl" target="_blank">🎵 Discogs</a>` : `<a class="btn-market collector" href="https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}" target="_blank">🏆 Collector</a>`;
@@ -641,7 +649,7 @@ function renderCollection() {
     const matchStore = (storeF === 'all' || i.store === storeF);
     const matchEdition = (editionF === 'all' || (i.editionType || 'Standard') === editionF);
     const matchState = (stateF === 'all' || i.state === stateF);
-    const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery));
+    const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery)) || (i.publisher && i.publisher.toLowerCase().includes(searchQuery));
     
     // Application des filtres spécifiques
     const matchPlay = (playF === 'all' || i.gameplay === playF);
@@ -702,7 +710,6 @@ function renderCollection() {
       const card = document.createElement('div');
       
       const title = escapeHTML(item.title);
-      const artist = escapeHTML(item.artist);
       const isCollector = item.editionType === 'Collector';
       card.className = `item-card ${isCollector ? 'is-collector' : ''}`;
       
@@ -716,8 +723,13 @@ function renderCollection() {
 
       const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
+      // Gestion du sous-titre
       let subtitle = '';
-      if (item.platform === 'Vinyle' && artist) subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${artist}</div>`;
+      if (item.platform === 'Vinyle' && item.artist) {
+        subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.artist)}</div>`;
+      } else if (item.publisher) {
+        subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.publisher)}</div>`;
+      }
 
       let datesDisplay = [];
       if (item.releaseDate) datesDisplay.push(`📅 Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
@@ -906,9 +918,8 @@ window.openCollectionDetail = function(index) {
     if (item.blurayType) specificInfoHtml += `<div><strong>Format :</strong> ${escapeHTML(item.blurayType)}</div>`;
   } else {
     // Infos RAWG et Gameplay
+    if (item.publisher) specificInfoHtml += `<div><strong>Éditeur :</strong> ${escapeHTML(item.publisher)}</div>`;
     if (item.genres) specificInfoHtml += `<div><strong>Genres :</strong> ${escapeHTML(item.genres)}</div>`;
-    if (item.metacritic) specificInfoHtml += `<div><strong>Metacritic :</strong> <span style="font-weight:900;">⭐ ${item.metacritic}/100</span></div>`;
-    if (item.playtime) specificInfoHtml += `<div><strong>Temps de jeu :</strong> ~${item.playtime} heures</div>`;
     if (item.gameplay) specificInfoHtml += `<div><strong>Progression :</strong> ${escapeHTML(item.gameplay)}</div>`;
   }
   
@@ -925,6 +936,24 @@ window.openCollectionDetail = function(index) {
 }
 
 // --- Modales et Formulaires ---
+
+// Fonction modifiée pour FIXER le bug d'effacement lors du changement de console
+function toggleFormFields(prefix, platform, data = null) {
+  // Si on ne fournit pas de data (ex: lors d'un changement de console au clic),
+  // on va extraire intelligemment ce qui a DÉJÀ été tapé/prérempli pour ne pas le perdre !
+  if (!data) {
+    data = {};
+    ['publisher', 'genres', 'gameplay', 'artist', 'vinylEdition', 'blurayType'].forEach(field => {
+      const el = document.getElementById(prefix + field);
+      if (el) data[field] = el.value;
+    });
+  }
+  
+  const container = document.getElementById(prefix + 'dynamic-fields');
+  if (container) container.innerHTML = getDynamicFieldsHtml(prefix, platform, data);
+  if (prefix === 'w-' || prefix === 'edit-') updateSearchButton(prefix, platform);
+}
+
 function getDynamicFieldsHtml(prefix, platform, data = {}) {
   if (platform === 'Vinyle') {
     const currentEdition = data.vinylEdition || 'Pochette standard 1 LP';
@@ -943,12 +972,11 @@ function getDynamicFieldsHtml(prefix, platform, data = {}) {
   } else if (platform === 'Vêtement' || platform === 'Autre') {
     return ``;
   } else {
-    // NOUVEAU : Champs RAWG
+    // NOUVEAU : Éditeur au lieu de Metacritic/Heures
     let html = `
       <div class="form-row">
+        <input type="text" id="${prefix}publisher" placeholder="Éditeur (ex: Nintendo)" value="${data.publisher || ''}">
         <input type="text" id="${prefix}genres" placeholder="Genres (ex: RPG, Action)" value="${data.genres || ''}">
-        <input type="number" id="${prefix}playtime" placeholder="Heures" value="${data.playtime || ''}" style="max-width: 120px;" title="Temps de jeu">
-        <input type="number" id="${prefix}metacritic" placeholder="Score Meta" value="${data.metacritic || ''}" style="max-width: 110px;" title="Metacritic">
       </div>
     `;
     if (prefix === 'c-' || prefix === 'edit-c-') {
@@ -975,12 +1003,6 @@ function handleCustomSearch(prefix) {
   } else {
     window.open(`https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}`, '_blank');
   }
-}
-
-function toggleFormFields(prefix, platform) {
-  const container = document.getElementById(prefix + 'dynamic-fields');
-  if (container) container.innerHTML = getDynamicFieldsHtml(prefix, platform);
-  if (prefix === 'w-' || prefix === 'edit-') updateSearchButton(prefix, platform);
 }
 
 // Ouvertures
@@ -1029,8 +1051,7 @@ function getGameExtraData(prefix) {
   let extra = {};
   if (document.getElementById(prefix + 'gameplay')) extra.gameplay = document.getElementById(prefix + 'gameplay').value;
   if (document.getElementById(prefix + 'genres')) extra.genres = document.getElementById(prefix + 'genres').value.trim();
-  if (document.getElementById(prefix + 'playtime')) extra.playtime = document.getElementById(prefix + 'playtime').value;
-  if (document.getElementById(prefix + 'metacritic')) extra.metacritic = document.getElementById(prefix + 'metacritic').value;
+  if (document.getElementById(prefix + 'publisher')) extra.publisher = document.getElementById(prefix + 'publisher').value.trim();
   return extra;
 }
 
@@ -1156,9 +1177,10 @@ document.getElementById('btnSaveEditCollection')?.addEventListener('click', () =
   document.getElementById('edit-collection-modal').style.display = 'none'; saveData();
 });
 
-document.getElementById('w-platform')?.addEventListener('change', function() { toggleFormFields('w-', this.value); updateSearchButton('w-', this.value); });
+// Écouteurs de changement de plateforme avec sauvegarde temporaire des données !
+document.getElementById('w-platform')?.addEventListener('change', function() { toggleFormFields('w-', this.value); });
 document.getElementById('c-platform')?.addEventListener('change', function() { toggleFormFields('c-', this.value); });
-document.getElementById('edit-platform')?.addEventListener('change', function() { toggleFormFields('edit-', this.value); updateSearchButton('edit-', this.value); });
+document.getElementById('edit-platform')?.addEventListener('change', function() { toggleFormFields('edit-', this.value); });
 document.getElementById('edit-c-platform')?.addEventListener('change', function() { toggleFormFields('edit-c-', this.value); });
 
 // --- Onglets ---
