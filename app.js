@@ -17,7 +17,7 @@ try {
 // --- API KEYS ---
 const RAWG_API_KEY = '5b06b52d45984ed39dbc551b4d72af0d'; // <-- TA CLÉ RAWG
 const TMDB_API_KEY = 'd9e6e0cc19b2c65458fcff77fef7873d'; // <-- TA CLÉ TMDB
-const DISCOGS_API_TOKEN = 'DEEORXJuNHHObCrUjlgqsBvMnlJqLmTfmwpVNRIC'; // <-- TON NOUVEAU TOKEN DISCOGS
+const DISCOGS_API_TOKEN = 'DEEORXJuNHHObCrUjlgqsBvMnlJqLmTfmwpVNRIC'; // <-- TON TOKEN DISCOGS
 
 // --- Variables Globales ---
 let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
@@ -52,7 +52,6 @@ function debounce(func, wait) {
   return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); };
 }
 
-// RAWG (Jeux)
 async function fetchRAWGGames(query) {
   if (!RAWG_API_KEY || RAWG_API_KEY === 'METS_TA_CLE_RAWG_ICI') return [];
   try {
@@ -68,7 +67,6 @@ async function fetchRAWGGameDetails(gameId) {
   } catch(e) { return null; }
 }
 
-// TMDB (Blu-ray / Films)
 async function fetchTMDBMovies(query) {
   if (!TMDB_API_KEY || TMDB_API_KEY === 'METS_TA_CLE_TMDB_ICI') return [];
   try {
@@ -84,7 +82,6 @@ async function fetchTMDBMovieDetails(movieId) {
   } catch(e) { return null; }
 }
 
-// Discogs (Vinyles)
 async function fetchDiscogsVinyls(query) {
   if (!DISCOGS_API_TOKEN || DISCOGS_API_TOKEN === 'METS_TON_TOKEN_DISCOGS_ICI') return [];
   try {
@@ -94,7 +91,7 @@ async function fetchDiscogsVinyls(query) {
   } catch(e) { return []; }
 }
 
-function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, previewWrapId, previewImgId) {
+function setupAutocomplete(inputId, platformId, suggId, dateId, targetDateId, imageId, previewWrapId, previewImgId) {
   const input = document.getElementById(inputId);
   const suggBox = document.getElementById(suggId);
   const platform = document.getElementById(platformId);
@@ -128,7 +125,6 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
       normalizedResults = results.map(v => {
         let artist = '';
         let albumTitle = v.title;
-        // Discogs renvoie souvent "Artiste - Album"
         if (v.title.includes(' - ')) {
           const parts = v.title.split(' - ');
           artist = parts[0];
@@ -158,12 +154,15 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
       item.onmousedown = () => { 
         input.value = itemData.title;
         
+        const formattedDate = itemData.type === 'vinyl' && itemData.date ? `${itemData.date}-01-01` : (itemData.date ? itemData.date.substring(0,10) : '');
+
         if(dateId && document.getElementById(dateId)) {
-          if (itemData.type === 'vinyl' && itemData.date) {
-             document.getElementById(dateId).value = `${itemData.date}-01-01`; // Discogs renvoie souvent juste l'année
-          } else {
-             document.getElementById(dateId).value = itemData.date ? itemData.date.substring(0,10) : '';
-          }
+          document.getElementById(dateId).value = formattedDate;
+        }
+        
+        // Pré-remplissage automatique du mois d'achat prévu si on est dans la wishlist
+        if(targetDateId && document.getElementById(targetDateId)) {
+          document.getElementById(targetDateId).value = formattedDate;
         }
         
         if(imageId && document.getElementById(imageId) && itemData.img) {
@@ -223,12 +222,12 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
   }, 300));
 }
 
-// --- Initialisation automatique des menus déroulants ---
+// --- Initialisation des menus déroulants avec option vide par défaut ---
 function initDropdowns() {
   ['w-platform', 'c-platform', 'edit-platform', 'edit-c-platform'].forEach(id => {
     const el = document.getElementById(id);
     if(el) {
-      el.innerHTML = '';
+      el.innerHTML = '<option value="" disabled selected>👉 Choisissez un support...</option>';
       APP_CONFIG.platforms.groups.forEach(group => {
         const optgroup = document.createElement('optgroup');
         optgroup.label = group.label;
@@ -281,6 +280,20 @@ function initDropdowns() {
       });
     }
   });
+}
+
+// Gestion de l'activation du champ Titre selon le choix du support
+function handlePlatformChange(prefix) {
+  const platformVal = document.getElementById(prefix + 'platform').value;
+  const titleInput = document.getElementById(prefix + 'title');
+  if (platformVal) {
+    titleInput.disabled = false;
+    titleInput.placeholder = "Nom du produit...";
+  } else {
+    titleInput.disabled = true;
+    titleInput.placeholder = "Choisissez d'abord un support ci-dessus...";
+  }
+  toggleFormFields(prefix, platformVal);
 }
 
 // --- Authentification ---
@@ -367,7 +380,6 @@ function setSyncStatus(text, color = 'var(--clay-green)') {
 
 function formatMoney(amount) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0); }
 
-// --- Helpers pour Badges API ---
 function getAPIBadgesHtml(item) {
   let html = '';
   if (item.genres) html += `<span class="badge-genre">${escapeHTML(item.genres)}</span>`;
@@ -453,7 +465,6 @@ async function fetchAndUploadExternalImage(imgUrl, inputFieldId, wrapId, preview
     
     await uploadDirectFile(file, inputFieldId, wrapId, previewImgId);
   } catch (e) {
-    console.warn("CORS ou erreur de téléchargement, utilisation du lien web d'origine", e);
     setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)'); 
   }
 }
@@ -495,6 +506,7 @@ async function clearImageFieldAndStorage(imageFieldId, wrapId, previewImgId) {
 function openGoogleImagesTab(titleFieldId, platformFieldId) {
   const title = document.getElementById(titleFieldId).value.trim();
   const platform = document.getElementById(platformFieldId).value;
+  if (!platform) { alert("Veuillez choisir un support en premier."); return; }
   if (!title) { alert("Saisir un nom."); return; }
   let keyword = 'jaquette';
   if (platform === 'Vinyle') keyword = 'pochette vinyle';
@@ -502,7 +514,6 @@ function openGoogleImagesTab(titleFieldId, platformFieldId) {
   window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(keyword + ' ' + title)}`, '_blank');
 }
 
-// Branchement des écouteurs pour les images
 const coverConfigs = [
   { prefix: 'w-', searchBtn: 'btnSearchCoverW', input: 'inputCoverW', remove: 'btnRemoveCoverW', imgInput: 'w-image', wrap: 'w-preview-wrap', prev: 'w-preview', titleField: 'w-title', platField: 'w-platform' },
   { prefix: 'c-', searchBtn: 'btnSearchCoverC', input: 'inputCoverC', remove: 'btnRemoveCoverC', imgInput: 'c-image', wrap: 'c-preview-wrap', prev: 'c-preview', titleField: 'c-title', platField: 'c-platform' },
@@ -520,7 +531,6 @@ coverConfigs.forEach(cfg => {
     textInput.addEventListener('paste', (e) => handleDirectPaste(e, cfg.imgInput, cfg.wrap, cfg.prev));
   }
 });
-
 
 // --- Galeries Photos ---
 async function handleAddCollectionPhoto(event) {
@@ -609,7 +619,9 @@ function renderWishlist() {
 
   let totalConfirmed = 0, totalPending = 0;
   let filtered = wishlist.filter(i => {
-    const matchMonth = checkDateMatch(i.releaseDate, monthFilter);
+    // Le budget se base sur targetBuyDate ou releaseDate par défaut
+    const budgetDate = i.targetBuyDate || i.releaseDate;
+    const matchMonth = checkDateMatch(budgetDate, monthFilter);
     const matchPlat = (platF === 'all' || i.platform === platF);
     const matchStore = (storeF === 'all' || i.store === storeF);
     const matchStat = (statF === 'all' || i.status === statF);
@@ -649,7 +661,8 @@ function renderWishlist() {
     
     card.className = `item-card ${statusClass} ${item.editionType === 'Collector' ? 'is-collector' : ''}`;
     
-    const dateStr = item.releaseDate ? `📅 ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}` : '📅 Sans date';
+    const displayDate = item.targetBuyDate || item.releaseDate;
+    const dateStr = displayDate ? `📅 ${new Date(displayDate).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}` : '📅 Sans date';
     const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${escapeHTML(item.store)}</span>` : '';
     const collectorBadge = item.editionType === 'Collector' ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
     const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
@@ -657,7 +670,6 @@ function renderWishlist() {
 
     const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
-    // Gestion du sous-titre
     let subtitle = '';
     if (item.platform === 'Vinyle' && item.artist) {
       subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.artist)}</div>`;
@@ -682,7 +694,7 @@ function renderWishlist() {
               ${collectorBadge} ${blurayBadge} ${vinylBadge}
               <span class="badge-status ${badgeStatusClass}">${statusText}</span>
               ${getAPIBadgesHtml(item)}
-              ${storeBadge} <span>${priceStr}</span> <span>•</span> <span>${dateStr}</span>
+              ${storeBadge} <span>${priceStr}</span> <span>•</span> <span>${dateStr} (Cible)</span>
             </div>
           </div>
           <div class="actions" onclick="event.stopPropagation();">
@@ -801,7 +813,6 @@ function renderCollection() {
 
       const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
-      // Gestion du sous-titre
       let subtitle = '';
       if (item.platform === 'Vinyle' && item.artist) {
         subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.artist)}</div>`;
@@ -813,7 +824,7 @@ function renderCollection() {
 
       let datesDisplay = [];
       if (item.releaseDate) datesDisplay.push(`📅 Sortie : ${new Date(item.releaseDate).toLocaleDateString('fr-FR')}`);
-      if (item.buyDate) datesDisplay.push(`🛒 Acheté : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
+      if (item.buyDate) datesDisplay.push(`🛒 Achat : ${new Date(item.buyDate).toLocaleDateString('fr-FR')}`);
 
       const q = encodeURIComponent(`${item.title} ${item.platform}`);
 
@@ -850,7 +861,6 @@ function renderCollection() {
     });
     container.appendChild(fragment);
   } else {
-    // Grille ou Timeline
     const viewWrap = document.createElement('div');
     viewWrap.className = viewMode === 'grid' ? 'grid-collection-container' : 'timeline-h-container';
     if (viewMode !== 'grid') {
@@ -887,7 +897,6 @@ function renderCollection() {
   }
 }
 
-// --- Fonction pour Afficher/Masquer les Filtres Spécifiques ---
 function updateDynamicCollectionFilters() {
   const platform = document.getElementById('c-filterPlatform')?.value;
   const gameplayFilter = document.getElementById('c-filterGameplay');
@@ -938,7 +947,7 @@ window.moveToCollection = function(index) {
     ...item,
     id: crypto.randomUUID ? crypto.randomUUID() : `c_${Date.now()}`,
     state: '✨ Neuf sous blister',
-    buyDate: item.releaseDate || new Date().toISOString().slice(0, 10),
+    buyDate: item.targetBuyDate || item.releaseDate || new Date().toISOString().slice(0, 10),
     gameplay: 'Non commencé',
     photos: []
   });
@@ -977,7 +986,6 @@ window.openCollectionDetail = function(index) {
     if (item.tmdbRating) specificInfoHtml += `<div><strong>Note TMDB :</strong> ⭐ ${item.tmdbRating}/10</div>`;
     if (item.blurayType) specificInfoHtml += `<div><strong>Format :</strong> ${escapeHTML(item.blurayType)}</div>`;
   } else {
-    // Infos RAWG et Gameplay
     if (item.publisher) specificInfoHtml += `<div><strong>Éditeur :</strong> ${escapeHTML(item.publisher)}</div>`;
     if (item.genres) specificInfoHtml += `<div><strong>Genres :</strong> ${escapeHTML(item.genres)}</div>`;
     if (item.gameplay) specificInfoHtml += `<div><strong>Progression :</strong> ${escapeHTML(item.gameplay)}</div>`;
@@ -1065,6 +1073,7 @@ function handleCustomSearch(prefix) {
   const title = document.getElementById(prefix + 'title')?.value.trim() || '';
   const platform = document.getElementById(prefix + 'platform')?.value || '';
   const artist = document.getElementById(prefix + 'artist')?.value.trim() || '';
+  if (!platform) { alert("Veuillez choisir un support en premier."); return; }
   if (!title && !artist) { alert("Saisir un nom."); return; }
   if (platform === 'Vinyle') {
     window.open(`https://www.discogs.com/fr/search/?q=${encodeURIComponent([artist, title].filter(Boolean).join(' '))}&type=release&format_exact=Vinyl`, '_blank');
@@ -1075,15 +1084,20 @@ function handleCustomSearch(prefix) {
   }
 }
 
-// Ouvertures
+// Ouvertures des modales
 document.getElementById('btnOpenAddWishlist')?.addEventListener('click', () => { 
-  document.getElementById('wishlistForm').reset(); updateImagePreview('w-image', 'w-preview-wrap', 'w-preview');
-  toggleFormFields('w-', document.getElementById('w-platform').value); document.getElementById('add-wishlist-modal').style.display = 'flex'; 
+  document.getElementById('wishlistForm').reset(); 
+  updateImagePreview('w-image', 'w-preview-wrap', 'w-preview');
+  handlePlatformChange('w-'); 
+  document.getElementById('add-wishlist-modal').style.display = 'flex'; 
 });
 
 document.getElementById('btnOpenAddCollection')?.addEventListener('click', () => { 
-  document.getElementById('collectionForm').reset(); updateImagePreview('c-image', 'c-preview-wrap', 'c-preview');
-  tempFormPhotos = []; renderAddFormGallery(); toggleFormFields('c-', document.getElementById('c-platform').value); 
+  document.getElementById('collectionForm').reset(); 
+  updateImagePreview('c-image', 'c-preview-wrap', 'c-preview');
+  tempFormPhotos = []; 
+  renderAddFormGallery(); 
+  handlePlatformChange('c-'); 
   document.getElementById('add-collection-modal').style.display = 'flex'; 
 });
 
@@ -1100,7 +1114,6 @@ document.getElementById('w-searchBtn')?.addEventListener('click', () => handleCu
 document.getElementById('edit-searchBtn')?.addEventListener('click', () => handleCustomSearch('edit-'));
 
 
-// --- Helper pour extraire les données API unifié ---
 function getAPIFieldsData(prefix, platform) {
   let extra = {};
   if (document.getElementById(prefix + 'genres')) extra.genres = document.getElementById(prefix + 'genres').value.trim();
@@ -1120,6 +1133,7 @@ function getAPIFieldsData(prefix, platform) {
 document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const platform = document.getElementById('w-platform').value;
+  if (!platform) { alert("Veuillez choisir un support."); return; }
   let extraData = { platform };
   
   if (platform === 'Vinyle') {
@@ -1128,13 +1142,17 @@ document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('w-blurayType')?.value || 'Version normale';
   }
-  Object.assign(extraData, getAPIFieldsData('w-', platform)); // Extraction unifiée
+  Object.assign(extraData, getAPIFieldsData('w-', platform));
   
   wishlist.unshift({
     id: crypto.randomUUID ? crypto.randomUUID() : `w_${Date.now()}`,
-    title: document.getElementById('w-title').value.trim(), price: document.getElementById('w-price').value,
-    editionType: document.getElementById('w-editionType').value, store: document.getElementById('w-store').value,
-    releaseDate: document.getElementById('w-releaseDate').value, image: document.getElementById('w-image').value.trim(),
+    title: document.getElementById('w-title').value.trim(), 
+    price: document.getElementById('w-price').value,
+    editionType: document.getElementById('w-editionType').value, 
+    store: document.getElementById('w-store').value,
+    releaseDate: document.getElementById('w-releaseDate').value, 
+    targetBuyDate: document.getElementById('w-targetBuyDate').value,
+    image: document.getElementById('w-image').value.trim(),
     status: document.getElementById('w-status').value, 
     note: document.getElementById('w-note').value.trim(),
     ...extraData
@@ -1145,6 +1163,7 @@ document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
 document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const platform = document.getElementById('c-platform').value;
+  if (!platform) { alert("Veuillez choisir un support."); return; }
   let extraData = { platform };
   
   if (platform === 'Vinyle') {
@@ -1153,15 +1172,21 @@ document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('c-blurayType')?.value || 'Version normale';
   }
-  Object.assign(extraData, getAPIFieldsData('c-', platform)); // Extraction unifiée
+  Object.assign(extraData, getAPIFieldsData('c-', platform));
   
   collection.unshift({
     id: crypto.randomUUID ? crypto.randomUUID() : `c_${Date.now()}`,
-    title: document.getElementById('c-title').value.trim(), price: document.getElementById('c-price').value,
-    editionType: document.getElementById('c-editionType').value, store: document.getElementById('c-store').value,
-    state: document.getElementById('c-state').value, releaseDate: document.getElementById('c-releaseDate').value,
-    buyDate: document.getElementById('c-buyDate').value, image: document.getElementById('c-image').value.trim(),
-    note: document.getElementById('c-note').value.trim(), photos: [...tempFormPhotos], ...extraData
+    title: document.getElementById('c-title').value.trim(), 
+    price: document.getElementById('c-price').value,
+    editionType: document.getElementById('c-editionType').value, 
+    store: document.getElementById('c-store').value,
+    state: document.getElementById('c-state').value, 
+    releaseDate: document.getElementById('c-releaseDate').value,
+    buyDate: document.getElementById('c-buyDate').value || new Date().toISOString().slice(0, 10),
+    image: document.getElementById('c-image').value.trim(),
+    note: document.getElementById('c-note').value.trim(), 
+    photos: [...tempFormPhotos], 
+    ...extraData
   });
   document.getElementById('add-collection-modal').style.display = 'none'; saveData();
 });
@@ -1169,11 +1194,18 @@ document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
 // --- Modification (Edit) ---
 window.openEditModal = function(index) {
   const item = wishlist[index];
-  document.getElementById('edit-index').value = index; document.getElementById('edit-title').value = item.title;
-  document.getElementById('edit-platform').value = item.platform; document.getElementById('edit-price').value = item.price || '';
-  document.getElementById('edit-editionType').value = item.editionType || 'Standard'; toggleFormFields('edit-', item.platform, item);
-  document.getElementById('edit-store').value = item.store || 'Non renseigné'; document.getElementById('edit-releaseDate').value = item.releaseDate || '';
-  document.getElementById('edit-image').value = item.image || ''; updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview');
+  document.getElementById('edit-index').value = index; 
+  document.getElementById('edit-platform').value = item.platform || '';
+  handlePlatformChange('edit-');
+  document.getElementById('edit-title').value = item.title;
+  document.getElementById('edit-price').value = item.price || '';
+  document.getElementById('edit-editionType').value = item.editionType || 'Standard'; 
+  toggleFormFields('edit-', item.platform, item);
+  document.getElementById('edit-store').value = item.store || 'Non renseigné'; 
+  document.getElementById('edit-releaseDate').value = item.releaseDate || '';
+  document.getElementById('edit-targetBuyDate').value = item.targetBuyDate || '';
+  document.getElementById('edit-image').value = item.image || ''; 
+  updateImagePreview('edit-image', 'edit-preview-wrap', 'edit-preview');
   document.getElementById('edit-status').value = item.status || 'À prendre'; 
   document.getElementById('edit-note').value = item.note || ''; 
   document.getElementById('edit-modal').style.display = 'flex';
@@ -1181,13 +1213,21 @@ window.openEditModal = function(index) {
 
 window.openEditCollectionModal = function(index) {
   const item = collection[index];
-  document.getElementById('edit-c-index').value = index; document.getElementById('edit-c-title').value = item.title;
-  document.getElementById('edit-c-platform').value = item.platform; document.getElementById('edit-c-price').value = item.price || '';
-  document.getElementById('edit-c-editionType').value = item.editionType || 'Standard'; toggleFormFields('edit-c-', item.platform, item);
-  document.getElementById('edit-c-store').value = item.store || 'Non renseigné'; document.getElementById('edit-c-state').value = item.state || '✨ Neuf sous blister';
-  document.getElementById('edit-c-releaseDate').value = item.releaseDate || ''; document.getElementById('edit-c-buyDate').value = item.buyDate || '';
-  document.getElementById('edit-c-image').value = item.image || ''; updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview');
-  document.getElementById('edit-c-note').value = item.note || ''; document.getElementById('edit-collection-modal').style.display = 'flex';
+  document.getElementById('edit-c-index').value = index; 
+  document.getElementById('edit-c-platform').value = item.platform || '';
+  handlePlatformChange('edit-c-');
+  document.getElementById('edit-c-title').value = item.title;
+  document.getElementById('edit-c-price').value = item.price || '';
+  document.getElementById('edit-c-editionType').value = item.editionType || 'Standard'; 
+  toggleFormFields('edit-c-', item.platform, item);
+  document.getElementById('edit-c-store').value = item.store || 'Non renseigné'; 
+  document.getElementById('edit-c-state').value = item.state || '✨ Neuf sous blister';
+  document.getElementById('edit-c-releaseDate').value = item.releaseDate || ''; 
+  document.getElementById('edit-c-buyDate').value = item.buyDate || '';
+  document.getElementById('edit-c-image').value = item.image || ''; 
+  updateImagePreview('edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview');
+  document.getElementById('edit-c-note').value = item.note || ''; 
+  document.getElementById('edit-collection-modal').style.display = 'flex';
 }
 
 document.getElementById('btnCloseEditWishlist')?.addEventListener('click', () => document.getElementById('edit-modal').style.display = 'none');
@@ -1206,12 +1246,18 @@ document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => 
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('edit-blurayType')?.value;
   }
-  Object.assign(extraData, getAPIFieldsData('edit-', platform)); // Extraction unifiée
+  Object.assign(extraData, getAPIFieldsData('edit-', platform));
   
   wishlist[index] = {
-    ...wishlist[index], title: document.getElementById('edit-title').value.trim(), price: document.getElementById('edit-price').value,
-    editionType: document.getElementById('edit-editionType').value, store: document.getElementById('edit-store').value,
-    releaseDate: document.getElementById('edit-releaseDate').value, image: newImage, status: document.getElementById('edit-status').value, 
+    ...wishlist[index], 
+    title: document.getElementById('edit-title').value.trim(), 
+    price: document.getElementById('edit-price').value,
+    editionType: document.getElementById('edit-editionType').value, 
+    store: document.getElementById('edit-store').value,
+    releaseDate: document.getElementById('edit-releaseDate').value, 
+    targetBuyDate: document.getElementById('edit-targetBuyDate').value,
+    image: newImage, 
+    status: document.getElementById('edit-status').value, 
     note: document.getElementById('edit-note').value.trim(), 
     ...extraData
   };
@@ -1231,21 +1277,28 @@ document.getElementById('btnSaveEditCollection')?.addEventListener('click', () =
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('edit-c-blurayType')?.value;
   }
-  Object.assign(extraData, getAPIFieldsData('edit-c-', platform)); // Extraction unifiée
+  Object.assign(extraData, getAPIFieldsData('edit-c-', platform));
   
   collection[index] = {
-    ...collection[index], title: document.getElementById('edit-c-title').value.trim(), price: document.getElementById('edit-c-price').value,
-    editionType: document.getElementById('edit-c-editionType').value, store: document.getElementById('edit-c-store').value,
-    state: document.getElementById('edit-c-state').value, releaseDate: document.getElementById('edit-c-releaseDate').value,
-    buyDate: document.getElementById('edit-c-buyDate').value, image: newImage, note: document.getElementById('edit-c-note').value.trim(), ...extraData
+    ...collection[index], 
+    title: document.getElementById('edit-c-title').value.trim(), 
+    price: document.getElementById('edit-c-price').value,
+    editionType: document.getElementById('edit-c-editionType').value, 
+    store: document.getElementById('edit-c-store').value,
+    state: document.getElementById('edit-c-state').value, 
+    releaseDate: document.getElementById('edit-c-releaseDate').value,
+    buyDate: document.getElementById('edit-c-buyDate').value, 
+    image: newImage, 
+    note: document.getElementById('edit-c-note').value.trim(), 
+    ...extraData
   };
   document.getElementById('edit-collection-modal').style.display = 'none'; saveData();
 });
 
-document.getElementById('w-platform')?.addEventListener('change', function() { toggleFormFields('w-', this.value); });
-document.getElementById('c-platform')?.addEventListener('change', function() { toggleFormFields('c-', this.value); });
-document.getElementById('edit-platform')?.addEventListener('change', function() { toggleFormFields('edit-', this.value); });
-document.getElementById('edit-c-platform')?.addEventListener('change', function() { toggleFormFields('edit-c-', this.value); });
+document.getElementById('w-platform')?.addEventListener('change', function() { handlePlatformChange('w-'); });
+document.getElementById('c-platform')?.addEventListener('change', function() { handlePlatformChange('c-'); });
+document.getElementById('edit-platform')?.addEventListener('change', function() { handlePlatformChange('edit-'); });
+document.getElementById('edit-c-platform')?.addEventListener('change', function() { handlePlatformChange('edit-c-'); });
 
 // --- Onglets ---
 function switchTab(tabId) {
@@ -1267,7 +1320,6 @@ document.getElementById('btnResetPlatform')?.addEventListener('click', () => {
   updateDynamicCollectionFilters(); renderCollection(); 
 });
 
-// --- Filtres Helper ---
 function checkDateMatch(itemDateStr, filterValue) {
   if (filterValue === 'all') return true; if (filterValue === 'nodate') return !itemDateStr; if (!itemDateStr) return false;
   if (filterValue.startsWith('year_')) return itemDateStr.startsWith(filterValue.split('_')[1]); return itemDateStr.startsWith(filterValue);
@@ -1283,7 +1335,9 @@ function sortItems(arr, sortBy, isCollection = false) {
         if (!dateA && !dateB) return 0; if (!dateA) return 1; if (!dateB) return -1;
         return dateB.localeCompare(dateA); 
       } else {
-        const dateA = a.releaseDate || '9999-12-31'; const dateB = b.releaseDate || '9999-12-31'; return dateA.localeCompare(dateB);
+        const dateA = a.targetBuyDate || a.releaseDate || '9999-12-31'; 
+        const dateB = b.targetBuyDate || b.releaseDate || '9999-12-31'; 
+        return dateA.localeCompare(dateB);
       }
     } return 0;
   });
@@ -1309,7 +1363,8 @@ function populateHierarchicalDropdown(selectElement, datesList, defaultLabel) {
 function updateMonthFilterDropdowns() {
   populateHierarchicalDropdown(document.getElementById('c-monthFilter'), collection.map(i=>i.buyDate), "Tout l'historique d'achat");
   populateHierarchicalDropdown(document.getElementById('c-releaseFilter'), collection.map(i=>i.releaseDate), "Toutes les sorties");
-  populateHierarchicalDropdown(document.getElementById('w-monthFilter'), wishlist.map(i=>i.releaseDate), "Tout le calendrier");
+  // Le filtre de mois de la wishlist se base sur les dates cibles de budget
+  populateHierarchicalDropdown(document.getElementById('w-monthFilter'), wishlist.map(i=>i.targetBuyDate || i.releaseDate), "Tout le calendrier");
 }
 
 // Filtres UI 
@@ -1385,11 +1440,13 @@ document.getElementById('btnGachaponReroll')?.addEventListener('click', () => { 
 // Init de base au chargement de la page
 window.addEventListener('DOMContentLoaded', () => {
   initDropdowns();
-  setupAutocomplete('w-title', 'w-platform', 'w-suggestions', 'w-releaseDate', 'w-image', 'w-preview-wrap', 'w-preview');
-  setupAutocomplete('c-title', 'c-platform', 'c-suggestions', 'c-releaseDate', 'c-image', 'c-preview-wrap', 'c-preview');
-  setupAutocomplete('edit-title', 'edit-platform', 'edit-suggestions', 'edit-releaseDate', 'edit-image', 'edit-preview-wrap', 'edit-preview');
-  setupAutocomplete('edit-c-title', 'edit-c-platform', 'edit-c-suggestions', 'edit-c-releaseDate', 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview');
-  toggleFormFields('w-', document.getElementById('w-platform')?.value || 'PS5');
-  toggleFormFields('c-', document.getElementById('c-platform')?.value || 'PS5');
+  setupAutocomplete('w-title', 'w-platform', 'w-suggestions', 'w-releaseDate', 'w-targetBuyDate', 'w-image', 'w-preview-wrap', 'w-preview');
+  setupAutocomplete('c-title', 'c-platform', 'c-suggestions', 'c-releaseDate', null, 'c-image', 'c-preview-wrap', 'c-preview');
+  setupAutocomplete('edit-title', 'edit-platform', 'edit-suggestions', 'edit-releaseDate', 'edit-targetBuyDate', 'edit-image', 'edit-preview-wrap', 'edit-preview');
+  setupAutocomplete('edit-c-title', 'edit-c-platform', 'edit-c-suggestions', 'edit-c-releaseDate', null, 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview');
+  
+  handlePlatformChange('w-');
+  handlePlatformChange('c-');
+  
   updateDynamicCollectionFilters(); checkAuth();
 });
