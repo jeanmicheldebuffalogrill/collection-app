@@ -98,26 +98,44 @@
         <button type="button" class="btn-action" style="border:none;" id="btnCloseAddWishlist">✕</button>
       </div>
       <form id="wishlistForm" style="box-shadow:none; padding:0; margin:0; background:transparent;">
+        
+        <!-- 1. Support en premier -->
+        <div class="form-row">
+          <select id="w-platform" required style="width:100%;"></select>
+        </div>
+
+        <!-- 2. Nom du produit & Recherche ensuite -->
         <div class="form-row" style="position: relative;">
-          <input type="text" id="w-title" placeholder="Nom du produit..." required autocomplete="off">
+          <input type="text" id="w-title" placeholder="Nom du produit..." required autocomplete="off" disabled>
           <div id="w-suggestions" class="autocomplete-suggestions"></div>
         </div>
+
         <div class="form-row">
-          <select id="w-platform"></select> <!-- Rempli par le JS -->
           <input type="number" id="w-price" placeholder="Prix (€)" step="0.01">
-        </div>
-        <div id="w-dynamic-fields"></div>
-        <button type="button" class="btn-collector-link" id="w-searchBtn">🏆 Rechercher sur EditionCollector</button>
-        <div class="form-row">
           <select id="w-editionType" required>
             <option value="Standard">📦 Version Standard</option>
             <option value="Collector">✨ Version Collector</option>
           </select>
-          <input type="date" id="w-releaseDate" title="Date de sortie">
         </div>
+
+        <div id="w-dynamic-fields"></div>
+        <button type="button" class="btn-collector-link" id="w-searchBtn">🏆 Rechercher sur EditionCollector</button>
+        
         <div class="form-row">
-          <select id="w-store" style="width:100%;"></select> <!-- Rempli par le JS -->
+          <div>
+            <label style="font-size:0.7rem; color:var(--text-muted);">Sortie originale (API) :</label>
+            <input type="date" id="w-releaseDate" title="Date de sortie de l'œuvre">
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:var(--text-muted);">Mois d'achat prévu (Budget) :</label>
+            <input type="date" id="w-targetBuyDate" title="Mois d'achat budgétisé">
+          </div>
         </div>
+
+        <div class="form-row">
+          <select id="w-store" style="width:100%;"></select>
+        </div>
+
         <div class="image-section">
           <div class="image-action-grid">
             <button type="button" class="btn-image-action btn-google" id="btnSearchCoverW">🔍 Chercher jaquette</button>
@@ -132,13 +150,13 @@
             <button type="button" class="btn-remove-preview" id="btnRemoveCoverW">✕ Retirer</button>
           </div>
         </div>
+
         <select id="w-status">
           <option value="À prendre">✅ Je prends</option>
           <option value="En réflexion">⏳ En réflexion</option>
           <option value="Je passe">❌ Je passe</option>
         </select>
         
-        <!-- NOUVEAU CHAMP NOTE WISHLIST -->
         <textarea id="w-note" placeholder="Notes & commentaires / Synopsis..."></textarea>
 
         <button type="submit" class="btn-add">+ Ajouter à la wishlist</button>
@@ -154,21 +172,30 @@
         <button type="button" class="btn-action" style="border:none;" id="btnCloseAddCollection">✕</button>
       </div>
       <form id="collectionForm" style="box-shadow:none; padding:0; margin:0; background:transparent;">
+        
+        <!-- 1. Support en premier -->
+        <div class="form-row">
+          <select id="c-platform" required style="width:100%;"></select>
+        </div>
+
+        <!-- 2. Nom du produit & Recherche ensuite -->
         <div class="form-row" style="position: relative;">
-          <input type="text" id="c-title" placeholder="Nom de l'objet possédé..." required autocomplete="off">
+          <input type="text" id="c-title" placeholder="Nom de l'objet possédé..." required autocomplete="off" disabled>
           <div id="c-suggestions" class="autocomplete-suggestions"></div>
         </div>
+
         <div class="form-row">
-          <select id="c-platform"></select> <!-- Rempli par le JS -->
           <input type="number" id="c-price" placeholder="Valeur (€)" step="0.01">
-        </div>
-        <div id="c-dynamic-fields"></div>
-        <div class="form-row">
           <select id="c-editionType" required>
             <option value="Standard">📦 Version Standard</option>
             <option value="Collector">✨ Version Collector</option>
           </select>
-          <select id="c-state" required>
+        </div>
+
+        <div id="c-dynamic-fields"></div>
+
+        <div class="form-row">
+          <select id="c-state" required style="width:100%;">
             <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
             <option value="🟢 Occasion (Comme neuf)">🟢 Occasion (Comme neuf)</option>
             <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
@@ -176,13 +203,16 @@
             <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
           </select>
         </div>
+
         <div class="form-row">
-          <select id="c-store" style="width:100%;"></select> <!-- Rempli par le JS -->
+          <select id="c-store" style="width:100%;"></select>
         </div>
+
         <div class="form-row">
           <div><label style="font-size:0.7rem; color:var(--text-muted);">Sortie :</label><input type="date" id="c-releaseDate"></div>
           <div><label style="font-size:0.7rem; color:var(--text-muted);">Achat :</label><input type="date" id="c-buyDate"></div>
         </div>
+
         <div class="image-section">
           <div style="font-size:0.75rem; font-weight:900; color:var(--text-muted); text-transform:uppercase;">Jaquette Principale</div>
           <div class="image-action-grid">
@@ -220,23 +250,33 @@
         <button type="button" class="btn-action" style="border:none;" id="btnCloseEditWishlist">✕</button>
       </div>
       <input type="hidden" id="edit-index">
+      
+      <div class="form-row">
+        <select id="edit-platform" required style="width:100%;"></select>
+      </div>
+      
       <div style="position: relative; width: 100%;">
         <input type="text" id="edit-title" placeholder="Nom du produit" required autocomplete="off">
         <div id="edit-suggestions" class="autocomplete-suggestions"></div>
       </div>
+      
       <div class="form-row">
-        <select id="edit-platform"></select> <!-- Rempli par le JS -->
         <input type="number" id="edit-price" placeholder="Prix (€)" step="0.01">
+        <select id="edit-editionType" required><option value="Standard">📦 Version Standard</option><option value="Collector">✨ Version Collector</option></select>
       </div>
+
       <div id="edit-dynamic-fields"></div>
       <button type="button" class="btn-collector-link" id="edit-searchBtn">🏆 Rechercher sur EditionCollector</button>
+      
       <div class="form-row">
-        <select id="edit-editionType" required><option value="Standard">📦 Version Standard</option><option value="Collector">✨ Version Collector</option></select>
-        <input type="date" id="edit-releaseDate" title="Date de sortie">
+        <div><label style="font-size:0.7rem; color:var(--text-muted);">Sortie originale :</label><input type="date" id="edit-releaseDate"></div>
+        <div><label style="font-size:0.7rem; color:var(--text-muted);">Mois d'achat prévu :</label><input type="date" id="edit-targetBuyDate"></div>
       </div>
+
       <div class="form-row">
-        <select id="edit-store" style="width:100%;"></select> <!-- Rempli par le JS -->
+        <select id="edit-store" style="width:100%;"></select>
       </div>
+
       <div class="image-section">
         <div class="image-action-grid">
           <button type="button" class="btn-image-action btn-google" id="btnSearchCoverEW">🔍 Chercher jaquette</button>
@@ -248,13 +288,13 @@
           <button type="button" class="btn-remove-preview" id="btnRemoveCoverEW">✕ Retirer</button>
         </div>
       </div>
+
       <select id="edit-status">
         <option value="À prendre">✅ Je prends</option>
         <option value="En réflexion">⏳ En réflexion</option>
         <option value="Je passe">❌ Je passe</option>
       </select>
       
-      <!-- NOUVEAU CHAMP NOTE EDIT WISHLIST -->
       <textarea id="edit-note" placeholder="Notes & commentaires / Synopsis..."></textarea>
 
       <button type="button" class="btn-add" id="btnSaveEditWishlist">Enregistrer</button>
@@ -269,18 +309,25 @@
         <button type="button" class="btn-action" style="border:none;" id="btnCloseEditCollection">✕</button>
       </div>
       <input type="hidden" id="edit-c-index">
+      
+      <div class="form-row">
+        <select id="edit-c-platform" required style="width:100%;"></select>
+      </div>
+
       <div style="position: relative; width: 100%;">
         <input type="text" id="edit-c-title" placeholder="Nom du produit" required autocomplete="off">
         <div id="edit-c-suggestions" class="autocomplete-suggestions"></div>
       </div>
+
       <div class="form-row">
-        <select id="edit-c-platform"></select> <!-- Rempli par le JS -->
         <input type="number" id="edit-c-price" placeholder="Valeur (€)" step="0.01">
-      </div>
-      <div id="edit-c-dynamic-fields"></div>
-      <div class="form-row">
         <select id="edit-c-editionType" required><option value="Standard">📦 Version Standard</option><option value="Collector">✨ Version Collector</option></select>
-        <select id="edit-c-state" required>
+      </div>
+
+      <div id="edit-c-dynamic-fields"></div>
+
+      <div class="form-row">
+        <select id="edit-c-state" required style="width:100%;">
           <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
           <option value="🟢 Occasion (Comme neuf)">🟢 Occasion (Comme neuf)</option>
           <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
@@ -288,13 +335,16 @@
           <option value="🟠 Occasion (Abîmé / Usé)">🟠 Abîmé / Usé</option>
         </select>
       </div>
+
       <div class="form-row">
-        <select id="edit-c-store" style="width:100%;"></select> <!-- Rempli par le JS -->
+        <select id="edit-c-store" style="width:100%;"></select>
       </div>
+
       <div class="form-row">
         <div><label style="font-size:0.7rem; color:var(--text-muted);">Sortie :</label><input type="date" id="edit-c-releaseDate"></div>
         <div><label style="font-size:0.7rem; color:var(--text-muted);">Achat :</label><input type="date" id="edit-c-buyDate"></div>
       </div>
+
       <div class="image-section">
         <div class="image-action-grid">
           <button type="button" class="btn-image-action btn-google" id="btnSearchCoverEC">🔍 Chercher jaquette</button>
@@ -348,10 +398,10 @@
     </div>
 
     <input type="text" id="w-searchBar" class="search-bar-input" placeholder="🔍 Rechercher dans la wishlist...">
-    <div class="month-filter-box"><label>📅 Période :</label><select id="w-monthFilter"><option value="all">Tout le calendrier</option></select></div>
+    <div class="month-filter-box"><label>📅 Période (Budget) :</label><select id="w-monthFilter"><option value="all">Tout le calendrier</option></select></div>
     <div class="controls">
-      <select id="w-filterPlatform"></select> <!-- Rempli par le JS -->
-      <select id="w-filterStore"></select> <!-- Rempli par le JS -->
+      <select id="w-filterPlatform"></select>
+      <select id="w-filterStore"></select>
       <select id="w-filterStatus"><option value="all">Tous statuts</option><option value="À prendre">Je prends</option><option value="En réflexion">En réflexion</option><option value="Je passe">Je passe</option></select>
     </div>
     <div class="controls">
@@ -395,8 +445,8 @@
     <div class="month-filter-box"><label>📅 Sortie :</label><select id="c-releaseFilter"><option value="all">Toutes les sorties</option></select></div>
 
     <div class="controls" id="collectionFiltersBar">
-      <select id="c-filterPlatform"></select> <!-- Rempli par le JS -->
-      <select id="c-filterStore"></select> <!-- Rempli par le JS -->
+      <select id="c-filterPlatform"></select>
+      <select id="c-filterStore"></select>
     </div>
     
     <div class="controls">
@@ -450,7 +500,6 @@
   </div>
 </div>
 
-<!-- Lier le fichier JS optimisé -->
 <script src="app.js"></script>
 
 </body>
