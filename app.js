@@ -15,7 +15,7 @@ try {
 } catch (e) { console.warn("Supabase non chargé :", e); }
 
 // --- API KEYS ---
-const RAWG_API_KEY = 'METS_TA_CLE_RAWG_ICI'; // <-- REMPLACE CE TEXTE PAR TA VRAIE CLÉ RAWG
+const RAWG_API_KEY = '5b06b52d45984ed39dbc551b4d72af0d'; // <-- REMPLACE CE TEXTE PAR TA VRAIE CLÉ RAWG
 
 // --- Variables Globales ---
 let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
