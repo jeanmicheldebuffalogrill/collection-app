@@ -15,9 +15,9 @@ try {
 } catch (e) { console.warn("Supabase non chargé :", e); }
 
 // --- API KEYS ---
-const RAWG_API_KEY = '5b06b52d45984ed39dbc551b4d72af0d'; // <-- TA CLÉ RAWG
-const TMDB_API_KEY = 'd9e6e0cc19b2c65458fcff77fef7873d'; // <-- TA CLÉ TMDB
-const DISCOGS_API_TOKEN = 'DEEORXJuNHHObCrUjlgqsBvMnlJqLmTfmwpVNRIC'; // <-- TON TOKEN DISCOGS
+const RAWG_API_KEY = 'METS_TA_CLE_RAWG_ICI'; // <-- TA CLÉ RAWG
+const TMDB_API_KEY = 'METS_TA_CLE_TMDB_ICI'; // <-- TA CLÉ TMDB
+const DISCOGS_API_TOKEN = 'METS_TON_TOKEN_DISCOGS_ICI'; // <-- TON TOKEN DISCOGS
 
 // --- Variables Globales ---
 let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
@@ -155,14 +155,14 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, targetDateId, im
         input.value = itemData.title;
         
         const formattedDate = itemData.type === 'vinyl' && itemData.date ? `${itemData.date}-01-01` : (itemData.date ? itemData.date.substring(0,10) : '');
+        const yearMonthStr = itemData.date ? itemData.date.substring(0, 7) : '';
 
         if(dateId && document.getElementById(dateId)) {
           document.getElementById(dateId).value = formattedDate;
         }
         
-        // Pré-remplissage automatique du mois d'achat prévu si on est dans la wishlist
         if(targetDateId && document.getElementById(targetDateId)) {
-          document.getElementById(targetDateId).value = formattedDate;
+          document.getElementById(targetDateId).value = yearMonthStr;
         }
         
         if(imageId && document.getElementById(imageId) && itemData.img) {
@@ -282,7 +282,6 @@ function initDropdowns() {
   });
 }
 
-// Gestion de l'activation du champ Titre selon le choix du support
 function handlePlatformChange(prefix) {
   const platformVal = document.getElementById(prefix + 'platform').value;
   const titleInput = document.getElementById(prefix + 'title');
@@ -619,7 +618,6 @@ function renderWishlist() {
 
   let totalConfirmed = 0, totalPending = 0;
   let filtered = wishlist.filter(i => {
-    // Le budget se base sur targetBuyDate ou releaseDate par défaut
     const budgetDate = i.targetBuyDate || i.releaseDate;
     const matchMonth = checkDateMatch(budgetDate, monthFilter);
     const matchPlat = (platF === 'all' || i.platform === platF);
@@ -661,8 +659,26 @@ function renderWishlist() {
     
     card.className = `item-card ${statusClass} ${item.editionType === 'Collector' ? 'is-collector' : ''}`;
     
-    const displayDate = item.targetBuyDate || item.releaseDate;
-    const dateStr = displayDate ? `📅 ${new Date(displayDate).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}` : '📅 Sans date';
+    // Affichage intelligent des deux dates (Sortie originale & Achat prévu)
+    const releaseDateFormatted = item.releaseDate ? new Date(item.releaseDate).toLocaleDateString('fr-FR') : null;
+    const targetDateFormatted = item.targetBuyDate ? new Date(item.targetBuyDate + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : null;
+
+    let dateStr = '📅 Sans date';
+    if (releaseDateFormatted && targetDateFormatted) {
+      const releaseYearMonth = item.releaseDate.substring(0, 7);
+      const targetYearMonth = item.targetBuyDate;
+      
+      if (releaseYearMonth === targetYearMonth) {
+        dateStr = `📅 Sortie : ${releaseDateFormatted}`;
+      } else {
+        dateStr = `📅 Sortie : ${releaseDateFormatted} • 🛒 Prévu : ${targetDateFormatted}`;
+      }
+    } else if (targetDateFormatted) {
+      dateStr = `🛒 Prévu : ${targetDateFormatted}`;
+    } else if (releaseDateFormatted) {
+      dateStr = `📅 Sortie : ${releaseDateFormatted}`;
+    }
+
     const storeBadge = (item.store && item.store !== 'Non renseigné') ? `<span class="badge-store">🛒 ${escapeHTML(item.store)}</span>` : '';
     const collectorBadge = item.editionType === 'Collector' ? `<span class="badge-collector">✨ COLLECTOR</span>` : '';
     const blurayBadge = item.blurayType ? `<span class="badge-state">📀 ${escapeHTML(item.blurayType)}</span>` : '';
@@ -694,7 +710,7 @@ function renderWishlist() {
               ${collectorBadge} ${blurayBadge} ${vinylBadge}
               <span class="badge-status ${badgeStatusClass}">${statusText}</span>
               ${getAPIBadgesHtml(item)}
-              ${storeBadge} <span>${priceStr}</span> <span>•</span> <span>${dateStr} (Cible)</span>
+              ${storeBadge} <span>${priceStr}</span> <span>•</span> <span>${dateStr}</span>
             </div>
           </div>
           <div class="actions" onclick="event.stopPropagation();">
@@ -943,11 +959,19 @@ window.moveToCollection = function(index) {
   if (!item) return;
   if (supabaseClient && item.id) { supabaseClient.from('wishlist_items').delete().eq('id', item.id); }
 
+  let finalBuyDate = new Date().toISOString().slice(0, 10);
+  const target = item.targetBuyDate; // Format "YYYY-MM"
+  if (target) {
+    finalBuyDate = `${target}-01`;
+  } else if (item.releaseDate) {
+    finalBuyDate = item.releaseDate;
+  }
+
   collection.unshift({
     ...item,
     id: crypto.randomUUID ? crypto.randomUUID() : `c_${Date.now()}`,
     state: '✨ Neuf sous blister',
-    buyDate: item.targetBuyDate || item.releaseDate || new Date().toISOString().slice(0, 10),
+    buyDate: finalBuyDate,
     gameplay: 'Non commencé',
     photos: []
   });
@@ -1363,7 +1387,6 @@ function populateHierarchicalDropdown(selectElement, datesList, defaultLabel) {
 function updateMonthFilterDropdowns() {
   populateHierarchicalDropdown(document.getElementById('c-monthFilter'), collection.map(i=>i.buyDate), "Tout l'historique d'achat");
   populateHierarchicalDropdown(document.getElementById('c-releaseFilter'), collection.map(i=>i.releaseDate), "Toutes les sorties");
-  // Le filtre de mois de la wishlist se base sur les dates cibles de budget
   populateHierarchicalDropdown(document.getElementById('w-monthFilter'), wishlist.map(i=>i.targetBuyDate || i.releaseDate), "Tout le calendrier");
 }
 
