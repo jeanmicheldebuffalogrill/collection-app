@@ -25,6 +25,7 @@
 
   /* Variables d'ordre d'affichage (Niveau 1) */
   --z-overlay: 1000;
+  --z-autocomplete: 2000;
   --z-gachapon: 3500;
   --z-flash: 9000;
   --z-lightbox: 9999;
@@ -110,6 +111,57 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .btn-add:active { box-shadow: var(--clay-inset); transform: scale(0.97); }
 .btn-open-add { background: var(--accent); color: white; border: none; font-weight: 900; cursor: pointer; padding: 16px; border-radius: 26px; width: 100%; font-size: 1rem; margin-bottom: 20px; box-shadow: var(--clay-card); }
 .btn-collector-link { background: var(--clay-yellow); color: var(--clay-yellow-text); border: none; font-weight: 900; cursor: pointer; padding: 12px 14px; border-radius: 16px; text-align: center; box-shadow: var(--clay-btn); text-shadow: none; }
+
+/* Styles Auto-complétion */
+.autocomplete-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-radius: 16px;
+  margin-top: 4px;
+  box-shadow: var(--clay-card);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: var(--z-autocomplete);
+  display: none;
+  flex-direction: column;
+  padding: 8px;
+  gap: 4px;
+}
+.autocomplete-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.autocomplete-item:hover {
+  background: var(--surface-elevated);
+}
+.autocomplete-thumb {
+  width: 40px;
+  height: 54px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--bg);
+}
+.autocomplete-text {
+  display: flex;
+  flex-direction: column;
+}
+.autocomplete-title {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: var(--text);
+}
+.autocomplete-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
 
 /* Images & Jaquettes */
 .image-section { display: flex; flex-direction: column; gap: 10px; background: var(--bg); padding: 14px; border-radius: 24px; box-shadow: var(--clay-inset); }
@@ -229,7 +281,7 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .btn-market.collector { background: var(--clay-yellow); color: var(--clay-yellow-text); }
 .btn-market.discogs { background: var(--clay-purple); color: var(--clay-purple-text); }
 
-/* --- VUES GRILLE ET TIMELINE (CORRECTION DÉBORDEMENT) --- */
+/* --- VUES GRILLE ET TIMELINE --- */
 .grid-collection-container { 
   display: grid; 
   grid-template-columns: repeat(2, 1fr); 
