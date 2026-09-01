@@ -14,6 +14,9 @@ try {
   if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 } catch (e) { console.warn("Supabase non chargé :", e); }
 
+// --- API KEYS ---
+const RAWG_API_KEY = 'METS_TA_CLE_RAWG_ICI'; // <-- REMPLACE CE TEXTE PAR TA VRAIE CLÉ RAWG
+
 // --- Variables Globales ---
 let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
 let collection = JSON.parse(localStorage.getItem('app_collection_cloud_v1')) || [];
@@ -45,6 +48,82 @@ let isTopRipActive = false;
 let activeCategory = null;
 let startTopX = 0;
 let currentTopDragX = 0;
+
+// --- Auto-complétion & Requêtes API ---
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+async function fetchRAWGGames(query) {
+  if (!RAWG_API_KEY || RAWG_API_KEY === 'METS_TA_CLE_RAWG_ICI') return [];
+  try {
+    const res = await fetch(`https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}&page_size=5`);
+    const data = await res.json();
+    return data.results || [];
+  } catch(e) { return []; }
+}
+
+function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, previewWrapId, previewImgId) {
+  const input = document.getElementById(inputId);
+  const suggBox = document.getElementById(suggId);
+  const platform = document.getElementById(platformId);
+
+  if (!input || !suggBox) return;
+
+  const hideBox = () => { setTimeout(() => suggBox.style.display = 'none', 200); };
+  input.addEventListener('blur', hideBox);
+
+  input.addEventListener('input', debounce(async (e) => {
+    const query = e.target.value.trim();
+    const currentPlat = platform.value;
+    const isGame = !['Vinyle', 'Blu-ray', 'Vêtement', 'Autre'].includes(currentPlat);
+    
+    // On ne cherche que pour les jeux vidéo, et si on a tapé au moins 3 lettres
+    if (query.length < 3 || !isGame) {
+      suggBox.style.display = 'none';
+      return;
+    }
+
+    const results = await fetchRAWGGames(query);
+    if (results.length === 0) {
+      suggBox.style.display = 'none';
+      return;
+    }
+
+    suggBox.innerHTML = '';
+    results.forEach(game => {
+      const item = document.createElement('div');
+      item.className = 'autocomplete-item';
+      const imgUrl = game.background_image || '';
+      const dateStr = game.released ? game.released : '';
+      const year = dateStr ? dateStr.substring(0,4) : 'N/A';
+      
+      item.innerHTML = `
+        ${imgUrl ? `<img src="${imgUrl}" class="autocomplete-thumb">` : `<div class="autocomplete-thumb" style="display:flex;align-items:center;justify-content:center;font-size:10px;">📦</div>`}
+        <div class="autocomplete-text">
+          <span class="autocomplete-title">${escapeHTML(game.name)}</span>
+          <span class="autocomplete-date">Sortie : ${year}</span>
+        </div>
+      `;
+      
+      item.onmousedown = () => { // onmousedown se déclenche avant le "blur" de l'input
+        input.value = game.name;
+        if(dateId && document.getElementById(dateId)) document.getElementById(dateId).value = dateStr;
+        if(imageId && document.getElementById(imageId) && imgUrl) {
+          document.getElementById(imageId).value = imgUrl;
+          updateImagePreview(imageId, previewWrapId, previewImgId);
+        }
+        suggBox.style.display = 'none';
+      };
+      suggBox.appendChild(item);
+    });
+    suggBox.style.display = 'flex';
+  }, 300));
+}
 
 // --- Initialisation automatique des menus déroulants ---
 function initDropdowns() {
@@ -571,7 +650,6 @@ function renderCollection() {
       chip.onclick = () => { 
         document.getElementById('c-filterPlatform').value = (document.getElementById('c-filterPlatform').value === plat) ? 'all' : plat; 
         
-        // CORRECTION: Réinitialisation des sous-filtres lors du clic sur les étiquettes
         if(document.getElementById('c-filterGameplay')) document.getElementById('c-filterGameplay').value = 'all';
         if(document.getElementById('c-filterVinylEdition')) document.getElementById('c-filterVinylEdition').value = 'all';
         if(document.getElementById('c-filterBlurayType')) document.getElementById('c-filterBlurayType').value = 'all';
@@ -1250,7 +1328,14 @@ document.getElementById('btnGachaponReroll')?.addEventListener('click', () => {
 
 // Init de base au chargement de la page
 window.addEventListener('DOMContentLoaded', () => {
-  initDropdowns(); // EXÉCUTÉ EN PREMIER !
+  initDropdowns();
+  
+  // Initialisation de l'auto-complétion RAWG sur les 4 formulaires
+  setupAutocomplete('w-title', 'w-platform', 'w-suggestions', 'w-releaseDate', 'w-image', 'w-preview-wrap', 'w-preview');
+  setupAutocomplete('c-title', 'c-platform', 'c-suggestions', 'c-releaseDate', 'c-image', 'c-preview-wrap', 'c-preview');
+  setupAutocomplete('edit-title', 'edit-platform', 'edit-suggestions', 'edit-releaseDate', 'edit-image', 'edit-preview-wrap', 'edit-preview');
+  setupAutocomplete('edit-c-title', 'edit-c-platform', 'edit-c-suggestions', 'edit-c-releaseDate', 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview');
+
   toggleFormFields('w-', document.getElementById('w-platform')?.value || 'PS5');
   toggleFormFields('c-', document.getElementById('c-platform')?.value || 'PS5');
   updateDynamicCollectionFilters();
