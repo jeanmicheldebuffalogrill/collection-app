@@ -454,9 +454,4 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 @keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
 
 /* --- Badges RAWG --- */
-.badge-mc { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; font-weight: 900; box-shadow: var(--clay-btn); color: #161922; }
-.badge-mc.high { background: var(--clay-green); }
-.badge-mc.mid { background: var(--clay-yellow); }
-.badge-mc.low { background: var(--clay-pink); }
-.badge-time { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: var(--surface-elevated); color: var(--text); font-weight: 800; box-shadow: var(--clay-btn); }
 .badge-genre { padding: 5px 11px; border-radius: 10px; font-size: 0.7rem; background: var(--bg); color: var(--text-muted); font-weight: 800; border: 1px solid rgba(255,255,255,0.1); }
