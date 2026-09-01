@@ -83,13 +83,22 @@ async function fetchTMDBMovieDetails(movieId) {
   } catch(e) { return null; }
 }
 
-// iTunes (Vinyles / Musique)
+// iTunes (Vinyles / Musique) avec Proxy de secours Anti-CORS
 async function fetchITunesAlbums(query) {
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=album&media=music&country=FR&limit=5`;
   try {
-    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=album&limit=5`);
+    const res = await fetch(url);
     const data = await res.json();
     return data.results || [];
-  } catch(e) { return []; }
+  } catch(e) { 
+    try {
+      const resProxy = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+      const dataProxy = await resProxy.json();
+      return dataProxy.results || [];
+    } catch(err) {
+      return [];
+    }
+  }
 }
 
 function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, previewWrapId, previewImgId) {
@@ -124,7 +133,6 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
     } else if (isVinyl) {
       const results = await fetchITunesAlbums(query);
       normalizedResults = results.map(a => {
-        // Transformation de l'image 100x100 en 600x600 pour la HD
         const highResImg = a.artworkUrl100 ? a.artworkUrl100.replace('100x100bb', '600x600bb') : '';
         return { type: 'vinyl', id: a.collectionId, title: a.collectionName, img: highResImg, date: a.releaseDate, artist: a.artistName, rawData: a };
       });
