@@ -15,7 +15,8 @@ try {
 } catch (e) { console.warn("Supabase non chargé :", e); }
 
 // --- API KEYS ---
-const RAWG_API_KEY = '5b06b52d45984ed39dbc551b4d72af0d'; // <-- REMPLACE CE TEXTE PAR TA VRAIE CLÉ RAWG
+const RAWG_API_KEY = '5b06b52d45984ed39dbc551b4d72af0d'; // <-- TA CLÉ RAWG
+const TMDB_API_KEY = 'd9e6e0cc19b2c65458fcff77fef7873d'; // <-- TA NOUVELLE CLÉ TMDB
 
 // --- Variables Globales ---
 let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
@@ -24,7 +25,7 @@ let currentDetailCollectionIndex = null;
 let lastGachaponCategory = 'all';
 let tempFormPhotos = [];
 
-// --- Configurations des listes (Niveau 2 : Centralisation) ---
+// --- Configurations des listes ---
 const APP_CONFIG = {
   platforms: {
     groups: [
@@ -41,23 +42,16 @@ const APP_CONFIG = {
 };
 
 // --- Gachapon Audio Variables ---
-let audioCtx = null;
-let tcgRipOsc = null;
-let tcgRipGain = null;
-let isTopRipActive = false;
-let activeCategory = null;
-let startTopX = 0;
-let currentTopDragX = 0;
+let audioCtx = null; let tcgRipOsc = null; let tcgRipGain = null;
+let isTopRipActive = false; let activeCategory = null; let startTopX = 0; let currentTopDragX = 0;
 
 // --- Auto-complétion & Requêtes API ---
 function debounce(func, wait) {
   let timeout;
-  return function(...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
+  return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); };
 }
 
+// RAWG (Jeux)
 async function fetchRAWGGames(query) {
   if (!RAWG_API_KEY || RAWG_API_KEY === 'METS_TA_CLE_RAWG_ICI') return [];
   try {
@@ -66,13 +60,26 @@ async function fetchRAWGGames(query) {
     return data.results || [];
   } catch(e) { return []; }
 }
-
 async function fetchRAWGGameDetails(gameId) {
-  if (!RAWG_API_KEY || RAWG_API_KEY === 'METS_TA_CLE_RAWG_ICI') return null;
   try {
     const res = await fetch(`https://api.rawg.io/api/games/${gameId}?key=${RAWG_API_KEY}`);
+    return await res.json();
+  } catch(e) { return null; }
+}
+
+// TMDB (Blu-ray / Films)
+async function fetchTMDBMovies(query) {
+  if (!TMDB_API_KEY || TMDB_API_KEY === 'METS_TA_CLE_TMDB_ICI') return [];
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=fr-FR&query=${encodeURIComponent(query)}`);
     const data = await res.json();
-    return data;
+    return data.results ? data.results.slice(0, 5) : [];
+  } catch(e) { return []; }
+}
+async function fetchTMDBMovieDetails(movieId) {
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=fr-FR&append_to_response=credits`);
+    return await res.json();
   } catch(e) { return null; }
 }
 
@@ -90,51 +97,83 @@ function setupAutocomplete(inputId, platformId, suggId, dateId, imageId, preview
     const query = e.target.value.trim();
     const currentPlat = platform.value;
     const isGame = !['Vinyle', 'Blu-ray', 'Vêtement', 'Autre'].includes(currentPlat);
+    const isMovie = currentPlat === 'Blu-ray';
     
-    if (query.length < 3 || !isGame) {
-      suggBox.style.display = 'none';
-      return;
+    if (query.length < 3 || (!isGame && !isMovie)) {
+      suggBox.style.display = 'none'; return;
     }
 
-    const results = await fetchRAWGGames(query);
-    if (results.length === 0) {
-      suggBox.style.display = 'none';
-      return;
+    let normalizedResults = [];
+    
+    if (isGame) {
+      const results = await fetchRAWGGames(query);
+      normalizedResults = results.map(g => ({ type: 'game', id: g.id, title: g.name, img: g.background_image, date: g.released, rawData: g }));
+    } else if (isMovie) {
+      const results = await fetchTMDBMovies(query);
+      normalizedResults = results.map(m => ({ type: 'movie', id: m.id, title: m.title, img: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : '', date: m.release_date, rawData: m }));
     }
+
+    if (normalizedResults.length === 0) { suggBox.style.display = 'none'; return; }
 
     suggBox.innerHTML = '';
-    results.forEach(game => {
+    normalizedResults.forEach(itemData => {
       const item = document.createElement('div');
       item.className = 'autocomplete-item';
-      const imgUrl = game.background_image || '';
-      const dateStr = game.released ? game.released : '';
-      const year = dateStr ? dateStr.substring(0,4) : 'N/A';
+      const year = itemData.date ? itemData.date.substring(0,4) : 'N/A';
       
       item.innerHTML = `
-        ${imgUrl ? `<img src="${imgUrl}" class="autocomplete-thumb">` : `<div class="autocomplete-thumb" style="display:flex;align-items:center;justify-content:center;font-size:10px;">📦</div>`}
+        ${itemData.img ? `<img src="${itemData.img}" class="autocomplete-thumb">` : `<div class="autocomplete-thumb" style="display:flex;align-items:center;justify-content:center;font-size:10px;">📦</div>`}
         <div class="autocomplete-text">
-          <span class="autocomplete-title">${escapeHTML(game.name)}</span>
+          <span class="autocomplete-title">${escapeHTML(itemData.title)}</span>
           <span class="autocomplete-date">Sortie : ${year}</span>
         </div>
       `;
       
       item.onmousedown = () => { 
-        input.value = game.name;
-        if(dateId && document.getElementById(dateId)) document.getElementById(dateId).value = dateStr;
-        if(imageId && document.getElementById(imageId) && imgUrl) {
-          fetchAndUploadRAWGImage(imgUrl, imageId, previewWrapId, previewImgId);
+        input.value = itemData.title;
+        if(dateId && document.getElementById(dateId)) document.getElementById(dateId).value = itemData.date;
+        if(imageId && document.getElementById(imageId) && itemData.img) {
+          fetchAndUploadExternalImage(itemData.img, imageId, previewWrapId, previewImgId);
         }
         
         const prefix = inputId.replace('title', ''); 
-        if (document.getElementById(prefix + 'genres') && game.genres) {
-          document.getElementById(prefix + 'genres').value = game.genres.map(g => g.name).join(', ');
-        }
         
-        if (document.getElementById(prefix + 'publisher')) {
-          fetchRAWGGameDetails(game.id).then(details => {
-            if (details && details.publishers && details.publishers.length > 0) {
-              const pubInput = document.getElementById(prefix + 'publisher');
-              if (pubInput) pubInput.value = details.publishers.map(p => p.name).join(', ');
+        if (itemData.type === 'game') {
+          if (document.getElementById(prefix + 'genres') && itemData.rawData.genres) {
+            document.getElementById(prefix + 'genres').value = itemData.rawData.genres.map(g => g.name).join(', ');
+          }
+          if (document.getElementById(prefix + 'publisher')) {
+            fetchRAWGGameDetails(itemData.id).then(details => {
+              if (details && details.publishers && details.publishers.length > 0) {
+                const pubInput = document.getElementById(prefix + 'publisher');
+                if (pubInput) pubInput.value = details.publishers.map(p => p.name).join(', ');
+              }
+            });
+          }
+        } 
+        else if (itemData.type === 'movie') {
+          fetchTMDBMovieDetails(itemData.id).then(details => {
+            if (!details) return;
+            // Genres
+            if (document.getElementById(prefix + 'genres') && details.genres) {
+              document.getElementById(prefix + 'genres').value = details.genres.map(g => g.name).join(', ');
+            }
+            // Durée
+            if (document.getElementById(prefix + 'runtime') && details.runtime) {
+              document.getElementById(prefix + 'runtime').value = details.runtime;
+            }
+            // Note TMDB
+            if (document.getElementById(prefix + 'tmdbRating') && details.vote_average) {
+              document.getElementById(prefix + 'tmdbRating').value = details.vote_average.toFixed(1);
+            }
+            // Réalisateur (Director)
+            if (document.getElementById(prefix + 'director') && details.credits && details.credits.crew) {
+              const director = details.credits.crew.find(c => c.job === 'Director');
+              if (director) document.getElementById(prefix + 'director').value = director.name;
+            }
+            // Synopsis (injecté dans la zone de texte Notes si elle existe)
+            if (document.getElementById(prefix + 'note') && details.overview) {
+              document.getElementById(prefix + 'note').value = details.overview;
             }
           });
         }
@@ -228,13 +267,8 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
   const password = document.getElementById('authPassword').value;
   const errorEl = document.getElementById('authError');
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) {
-    errorEl.textContent = "Email ou mot de passe incorrect.";
-    errorEl.style.display = 'block';
-  } else {
-    errorEl.style.display = 'none';
-    checkAuth();
-  }
+  if (error) { errorEl.textContent = "Email ou mot de passe incorrect."; errorEl.style.display = 'block'; } 
+  else { errorEl.style.display = 'none'; checkAuth(); }
 });
 
 document.getElementById('btnLogout')?.addEventListener('click', async () => {
@@ -269,20 +303,14 @@ async function fetchCloudDataBackground() {
     localStorage.setItem('app_wishlist_cloud_v1', JSON.stringify(wishlist));
     localStorage.setItem('app_collection_cloud_v1', JSON.stringify(collection));
     setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
-    updateMonthFilterDropdowns();
-    renderWishlist();
-    renderCollection();
-  } catch (e) {
-    setSyncStatus('🟢 Mode Local Actif', 'var(--clay-blue)');
-  }
+    updateMonthFilterDropdowns(); renderWishlist(); renderCollection();
+  } catch (e) { setSyncStatus('🟢 Mode Local Actif', 'var(--clay-blue)'); }
 }
 
 function saveData() {
   localStorage.setItem('app_wishlist_cloud_v1', JSON.stringify(wishlist));
   localStorage.setItem('app_collection_cloud_v1', JSON.stringify(collection));
-  updateMonthFilterDropdowns();
-  renderWishlist();
-  renderCollection();
+  updateMonthFilterDropdowns(); renderWishlist(); renderCollection();
   if (supabaseClient) pushCloudDataBackground();
 }
 
@@ -292,9 +320,7 @@ async function pushCloudDataBackground() {
     for (const item of wishlist) await supabaseClient.from('wishlist_items').upsert({ id: item.id, data: item });
     for (const item of collection) await supabaseClient.from('collection_items').upsert({ id: item.id, data: item });
     setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
-  } catch (e) {
-    setSyncStatus('⚠️ Sauvegardé localement', 'var(--clay-pink)');
-  }
+  } catch (e) { setSyncStatus('⚠️ Sauvegardé localement', 'var(--clay-pink)'); }
 }
 
 function setSyncStatus(text, color = 'var(--clay-green)') {
@@ -304,10 +330,17 @@ function setSyncStatus(text, color = 'var(--clay-green)') {
 
 function formatMoney(amount) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount || 0); }
 
-// --- Helpers pour Badges RAWG ---
-function getRawgBadgesHtml(item) {
+// --- Helpers pour Badges API ---
+function getAPIBadgesHtml(item) {
   let html = '';
   if (item.genres) html += `<span class="badge-genre">${escapeHTML(item.genres)}</span>`;
+  if (item.runtime) {
+    const h = Math.floor(item.runtime / 60); const m = item.runtime % 60;
+    html += `<span class="badge-time">⏱️ ${h}h ${m.toString().padStart(2, '0')}m</span>`;
+  }
+  if (item.tmdbRating) {
+    html += `<span class="badge-mc" style="background:#01b4e4; color:#fff;">🍿 ${item.tmdbRating}</span>`;
+  }
   return html;
 }
 
@@ -366,7 +399,7 @@ async function uploadDirectFile(file, inputFieldId, wrapId, previewImgId) {
   }
 }
 
-async function fetchAndUploadRAWGImage(imgUrl, inputFieldId, wrapId, previewImgId) {
+async function fetchAndUploadExternalImage(imgUrl, inputFieldId, wrapId, previewImgId) {
   if (!supabaseClient) {
     document.getElementById(inputFieldId).value = imgUrl;
     updateImagePreview(inputFieldId, wrapId, previewImgId);
@@ -379,11 +412,11 @@ async function fetchAndUploadRAWGImage(imgUrl, inputFieldId, wrapId, previewImgI
     
     const response = await fetch(imgUrl);
     const blob = await response.blob();
-    const file = new File([blob], 'rawg_cover.jpg', { type: blob.type });
+    const file = new File([blob], 'cover_api.jpg', { type: blob.type });
     
     await uploadDirectFile(file, inputFieldId, wrapId, previewImgId);
   } catch (e) {
-    console.warn("CORS ou erreur de téléchargement, utilisation du lien web", e);
+    console.warn("CORS ou erreur de téléchargement, utilisation du lien web d'origine", e);
     setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)'); 
   }
 }
@@ -394,9 +427,7 @@ function handleDirectPaste(e, inputFieldId, wrapId, previewImgId) {
     if (item.type.indexOf('image') === 0) {
       e.preventDefault();
       const file = item.getAsFile();
-      if (file) {
-        uploadDirectFile(file, inputFieldId, wrapId, previewImgId);
-      }
+      if (file) { uploadDirectFile(file, inputFieldId, wrapId, previewImgId); }
       return;
     }
   }
@@ -468,8 +499,7 @@ async function handleAddCollectionPhoto(event) {
     const item = collection[currentDetailCollectionIndex];
     if (!item.photos) item.photos = [];
     item.photos.push(publicUrlData.publicUrl);
-    saveData();
-    renderDetailGallery();
+    saveData(); renderDetailGallery();
   } catch (e) { alert("Erreur photo."); }
   event.target.value = '';
 }
@@ -498,10 +528,7 @@ function renderAddFormGallery() {
     const thumb = document.createElement('img'); thumb.src = photoUrl; thumb.className = 'gallery-thumb';
     const delBtn = document.createElement('button'); delBtn.className = 'btn-delete-gallery-photo'; delBtn.innerHTML = '✕';
     delBtn.onclick = (e) => { 
-      e.stopPropagation(); 
-      deleteFileFromSupabaseStorage(photoUrl);
-      tempFormPhotos.splice(idx, 1); 
-      renderAddFormGallery(); 
+      e.stopPropagation(); deleteFileFromSupabaseStorage(photoUrl); tempFormPhotos.splice(idx, 1); renderAddFormGallery(); 
     };
     wrapper.appendChild(thumb); wrapper.appendChild(delBtn); grid.appendChild(wrapper);
   });
@@ -522,9 +549,7 @@ function renderDetailGallery() {
     deleteBtn.onclick = async (e) => {
       e.stopPropagation();
       if (confirm("Supprimer ?")) {
-        await deleteFileFromSupabaseStorage(photoUrl);
-        item.photos.splice(photoIndex, 1);
-        saveData(); renderDetailGallery();
+        await deleteFileFromSupabaseStorage(photoUrl); item.photos.splice(photoIndex, 1); saveData(); renderDetailGallery();
       }
     };
     wrapper.appendChild(thumb); wrapper.appendChild(deleteBtn); grid.appendChild(wrapper);
@@ -595,9 +620,12 @@ function renderWishlist() {
 
     const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
+    // Gestion du sous-titre
     let subtitle = '';
     if (item.platform === 'Vinyle' && item.artist) {
       subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.artist)}</div>`;
+    } else if (item.platform === 'Blu-ray' && item.director) {
+      subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.director)}</div>`;
     } else if (item.publisher) {
       subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.publisher)}</div>`;
     }
@@ -616,7 +644,7 @@ function renderWishlist() {
               <span class="badge">${escapeHTML(item.platform)}</span>
               ${collectorBadge} ${blurayBadge} ${vinylBadge}
               <span class="badge-status ${badgeStatusClass}">${statusText}</span>
-              ${getRawgBadgesHtml(item)}
+              ${getAPIBadgesHtml(item)}
               ${storeBadge} <span>${priceStr}</span> <span>•</span> <span>${dateStr}</span>
             </div>
           </div>
@@ -667,7 +695,7 @@ function renderCollection() {
     const matchStore = (storeF === 'all' || i.store === storeF);
     const matchEdition = (editionF === 'all' || (i.editionType || 'Standard') === editionF);
     const matchState = (stateF === 'all' || i.state === stateF);
-    const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery)) || (i.publisher && i.publisher.toLowerCase().includes(searchQuery));
+    const matchSearch = !searchQuery || (i.title && i.title.toLowerCase().includes(searchQuery)) || (i.artist && i.artist.toLowerCase().includes(searchQuery)) || (i.publisher && i.publisher.toLowerCase().includes(searchQuery)) || (i.director && i.director.toLowerCase().includes(searchQuery));
     
     const matchPlay = (playF === 'all' || i.gameplay === playF);
     const matchVinyl = (vinylF === 'all' || i.vinylEdition === vinylF);
@@ -701,13 +729,10 @@ function renderCollection() {
       chip.className = `platform-chip ${currentPlatformFilter === plat ? 'active' : ''}`;
       chip.onclick = () => { 
         document.getElementById('c-filterPlatform').value = (document.getElementById('c-filterPlatform').value === plat) ? 'all' : plat; 
-        
         if(document.getElementById('c-filterGameplay')) document.getElementById('c-filterGameplay').value = 'all';
         if(document.getElementById('c-filterVinylEdition')) document.getElementById('c-filterVinylEdition').value = 'all';
         if(document.getElementById('c-filterBlurayType')) document.getElementById('c-filterBlurayType').value = 'all';
-        
-        updateDynamicCollectionFilters();
-        renderCollection(); 
+        updateDynamicCollectionFilters(); renderCollection(); 
       };
       chip.innerHTML = `<div class="platform-chip-name">${escapeHTML(plat)} ${currentPlatformFilter === plat ? '✓' : ''}</div><div class="platform-chip-value">${formatMoney(data.total)}</div><div class="platform-chip-count">${data.count} obj.</div>`;
       breakdownGrid.appendChild(chip);
@@ -739,9 +764,12 @@ function renderCollection() {
 
       const coverHtml = item.image ? `<img src="${escapeHTML(item.image)}" class="item-cover" alt="Jaquette" onclick="event.stopPropagation(); window.openLightbox(this.src);" onerror="this.outerHTML='<div class=\\'item-cover-placeholder\\'>📦</div>'">` : `<div class="item-cover-placeholder">📦</div>`;
 
+      // Gestion du sous-titre
       let subtitle = '';
       if (item.platform === 'Vinyle' && item.artist) {
         subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.artist)}</div>`;
+      } else if (item.platform === 'Blu-ray' && item.director) {
+        subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.director)}</div>`;
       } else if (item.publisher) {
         subtitle = `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${escapeHTML(item.publisher)}</div>`;
       }
@@ -762,7 +790,7 @@ function renderCollection() {
               <div class="item-meta">
                 <span class="badge">${escapeHTML(item.platform)}</span>
                 ${collectorBadge} ${blurayBadge} ${vinylBadge} ${stateBadge} ${playBadge} ${storeBadge}
-                ${getRawgBadgesHtml(item)}
+                ${getAPIBadgesHtml(item)}
                 <span style="font-weight:900; color:var(--clay-yellow);">${valStr}</span>
               </div>
               <div class="item-meta" style="margin-top:2px;"><span>${datesDisplay.join(' • ')}</span></div>
@@ -812,16 +840,11 @@ function renderCollection() {
       }
       viewWrap.appendChild(card);
     });
-
     container.appendChild(viewWrap);
 
-    // --- Défilement horizontal avec la molette de la souris ---
     if (viewMode !== 'grid') {
       viewWrap.addEventListener('wheel', (e) => {
-        if (e.deltaY !== 0) {
-          e.preventDefault();
-          viewWrap.scrollBy({ left: e.deltaY > 0 ? 250 : -250, behavior: 'smooth' });
-        }
+        if (e.deltaY !== 0) { e.preventDefault(); viewWrap.scrollBy({ left: e.deltaY > 0 ? 250 : -250, behavior: 'smooth' }); }
       });
     }
   }
@@ -837,22 +860,13 @@ function updateDynamicCollectionFilters() {
   if (!gameplayFilter || !vinylFilter || !blurayFilter) return;
 
   if (platform === 'Vinyle') {
-    gameplayFilter.style.display = 'none';
-    blurayFilter.style.display = 'none';
-    vinylFilter.style.display = 'block';
+    gameplayFilter.style.display = 'none'; blurayFilter.style.display = 'none'; vinylFilter.style.display = 'block';
   } else if (platform === 'Blu-ray') {
-    gameplayFilter.style.display = 'none';
-    vinylFilter.style.display = 'none';
-    blurayFilter.style.display = 'block';
+    gameplayFilter.style.display = 'none'; vinylFilter.style.display = 'none'; blurayFilter.style.display = 'block';
   } else if (platform === 'Vêtement' || platform === 'Autre') {
-    gameplayFilter.style.display = 'none';
-    vinylFilter.style.display = 'none';
-    blurayFilter.style.display = 'none';
+    gameplayFilter.style.display = 'none'; vinylFilter.style.display = 'none'; blurayFilter.style.display = 'none';
   } else {
-    // Jeux vidéo ou Tous supports
-    vinylFilter.style.display = 'none';
-    blurayFilter.style.display = 'none';
-    gameplayFilter.style.display = 'block';
+    vinylFilter.style.display = 'none'; blurayFilter.style.display = 'none'; gameplayFilter.style.display = 'block';
   }
 }
 
@@ -861,11 +875,8 @@ window.deleteWishlistItem = async function(index) {
   if (confirm("Supprimer l'article ?")) {
     const item = wishlist[index];
     if (item && item.image) await deleteFileFromSupabaseStorage(item.image);
-    wishlist.splice(index, 1);
-    saveData();
-    if (supabaseClient && item && item.id) {
-      await supabaseClient.from('wishlist_items').delete().eq('id', item.id);
-    }
+    wishlist.splice(index, 1); saveData();
+    if (supabaseClient && item && item.id) { await supabaseClient.from('wishlist_items').delete().eq('id', item.id); }
   }
 }
 
@@ -874,25 +885,17 @@ window.deleteCollectionItem = async function(index) {
     const item = collection[index];
     if (item) {
       if (item.image) await deleteFileFromSupabaseStorage(item.image);
-      if (item.photos && item.photos.length > 0) {
-        for (const photoUrl of item.photos) await deleteFileFromSupabaseStorage(photoUrl);
-      }
+      if (item.photos && item.photos.length > 0) { for (const photoUrl of item.photos) await deleteFileFromSupabaseStorage(photoUrl); }
     }
-    collection.splice(index, 1);
-    saveData();
-    if (supabaseClient && item && item.id) {
-      await supabaseClient.from('collection_items').delete().eq('id', item.id);
-    }
+    collection.splice(index, 1); saveData();
+    if (supabaseClient && item && item.id) { await supabaseClient.from('collection_items').delete().eq('id', item.id); }
   }
 }
 
 window.moveToCollection = function(index) {
   const item = wishlist[index];
   if (!item) return;
-  
-  if (supabaseClient && item.id) {
-    supabaseClient.from('wishlist_items').delete().eq('id', item.id);
-  }
+  if (supabaseClient && item.id) { supabaseClient.from('wishlist_items').delete().eq('id', item.id); }
 
   collection.unshift({
     ...item,
@@ -902,14 +905,11 @@ window.moveToCollection = function(index) {
     gameplay: 'Non commencé',
     photos: []
   });
-  wishlist.splice(index, 1);
-  saveData();
-  switchTab('Collection');
+  wishlist.splice(index, 1); saveData(); switchTab('Collection');
 }
 
 window.openLightbox = function(src) {
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox-modal').style.display = 'flex';
+  document.getElementById('lightbox-img').src = src; document.getElementById('lightbox-modal').style.display = 'flex';
 }
 
 window.openCollectionDetail = function(index) {
@@ -930,6 +930,13 @@ window.openCollectionDetail = function(index) {
     if (item.artist) specificInfoHtml += `<div><strong>Artiste :</strong> ${escapeHTML(item.artist)}</div>`;
     if (item.vinylEdition) specificInfoHtml += `<div><strong>Édition :</strong> ${escapeHTML(item.vinylEdition)}</div>`;
   } else if (item.platform === 'Blu-ray') {
+    if (item.director) specificInfoHtml += `<div><strong>Réalisateur :</strong> ${escapeHTML(item.director)}</div>`;
+    if (item.genres) specificInfoHtml += `<div><strong>Genres :</strong> ${escapeHTML(item.genres)}</div>`;
+    if (item.runtime) {
+      const h = Math.floor(item.runtime / 60); const m = item.runtime % 60;
+      specificInfoHtml += `<div><strong>Durée :</strong> ${h}h ${m}m</div>`;
+    }
+    if (item.tmdbRating) specificInfoHtml += `<div><strong>Note TMDB :</strong> ⭐ ${item.tmdbRating}/10</div>`;
     if (item.blurayType) specificInfoHtml += `<div><strong>Format :</strong> ${escapeHTML(item.blurayType)}</div>`;
   } else {
     // Infos RAWG et Gameplay
@@ -944,17 +951,16 @@ window.openCollectionDetail = function(index) {
   specificInfoHtml += `<div><strong>Dates :</strong> ${datesDisplay.length > 0 ? datesDisplay.join(' • ') : 'Non fixées'}</div>`;
   
   document.getElementById('detail-dynamic-infos').innerHTML = specificInfoHtml;
-  document.getElementById('detail-notes-container').innerHTML = item.note ? `<strong>Notes :</strong> ${escapeHTML(item.note)}` : '<em>Aucune note.</em>';
+  document.getElementById('detail-notes-container').innerHTML = item.note ? `<strong>Notes / Synopsis :</strong><br> ${escapeHTML(item.note)}` : '<em>Aucune note.</em>';
   
-  renderDetailGallery();
-  document.getElementById('detail-modal').style.display = 'flex';
+  renderDetailGallery(); document.getElementById('detail-modal').style.display = 'flex';
 }
 
 // --- Modales et Formulaires ---
 function toggleFormFields(prefix, platform, data = null) {
   if (!data) {
     data = {};
-    ['publisher', 'genres', 'gameplay', 'artist', 'vinylEdition', 'blurayType'].forEach(field => {
+    ['publisher', 'genres', 'gameplay', 'artist', 'vinylEdition', 'blurayType', 'director', 'runtime', 'tmdbRating'].forEach(field => {
       const el = document.getElementById(prefix + field);
       if (el) data[field] = el.value;
     });
@@ -979,7 +985,17 @@ function getDynamicFieldsHtml(prefix, platform, data = {}) {
         </select>
       </div>`;
   } else if (platform === 'Blu-ray') {
-    return `<div class="form-row"><select id="${prefix}blurayType" style="width:100%;"><option value="Version normale" ${data.blurayType === 'Version normale' ? 'selected' : ''}>🎬 Version normale</option><option value="Steelbook" ${data.blurayType === 'Steelbook' ? 'selected' : ''}>📀 Steelbook</option></select></div>`;
+    return `
+      <div class="form-row">
+        <input type="text" id="${prefix}director" placeholder="Réalisateur" value="${data.director || ''}">
+        <select id="${prefix}blurayType" style="width:100%;"><option value="Version normale" ${data.blurayType === 'Version normale' ? 'selected' : ''}>🎬 Version normale</option><option value="Steelbook" ${data.blurayType === 'Steelbook' ? 'selected' : ''}>📀 Steelbook</option></select>
+      </div>
+      <div class="form-row">
+        <input type="text" id="${prefix}genres" placeholder="Genres" value="${data.genres || ''}">
+        <input type="number" id="${prefix}runtime" placeholder="Minutes" value="${data.runtime || ''}" style="max-width: 90px;" title="Durée du film (min)">
+        <input type="number" step="0.1" id="${prefix}tmdbRating" placeholder="Note /10" value="${data.tmdbRating || ''}" style="max-width: 90px;" title="Note TMDB">
+      </div>
+    `;
   } else if (platform === 'Vêtement' || platform === 'Autre') {
     return ``;
   } else {
@@ -1000,6 +1016,7 @@ function updateSearchButton(prefix, platform) {
   const btn = document.getElementById(prefix + 'searchBtn');
   if (!btn) return;
   if (platform === 'Vinyle') { btn.textContent = '🎵 Rechercher sur Discogs'; btn.style.background = 'var(--clay-purple)'; btn.style.color = 'var(--clay-purple-text)'; } 
+  else if (platform === 'Blu-ray') { btn.textContent = '🎬 Rechercher sur TMDB'; btn.style.background = '#01b4e4'; btn.style.color = '#fff'; }
   else { btn.textContent = '🏆 Rechercher sur EditionCollector'; btn.style.background = 'var(--clay-yellow)'; btn.style.color = 'var(--clay-yellow-text)'; }
 }
 
@@ -1007,9 +1024,11 @@ function handleCustomSearch(prefix) {
   const title = document.getElementById(prefix + 'title')?.value.trim() || '';
   const platform = document.getElementById(prefix + 'platform')?.value || '';
   const artist = document.getElementById(prefix + 'artist')?.value.trim() || '';
-  if (!title && !artist) { alert("Saisir nom ou artiste."); return; }
+  if (!title && !artist) { alert("Saisir un nom."); return; }
   if (platform === 'Vinyle') {
     window.open(`https://www.discogs.com/fr/search/?q=${encodeURIComponent([artist, title].filter(Boolean).join(' '))}&type=release&format_exact=Vinyl`, '_blank');
+  } else if (platform === 'Blu-ray') {
+    window.open(`https://www.themoviedb.org/search?query=${encodeURIComponent(title)}&language=fr-FR`, '_blank');
   } else {
     window.open(`https://www.google.com/search?q=${encodeURIComponent('site:editioncollector.fr ' + title)}`, '_blank');
   }
@@ -1017,18 +1036,13 @@ function handleCustomSearch(prefix) {
 
 // Ouvertures
 document.getElementById('btnOpenAddWishlist')?.addEventListener('click', () => { 
-  document.getElementById('wishlistForm').reset(); 
-  updateImagePreview('w-image', 'w-preview-wrap', 'w-preview');
-  toggleFormFields('w-', document.getElementById('w-platform').value); 
-  document.getElementById('add-wishlist-modal').style.display = 'flex'; 
+  document.getElementById('wishlistForm').reset(); updateImagePreview('w-image', 'w-preview-wrap', 'w-preview');
+  toggleFormFields('w-', document.getElementById('w-platform').value); document.getElementById('add-wishlist-modal').style.display = 'flex'; 
 });
 
 document.getElementById('btnOpenAddCollection')?.addEventListener('click', () => { 
-  document.getElementById('collectionForm').reset(); 
-  updateImagePreview('c-image', 'c-preview-wrap', 'c-preview');
-  tempFormPhotos = []; 
-  renderAddFormGallery(); 
-  toggleFormFields('c-', document.getElementById('c-platform').value); 
+  document.getElementById('collectionForm').reset(); updateImagePreview('c-image', 'c-preview-wrap', 'c-preview');
+  tempFormPhotos = []; renderAddFormGallery(); toggleFormFields('c-', document.getElementById('c-platform').value); 
   document.getElementById('add-collection-modal').style.display = 'flex'; 
 });
 
@@ -1039,28 +1053,25 @@ document.getElementById('btnDetailDelete')?.addEventListener('click', () => { if
 document.getElementById('btnCloseAddWishlist')?.addEventListener('click', () => document.getElementById('add-wishlist-modal').style.display = 'none');
 document.getElementById('btnCloseAddCollection')?.addEventListener('click', () => document.getElementById('add-collection-modal').style.display = 'none');
 document.getElementById('btnCloseDetail')?.addEventListener('click', () => { document.getElementById('detail-modal').style.display = 'none'; currentDetailCollectionIndex = null; });
-
-// --- Écouteurs pour fermer la Lightbox sur PC et iPhone ---
-document.getElementById('btnCloseLightbox')?.addEventListener('click', () => {
-  document.getElementById('lightbox-modal').style.display = 'none';
-});
-
-document.getElementById('lightbox-modal')?.addEventListener('click', (e) => {
-  if (e.target.id === 'lightbox-modal') {
-    document.getElementById('lightbox-modal').style.display = 'none';
-  }
-});
-
+document.getElementById('btnCloseLightbox')?.addEventListener('click', () => document.getElementById('lightbox-modal').style.display = 'none');
+document.getElementById('lightbox-modal')?.addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') document.getElementById('lightbox-modal').style.display = 'none'; });
 document.getElementById('w-searchBtn')?.addEventListener('click', () => handleCustomSearch('w-'));
 document.getElementById('edit-searchBtn')?.addEventListener('click', () => handleCustomSearch('edit-'));
 
 
-// --- Helper pour extraire les données RAWG des formulaires ---
-function getGameExtraData(prefix) {
+// --- Helper pour extraire les données API ---
+function getAPIFieldsData(prefix, platform) {
   let extra = {};
-  if (document.getElementById(prefix + 'gameplay')) extra.gameplay = document.getElementById(prefix + 'gameplay').value;
   if (document.getElementById(prefix + 'genres')) extra.genres = document.getElementById(prefix + 'genres').value.trim();
-  if (document.getElementById(prefix + 'publisher')) extra.publisher = document.getElementById(prefix + 'publisher').value.trim();
+  
+  if (platform === 'Blu-ray') {
+    if (document.getElementById(prefix + 'director')) extra.director = document.getElementById(prefix + 'director').value.trim();
+    if (document.getElementById(prefix + 'runtime')) extra.runtime = document.getElementById(prefix + 'runtime').value;
+    if (document.getElementById(prefix + 'tmdbRating')) extra.tmdbRating = document.getElementById(prefix + 'tmdbRating').value;
+  } else if (platform !== 'Vinyle' && platform !== 'Vêtement' && platform !== 'Autre') {
+    if (document.getElementById(prefix + 'gameplay')) extra.gameplay = document.getElementById(prefix + 'gameplay').value;
+    if (document.getElementById(prefix + 'publisher')) extra.publisher = document.getElementById(prefix + 'publisher').value.trim();
+  }
   return extra;
 }
 
@@ -1069,13 +1080,15 @@ document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const platform = document.getElementById('w-platform').value;
   let extraData = { platform };
+  
   if (platform === 'Vinyle') {
     extraData.artist = document.getElementById('w-artist')?.value.trim() || '';
     extraData.vinylEdition = document.getElementById('w-vinylEdition')?.value || 'Pochette standard 1 LP';
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('w-blurayType')?.value || 'Version normale';
+    Object.assign(extraData, getAPIFieldsData('w-', platform));
   } else if (platform !== 'Vêtement' && platform !== 'Autre') {
-    Object.assign(extraData, getGameExtraData('w-'));
+    Object.assign(extraData, getAPIFieldsData('w-', platform));
   }
   
   wishlist.unshift({
@@ -1085,21 +1098,22 @@ document.getElementById('wishlistForm')?.addEventListener('submit', (e) => {
     releaseDate: document.getElementById('w-releaseDate').value, image: document.getElementById('w-image').value.trim(),
     status: document.getElementById('w-status').value, ...extraData
   });
-  document.getElementById('add-wishlist-modal').style.display = 'none';
-  saveData();
+  document.getElementById('add-wishlist-modal').style.display = 'none'; saveData();
 });
 
 document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
   const platform = document.getElementById('c-platform').value;
   let extraData = { platform };
+  
   if (platform === 'Vinyle') {
     extraData.artist = document.getElementById('c-artist')?.value.trim() || '';
     extraData.vinylEdition = document.getElementById('c-vinylEdition')?.value || 'Pochette standard 1 LP';
   } else if (platform === 'Blu-ray') {
     extraData.blurayType = document.getElementById('c-blurayType')?.value || 'Version normale';
+    Object.assign(extraData, getAPIFieldsData('c-', platform));
   } else if (platform !== 'Vêtement' && platform !== 'Autre') {
-    Object.assign(extraData, getGameExtraData('c-'));
+    Object.assign(extraData, getAPIFieldsData('c-', platform));
   }
   
   collection.unshift({
@@ -1110,8 +1124,7 @@ document.getElementById('collectionForm')?.addEventListener('submit', (e) => {
     buyDate: document.getElementById('c-buyDate').value, image: document.getElementById('c-image').value.trim(),
     note: document.getElementById('c-note').value.trim(), photos: [...tempFormPhotos], ...extraData
   });
-  document.getElementById('add-collection-modal').style.display = 'none';
-  saveData();
+  document.getElementById('add-collection-modal').style.display = 'none'; saveData();
 });
 
 // --- Modification (Edit) ---
@@ -1143,30 +1156,22 @@ document.getElementById('btnSaveEditWishlist')?.addEventListener('click', () => 
   const index = parseInt(document.getElementById('edit-index').value, 10);
   if (isNaN(index) || !wishlist[index]) return;
   const platform = document.getElementById('edit-platform').value;
-  
-  const oldItem = wishlist[index];
-  const newImage = document.getElementById('edit-image').value.trim();
-  
-  // Suppression image orpheline si modifiée
-  if (oldItem.image && oldItem.image !== newImage && oldItem.image.includes('supabase.co')) {
-    deleteFileFromSupabaseStorage(oldItem.image);
-  }
+  const oldItem = wishlist[index]; const newImage = document.getElementById('edit-image').value.trim();
+  if (oldItem.image && oldItem.image !== newImage && oldItem.image.includes('supabase.co')) { deleteFileFromSupabaseStorage(oldItem.image); }
 
   let extraData = { platform };
   if (platform === 'Vinyle') {
-    extraData.artist = document.getElementById('edit-artist')?.value.trim();
-    extraData.vinylEdition = document.getElementById('edit-vinylEdition')?.value;
+    extraData.artist = document.getElementById('edit-artist')?.value.trim(); extraData.vinylEdition = document.getElementById('edit-vinylEdition')?.value;
   } else if (platform === 'Blu-ray') {
-    extraData.blurayType = document.getElementById('edit-blurayType')?.value;
+    extraData.blurayType = document.getElementById('edit-blurayType')?.value; Object.assign(extraData, getAPIFieldsData('edit-', platform));
   } else if (platform !== 'Vêtement' && platform !== 'Autre') {
-    Object.assign(extraData, getGameExtraData('edit-'));
+    Object.assign(extraData, getAPIFieldsData('edit-', platform));
   }
   
   wishlist[index] = {
     ...wishlist[index], title: document.getElementById('edit-title').value.trim(), price: document.getElementById('edit-price').value,
     editionType: document.getElementById('edit-editionType').value, store: document.getElementById('edit-store').value,
-    releaseDate: document.getElementById('edit-releaseDate').value, image: newImage,
-    status: document.getElementById('edit-status').value, ...extraData
+    releaseDate: document.getElementById('edit-releaseDate').value, image: newImage, status: document.getElementById('edit-status').value, ...extraData
   };
   document.getElementById('edit-modal').style.display = 'none'; saveData();
 });
@@ -1175,31 +1180,23 @@ document.getElementById('btnSaveEditCollection')?.addEventListener('click', () =
   const index = parseInt(document.getElementById('edit-c-index').value, 10);
   if (isNaN(index) || !collection[index]) return;
   const platform = document.getElementById('edit-c-platform').value;
-  
-  const oldItem = collection[index];
-  const newImage = document.getElementById('edit-c-image').value.trim();
-  
-  // Suppression image orpheline si modifiée
-  if (oldItem.image && oldItem.image !== newImage && oldItem.image.includes('supabase.co')) {
-    deleteFileFromSupabaseStorage(oldItem.image);
-  }
+  const oldItem = collection[index]; const newImage = document.getElementById('edit-c-image').value.trim();
+  if (oldItem.image && oldItem.image !== newImage && oldItem.image.includes('supabase.co')) { deleteFileFromSupabaseStorage(oldItem.image); }
 
   let extraData = { platform };
   if (platform === 'Vinyle') {
-    extraData.artist = document.getElementById('edit-c-artist')?.value.trim();
-    extraData.vinylEdition = document.getElementById('edit-c-vinylEdition')?.value;
+    extraData.artist = document.getElementById('edit-c-artist')?.value.trim(); extraData.vinylEdition = document.getElementById('edit-c-vinylEdition')?.value;
   } else if (platform === 'Blu-ray') {
-    extraData.blurayType = document.getElementById('edit-c-blurayType')?.value;
+    extraData.blurayType = document.getElementById('edit-c-blurayType')?.value; Object.assign(extraData, getAPIFieldsData('edit-c-', platform));
   } else if (platform !== 'Vêtement' && platform !== 'Autre') {
-    Object.assign(extraData, getGameExtraData('edit-c-'));
+    Object.assign(extraData, getAPIFieldsData('edit-c-', platform));
   }
   
   collection[index] = {
     ...collection[index], title: document.getElementById('edit-c-title').value.trim(), price: document.getElementById('edit-c-price').value,
     editionType: document.getElementById('edit-c-editionType').value, store: document.getElementById('edit-c-store').value,
     state: document.getElementById('edit-c-state').value, releaseDate: document.getElementById('edit-c-releaseDate').value,
-    buyDate: document.getElementById('edit-c-buyDate').value, image: newImage,
-    note: document.getElementById('edit-c-note').value.trim(), ...extraData
+    buyDate: document.getElementById('edit-c-buyDate').value, image: newImage, note: document.getElementById('edit-c-note').value.trim(), ...extraData
   };
   document.getElementById('edit-collection-modal').style.display = 'none'; saveData();
 });
@@ -1213,8 +1210,7 @@ document.getElementById('edit-c-platform')?.addEventListener('change', function(
 function switchTab(tabId) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tabBtn' + tabId).classList.add('active');
-  document.getElementById('tab-' + tabId.toLowerCase()).classList.add('active');
+  document.getElementById('tabBtn' + tabId).classList.add('active'); document.getElementById('tab-' + tabId.toLowerCase()).classList.add('active');
   if(tabId === 'Wishlist') renderWishlist();
   if(tabId === 'Collection') renderCollection();
 }
@@ -1227,66 +1223,46 @@ document.getElementById('btnResetPlatform')?.addEventListener('click', () => {
   if(document.getElementById('c-filterGameplay')) document.getElementById('c-filterGameplay').value = 'all';
   if(document.getElementById('c-filterVinylEdition')) document.getElementById('c-filterVinylEdition').value = 'all';
   if(document.getElementById('c-filterBlurayType')) document.getElementById('c-filterBlurayType').value = 'all';
-  updateDynamicCollectionFilters();
-  renderCollection(); 
+  updateDynamicCollectionFilters(); renderCollection(); 
 });
 
 // --- Filtres Helper ---
 function checkDateMatch(itemDateStr, filterValue) {
-  if (filterValue === 'all') return true;
-  if (filterValue === 'nodate') return !itemDateStr;
-  if (!itemDateStr) return false;
-  if (filterValue.startsWith('year_')) return itemDateStr.startsWith(filterValue.split('_')[1]);
-  return itemDateStr.startsWith(filterValue);
+  if (filterValue === 'all') return true; if (filterValue === 'nodate') return !itemDateStr; if (!itemDateStr) return false;
+  if (filterValue.startsWith('year_')) return itemDateStr.startsWith(filterValue.split('_')[1]); return itemDateStr.startsWith(filterValue);
 }
 
 function sortItems(arr, sortBy, isCollection = false) {
   return arr.slice().sort((a, b) => {
     if (sortBy === 'az') return (a.title || '').localeCompare(b.title || '');
     if (sortBy === 'price-desc') return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
-    
     if (sortBy === 'newest') {
       if (isCollection) {
-        // COLLECTION : Tri par date d'achat du plus récent au plus ancien
-        const dateA = a.buyDate || a.releaseDate || '';
-        const dateB = b.buyDate || b.releaseDate || '';
-        if (!dateA && !dateB) return 0;
-        if (!dateA) return 1;
-        if (!dateB) return -1;
+        const dateA = a.buyDate || a.releaseDate || ''; const dateB = b.buyDate || b.releaseDate || '';
+        if (!dateA && !dateB) return 0; if (!dateA) return 1; if (!dateB) return -1;
         return dateB.localeCompare(dateA); 
       } else {
-        // WISHLIST : Tri chronologique de la sortie la plus proche à la plus lointaine
-        const dateA = a.releaseDate || '9999-12-31';
-        const dateB = b.releaseDate || '9999-12-31';
-        return dateA.localeCompare(dateB);
+        const dateA = a.releaseDate || '9999-12-31'; const dateB = b.releaseDate || '9999-12-31'; return dateA.localeCompare(dateB);
       }
-    }
-    return 0;
+    } return 0;
   });
 }
 
 function populateHierarchicalDropdown(selectElement, datesList, defaultLabel) {
-  if(!selectElement) return;
-  const currentVal = selectElement.value;
-  const yearsMap = {};
+  if(!selectElement) return; const currentVal = selectElement.value; const yearsMap = {};
   datesList.forEach(fullDateStr => {
-    if (!fullDateStr) return;
-    const [year, month] = fullDateStr.split('-');
-    if (!year || !month) return;
-    if (!yearsMap[year]) yearsMap[year] = new Set();
-    yearsMap[year].add(month);
+    if (!fullDateStr) return; const [year, month] = fullDateStr.split('-');
+    if (!year || !month) return; if (!yearsMap[year]) yearsMap[year] = new Set(); yearsMap[year].add(month);
   });
   let html = `<option value="all">${defaultLabel}</option><option value="nodate">📅 Sans date fixée</option>`;
   Object.keys(yearsMap).sort().reverse().forEach(year => {
     html += `<option value="year_${year}">📅 ANNÉE ${year}</option>`;
     Array.from(yearsMap[year]).sort().forEach(month => {
-      const ym = `${year}-${month}`;
-      const label = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      const ym = `${year}-${month}`; const label = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
       html += `<option value="${ym}">&nbsp;&nbsp;&nbsp;&nbsp;↳ ${label.charAt(0).toUpperCase() + label.slice(1)}</option>`;
     });
   });
-  selectElement.innerHTML = html;
-  selectElement.value = Array.from(selectElement.options).some(o => o.value === currentVal) ? currentVal : 'all';
+  selectElement.innerHTML = html; selectElement.value = Array.from(selectElement.options).some(o => o.value === currentVal) ? currentVal : 'all';
 }
 
 function updateMonthFilterDropdowns() {
@@ -1303,24 +1279,16 @@ document.getElementById('c-filterPlatform')?.addEventListener('change', () => {
   if(document.getElementById('c-filterBlurayType')) document.getElementById('c-filterBlurayType').value = 'all';
   renderCollection(); 
 });
-document.getElementById('c-filterStore')?.addEventListener('change', renderCollection);
-document.getElementById('c-filterEdition')?.addEventListener('change', renderCollection);
-document.getElementById('c-filterState')?.addEventListener('change', renderCollection);
-document.getElementById('c-filterGameplay')?.addEventListener('change', renderCollection);
-document.getElementById('c-filterVinylEdition')?.addEventListener('change', renderCollection);
-document.getElementById('c-filterBlurayType')?.addEventListener('change', renderCollection);
-document.getElementById('c-viewMode')?.addEventListener('change', renderCollection);
-document.getElementById('c-sortBy')?.addEventListener('change', renderCollection);
-document.getElementById('c-monthFilter')?.addEventListener('change', renderCollection);
-document.getElementById('c-releaseFilter')?.addEventListener('change', renderCollection);
+document.getElementById('c-filterStore')?.addEventListener('change', renderCollection); document.getElementById('c-filterEdition')?.addEventListener('change', renderCollection);
+document.getElementById('c-filterState')?.addEventListener('change', renderCollection); document.getElementById('c-filterGameplay')?.addEventListener('change', renderCollection);
+document.getElementById('c-filterVinylEdition')?.addEventListener('change', renderCollection); document.getElementById('c-filterBlurayType')?.addEventListener('change', renderCollection);
+document.getElementById('c-viewMode')?.addEventListener('change', renderCollection); document.getElementById('c-sortBy')?.addEventListener('change', renderCollection);
+document.getElementById('c-monthFilter')?.addEventListener('change', renderCollection); document.getElementById('c-releaseFilter')?.addEventListener('change', renderCollection);
 document.getElementById('c-searchBar')?.addEventListener('input', renderCollection);
 
-document.getElementById('w-filterPlatform')?.addEventListener('change', renderWishlist);
-document.getElementById('w-filterStore')?.addEventListener('change', renderWishlist);
-document.getElementById('w-filterStatus')?.addEventListener('change', renderWishlist);
-document.getElementById('w-filterEdition')?.addEventListener('change', renderWishlist);
-document.getElementById('w-monthFilter')?.addEventListener('change', renderWishlist);
-document.getElementById('w-sortBy')?.addEventListener('change', renderWishlist);
+document.getElementById('w-filterPlatform')?.addEventListener('change', renderWishlist); document.getElementById('w-filterStore')?.addEventListener('change', renderWishlist);
+document.getElementById('w-filterStatus')?.addEventListener('change', renderWishlist); document.getElementById('w-filterEdition')?.addEventListener('change', renderWishlist);
+document.getElementById('w-monthFilter')?.addEventListener('change', renderWishlist); document.getElementById('w-sortBy')?.addEventListener('change', renderWishlist);
 document.getElementById('w-searchBar')?.addEventListener('input', renderWishlist);
 
 
@@ -1331,123 +1299,56 @@ function updatePokemonRipVolume(progress) { if (tcgRipGain && audioCtx) { const 
 function stopPokemonRipSound(success) { try { if (tcgRipOsc && tcgRipGain && audioCtx) { if (success) { const osc = audioCtx.createOscillator(); const popGain = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(440, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.06); popGain.gain.setValueAtTime(0.35, audioCtx.currentTime); popGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06); osc.connect(popGain); popGain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.06); } tcgRipGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04); setTimeout(() => { tcgRipOsc.stop(); tcgRipOsc.disconnect(); }, 50); } } catch(e) {} }
 
 function handlePointerDown(e) {
-  e.stopPropagation();
-  const category = e.target.getAttribute('data-cat');
-  if (!category) return;
-  
-  isTopRipActive = true;
-  activeCategory = category;
-  startTopX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-  currentTopDragX = 0;
-  
-  const boosterCard = document.getElementById(`booster-${category}`);
-  if (boosterCard) {
-    boosterCard.classList.add('shake');
-  }
-  startPokemonRipSound();
-
-  window.addEventListener('pointermove', onPointerMove);
-  window.addEventListener('pointerup', onPointerUp);
-  window.addEventListener('touchmove', onPointerMove, {passive: false});
-  window.addEventListener('touchend', onPointerUp);
+  e.stopPropagation(); const category = e.target.getAttribute('data-cat'); if (!category) return;
+  isTopRipActive = true; activeCategory = category; startTopX = e.clientX || (e.touches && e.touches[0].clientX) || 0; currentTopDragX = 0;
+  const boosterCard = document.getElementById(`booster-${category}`); if (boosterCard) boosterCard.classList.add('shake');
+  startPokemonRipSound(); window.addEventListener('pointermove', onPointerMove); window.addEventListener('pointerup', onPointerUp); window.addEventListener('touchmove', onPointerMove, {passive: false}); window.addEventListener('touchend', onPointerUp);
 }
 
 function onPointerMove(moveEvent) {
-  if (!isTopRipActive) return;
-  const currentX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0].clientX) || 0;
-  currentTopDragX = currentX - startTopX;
+  if (!isTopRipActive) return; const currentX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0].clientX) || 0; currentTopDragX = currentX - startTopX;
   const crimpEl = document.getElementById(`crimp-${activeCategory}`);
-  if (currentTopDragX > 0 && crimpEl) {
-    let pull = Math.min(currentTopDragX, 150);
-    crimpEl.style.transform = `translateX(${pull}px)`;
-    crimpEl.style.opacity = `${1 - (pull / 200)}`;
-    updatePokemonRipVolume(pull / 150);
-  }
+  if (currentTopDragX > 0 && crimpEl) { let pull = Math.min(currentTopDragX, 150); crimpEl.style.transform = `translateX(${pull}px)`; crimpEl.style.opacity = `${1 - (pull / 200)}`; updatePokemonRipVolume(pull / 150); }
 }
 
 function onPointerUp() {
-  if (!isTopRipActive) return;
-  isTopRipActive = false;
-  
-  const boosterCard = document.getElementById(`booster-${activeCategory}`);
-  if (boosterCard) {
-    boosterCard.classList.remove('shake');
-  }
-  
-  const success = currentTopDragX > 40;
-  stopPokemonRipSound(success);
-  
-  window.removeEventListener('pointermove', onPointerMove);
-  window.removeEventListener('pointerup', onPointerUp);
-  window.removeEventListener('touchmove', onPointerMove);
-  window.removeEventListener('touchend', onPointerUp);
-  
+  if (!isTopRipActive) return; isTopRipActive = false; const boosterCard = document.getElementById(`booster-${activeCategory}`); if (boosterCard) boosterCard.classList.remove('shake');
+  const success = currentTopDragX > 40; stopPokemonRipSound(success);
+  window.removeEventListener('pointermove', onPointerMove); window.removeEventListener('pointerup', onPointerUp); window.removeEventListener('touchmove', onPointerMove); window.removeEventListener('touchend', onPointerUp);
   const crimpElFinal = document.getElementById(`crimp-${activeCategory}`);
   if (success) {
-    const flash = document.getElementById('flash-overlay');
-    if (flash) { 
-      flash.style.display = 'block'; 
-      setTimeout(() => { flash.style.display = 'none'; }, 400); 
-    }
-    if (crimpElFinal) {
-      crimpElFinal.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
-      crimpElFinal.style.transform = 'translateX(220px) rotate(15deg)';
-      crimpElFinal.style.opacity = '0';
-    }
-    setTimeout(() => {
-      if (crimpElFinal) { crimpElFinal.style.transform = ''; crimpElFinal.style.opacity = ''; crimpElFinal.style.transition = ''; }
-      triggerGachaponReveal(activeCategory);
-    }, 350);
+    const flash = document.getElementById('flash-overlay'); if (flash) { flash.style.display = 'block'; setTimeout(() => { flash.style.display = 'none'; }, 400); }
+    if (crimpElFinal) { crimpElFinal.style.transition = 'transform 0.35s ease, opacity 0.35s ease'; crimpElFinal.style.transform = 'translateX(220px) rotate(15deg)'; crimpElFinal.style.opacity = '0'; }
+    setTimeout(() => { if (crimpElFinal) { crimpElFinal.style.transform = ''; crimpElFinal.style.opacity = ''; crimpElFinal.style.transition = ''; } triggerGachaponReveal(activeCategory); }, 350);
   } else {
-    if (crimpElFinal) {
-      crimpElFinal.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-      crimpElFinal.style.transform = 'translateX(0px)';
-      crimpElFinal.style.opacity = '1';
-      setTimeout(() => crimpElFinal.style.transition = '', 300);
-    }
+    if (crimpElFinal) { crimpElFinal.style.transition = 'transform 0.3s ease, opacity 0.3s ease'; crimpElFinal.style.transform = 'translateX(0px)'; crimpElFinal.style.opacity = '1'; setTimeout(() => crimpElFinal.style.transition = '', 300); }
   }
 }
-
 document.querySelectorAll('.tcg-crimp-top').forEach(el => { el.addEventListener('pointerdown', handlePointerDown); });
 
 function triggerGachaponReveal(category) {
-  lastGachaponCategory = category;
-  let pool = [];
+  lastGachaponCategory = category; let pool = [];
   if (category === 'game') pool = collection.filter(i => i.platform !== 'Vinyle' && i.platform !== 'Blu-ray');
   else if (category === 'vinyl') pool = collection.filter(i => i.platform === 'Vinyle');
-  else if (category === 'movie') pool = collection.filter(i => i.platform === 'Blu-ray');
-  else pool = collection;
-  
+  else if (category === 'movie') pool = collection.filter(i => i.platform === 'Blu-ray'); else pool = collection;
   if (pool.length === 0) { alert("Aucun objet dans cette catégorie !"); return; }
-  const winner = pool[Math.floor(Math.random() * pool.length)];
-  const index = collection.indexOf(winner);
-  
+  const winner = pool[Math.floor(Math.random() * pool.length)]; const index = collection.indexOf(winner);
   document.getElementById('gachaponCoverContainer').innerHTML = winner.image ? `<img src="${escapeHTML(winner.image)}" class="gachapon-cover-large">` : `<div class="gachapon-cover-large">📦</div>`;
   document.getElementById('gachaponTitle').textContent = winner.title;
-  
   document.getElementById('btnGachaponDetail').onclick = () => { document.getElementById('gachapon-modal').style.display = 'none'; window.openCollectionDetail(index); };
-  
   document.getElementById('gachapon-modal').style.display = 'flex';
 }
-
 document.getElementById('btnCloseGachapon')?.addEventListener('click', () => document.getElementById('gachapon-modal').style.display = 'none');
-document.getElementById('btnGachaponReroll')?.addEventListener('click', () => {
-  document.getElementById('gachapon-modal').style.display = 'none';
-  triggerGachaponReveal(lastGachaponCategory);
-});
+document.getElementById('btnGachaponReroll')?.addEventListener('click', () => { document.getElementById('gachapon-modal').style.display = 'none'; triggerGachaponReveal(lastGachaponCategory); });
 
 // Init de base au chargement de la page
 window.addEventListener('DOMContentLoaded', () => {
   initDropdowns();
-  
-  // Initialisation de l'auto-complétion RAWG sur les 4 formulaires
   setupAutocomplete('w-title', 'w-platform', 'w-suggestions', 'w-releaseDate', 'w-image', 'w-preview-wrap', 'w-preview');
   setupAutocomplete('c-title', 'c-platform', 'c-suggestions', 'c-releaseDate', 'c-image', 'c-preview-wrap', 'c-preview');
   setupAutocomplete('edit-title', 'edit-platform', 'edit-suggestions', 'edit-releaseDate', 'edit-image', 'edit-preview-wrap', 'edit-preview');
   setupAutocomplete('edit-c-title', 'edit-c-platform', 'edit-c-suggestions', 'edit-c-releaseDate', 'edit-c-image', 'edit-c-preview-wrap', 'edit-c-preview');
-
   toggleFormFields('w-', document.getElementById('w-platform')?.value || 'PS5');
   toggleFormFields('c-', document.getElementById('c-platform')?.value || 'PS5');
-  updateDynamicCollectionFilters();
-  checkAuth();
+  updateDynamicCollectionFilters(); checkAuth();
 });
