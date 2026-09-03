@@ -1,4 +1,4 @@
-/* --- Vrai Claymorphism Sombre + PASTEL POP 3D & EFFETS PREMIUM --- */
+/* --- Vrai Claymorphism Sombre + PASTEL POP 3D & EFFETS AMPLIFIÉS --- */
 :root {
   /* Fond très sombre */
   --bg: #11141d;
@@ -166,7 +166,7 @@ body {
   transform: scale(0.92);
 }
 
-/* --- Navigation / Onglets (Effet Ressort) --- */
+/* --- Navigation / Onglets --- */
 .tabs {
   display: flex;
   gap: 8px;
@@ -212,7 +212,7 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Boutons d'Action Principaux (Gros boutons pop pastel animés) --- */
+/* --- Boutons d'Action Principaux (Gros boutons pop pastel) --- */
 .btn-open-add {
   width: 100%;
   border: none;
@@ -279,7 +279,7 @@ body {
 .amount-pending { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.4); }
 .amount-value { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.4); }
 
-/* --- Filtres & Contrôles (Aucun dépassement) --- */
+/* --- Filtres & Contrôles (Anti-scroll horizontal) --- */
 .search-bar-input {
   width: 100%;
   padding: 14px 16px;
@@ -327,7 +327,7 @@ body {
   display: flex;
   gap: 10px;
   margin-bottom: 12px;
-  flex-wrap: wrap; /* Sécurité anti-scroll horizontal */
+  flex-wrap: wrap; /* Assure que les filtres vont à la ligne au lieu de déborder */
   width: 100%;
 }
 .controls select {
@@ -424,7 +424,7 @@ body {
   font-weight: 800;
 }
 
-/* --- Cartes Articles (HOVER GLOW & ÉLASTICITÉ) --- */
+/* --- Cartes Articles (HOVER GLOW ULTRA VISIBLE) --- */
 .item-card {
   background: var(--card-bg);
   border-radius: 28px;
@@ -435,34 +435,55 @@ body {
   gap: 14px;
   position: relative;
   overflow: hidden;
-  transition: transform 0.4s var(--spring), box-shadow 0.4s ease;
-}
-.item-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 255, 255, 0.05), var(--clay-shadow);
+  border: 2px solid transparent; /* Prépare la bordure du hover */
+  transition: transform 0.4s var(--spring), box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
-/* 💎 LISERÉ HOLOGRAPHIQUE ANIMÉ POUR LES COLLECTORS 💎 */
-@keyframes holoGradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* ✨ L'EFFET DE SOULÈVEMENT + LUEUR PASTEL AU SURVOL/CLIC ✨ */
+.item-card:hover, .item-card:active {
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(233, 213, 255, 0.6); /* Bordure pastel lumineuse */
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.95), /* Ombre très profonde en dessous */
+              0 0 40px rgba(233, 213, 255, 0.35), /* Énorme Lueur Pastel diffuse */
+              var(--clay-shadow);
+  z-index: 10;
+}
+
+/* 💎 L'EFFET HOLOGRAPHIQUE COLLECTOR TRÈS MARQUÉ 💎 */
+@keyframes holoSweep {
+  0% { background-position: 200% 50%; }
+  100% { background-position: -100% 50%; }
 }
 .item-card.is-collector {
-  background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
-              linear-gradient(135deg, var(--pastel-yellow), var(--pastel-pink), var(--pastel-blue), var(--pastel-yellow)) border-box;
-  border: 2px solid transparent;
-  background-size: 300% 300%;
-  animation: holoGradient 5s ease infinite;
-  box-shadow: var(--clay-shadow), 0 0 15px rgba(254, 240, 138, 0.15);
+  border: 2px solid rgba(253, 224, 71, 0.7); /* Bordure Jaune forte */
+  box-shadow: var(--clay-shadow), 0 0 25px rgba(253, 224, 71, 0.3), inset 0 0 15px rgba(253, 224, 71, 0.2);
+}
+.item-card.is-collector::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 26px;
+  /* Faisceau lumineux épais et coloré qui balaie la carte */
+  background: linear-gradient(105deg, 
+    transparent 20%, 
+    rgba(255, 255, 255, 0.45) 25%, 
+    rgba(255, 183, 3, 0.5) 28%, 
+    rgba(255, 89, 100, 0.4) 32%, 
+    transparent 40%);
+  background-size: 200% 200%;
+  animation: holoSweep 4s infinite linear;
+  pointer-events: none; /* Ne bloque pas le clic ! */
+  mix-blend-mode: color-dodge; /* Incrustation lumineuse parfaite */
+  z-index: 1; /* Reste sous le contenu */
 }
 .item-card.is-collector::before {
   content: '✨';
   position: absolute;
   top: -2px; right: 2px;
   font-size: 1.8rem;
-  opacity: 0.9;
-  filter: drop-shadow(0 2px 4px rgba(254, 240, 138, 0.6));
+  opacity: 1;
+  filter: drop-shadow(0 0 8px rgba(254, 240, 138, 0.9));
+  z-index: 5;
 }
 
 .item-cover {
@@ -474,8 +495,10 @@ body {
   cursor: pointer;
   flex-shrink: 0;
   transition: transform 0.3s var(--spring);
+  position: relative;
+  z-index: 2; /* Au dessus de l'hologramme */
 }
-.item-cover:hover {
+.item-card:hover .item-cover {
   transform: scale(1.08) rotate(-2deg);
 }
 .item-cover-placeholder {
@@ -489,6 +512,8 @@ body {
   align-items: center;
   font-size: 1.5rem;
   flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 .item-content {
   flex: 1;
@@ -496,6 +521,8 @@ body {
   flex-direction: column;
   justify-content: space-between;
   min-width: 0;
+  position: relative;
+  z-index: 2; /* Au dessus de l'hologramme */
 }
 .card-header {
   display: flex;
@@ -610,14 +637,15 @@ body {
   transition: transform 0.3s var(--spring);
 }
 .btn-action:hover {
-  transform: scale(1.1) translateY(-2px);
+  transform: scale(1.15) translateY(-2px);
+  color: var(--pastel-pink);
 }
 .btn-action:active {
   box-shadow: var(--clay-btn-active);
   transform: scale(0.9);
 }
 
-/* --- Liens Marchands (Flex-Wrap = Plus de barre horizontale) --- */
+/* --- Liens Marchands --- */
 .market-links {
   display: flex;
   flex-wrap: wrap; 
@@ -659,18 +687,31 @@ body {
   flex-direction: column;
   gap: 10px;
   cursor: pointer;
-  transition: transform 0.4s var(--spring), box-shadow 0.4s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s var(--spring), box-shadow 0.4s ease, border-color 0.4s ease;
 }
 .grid-item-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.9), var(--clay-shadow);
+  transform: translateY(-5px) scale(1.02);
+  border-color: rgba(233, 213, 255, 0.6);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9), 0 0 30px rgba(233, 213, 255, 0.35), var(--clay-shadow);
+  z-index: 10;
 }
 .grid-item-card.is-collector {
-  background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
-              linear-gradient(135deg, var(--pastel-yellow), var(--pastel-pink), var(--pastel-blue), var(--pastel-yellow)) border-box;
-  border: 2px solid transparent;
-  background-size: 300% 300%;
-  animation: holoGradient 5s ease infinite;
+  border: 2px solid rgba(253, 224, 71, 0.7);
+  box-shadow: var(--clay-shadow), 0 0 20px rgba(253, 224, 71, 0.3);
+}
+.grid-item-card.is-collector::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.4) 25%, rgba(255, 183, 3, 0.5) 28%, rgba(255, 89, 100, 0.4) 32%, transparent 40%);
+  background-size: 200% 200%;
+  animation: holoSweep 4s infinite linear;
+  pointer-events: none;
+  mix-blend-mode: color-dodge;
+  z-index: 1;
 }
 .grid-item-cover {
   width: 100%;
@@ -678,6 +719,7 @@ body {
   object-fit: cover;
   border-radius: 16px;
   box-shadow: var(--clay-btn);
+  position: relative; z-index: 2;
 }
 .grid-item-cover-placeholder {
   width: 100%;
@@ -689,6 +731,7 @@ body {
   justify-content: center;
   align-items: center;
   font-size: 2rem;
+  position: relative; z-index: 2;
 }
 .grid-item-title {
   font-size: 0.8rem;
@@ -696,6 +739,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  position: relative; z-index: 2;
 }
 
 .timeline-h-container {
@@ -716,17 +760,31 @@ body {
   gap: 10px;
   cursor: pointer;
   flex-shrink: 0;
-  transition: transform 0.4s var(--spring);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s var(--spring), box-shadow 0.4s ease, border-color 0.4s ease;
 }
 .tile-card:hover {
-  transform: scale(1.03) translateY(-4px);
+  transform: translateY(-5px) scale(1.02);
+  border-color: rgba(233, 213, 255, 0.6);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9), 0 0 30px rgba(233, 213, 255, 0.35), var(--clay-shadow);
+  z-index: 10;
 }
 .tile-card.is-collector {
-  background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
-              linear-gradient(135deg, var(--pastel-yellow), var(--pastel-pink), var(--pastel-blue), var(--pastel-yellow)) border-box;
-  border: 2px solid transparent;
-  background-size: 300% 300%;
-  animation: holoGradient 5s ease infinite;
+  border: 2px solid rgba(253, 224, 71, 0.7);
+  box-shadow: var(--clay-shadow), 0 0 20px rgba(253, 224, 71, 0.3);
+}
+.tile-card.is-collector::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.4) 25%, rgba(255, 183, 3, 0.5) 28%, rgba(255, 89, 100, 0.4) 32%, transparent 40%);
+  background-size: 200% 200%;
+  animation: holoSweep 4s infinite linear;
+  pointer-events: none;
+  mix-blend-mode: color-dodge;
+  z-index: 1;
 }
 .tile-cover {
   width: 100%;
@@ -734,11 +792,13 @@ body {
   object-fit: cover;
   border-radius: 18px;
   box-shadow: var(--clay-btn);
+  position: relative; z-index: 2;
 }
 .tile-info {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative; z-index: 2;
 }
 .tile-title {
   font-size: 0.85rem;
@@ -753,7 +813,7 @@ body {
   align-items: center;
 }
 
-/* 🪟 Modales Plein Écran & Fiches (EFFET GLASSMORPHISM PROFOND) 🪟 */
+/* 🪟 EFFET GLASSMORPHISM PROFOND APPLE (FOND GIVRÉ) 🪟 */
 @keyframes popIn {
   0% { opacity: 0; transform: scale(0.9) translateY(20px); }
   100% { opacity: 1; transform: scale(1) translateY(0); }
@@ -761,9 +821,11 @@ body {
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(8, 10, 14, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  /* Fond beaucoup plus transparent pour laisser passer le flou */
+  background: rgba(10, 12, 17, 0.35); 
+  /* Flou de l'arrière-plan très puissant */
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   display: none;
   justify-content: center;
   align-items: center;
@@ -771,16 +833,22 @@ body {
   padding: 16px;
 }
 .modal-box {
-  background: var(--card-bg);
+  /* Fond de la boîte modale semi-transparent givré */
+  background: rgba(28, 33, 46, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.1);
+  
   width: 100%;
   max-width: 445px;
   max-height: 85vh;
   overflow-y: auto;
   padding: 24px;
   border-radius: 36px;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.08);
   animation: popIn 0.5s var(--spring) forwards;
 }
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -802,7 +870,7 @@ body {
   padding: 14px;
   border: none;
   border-radius: 18px;
-  background: var(--card-bg);
+  background: rgba(10, 12, 17, 0.6); /* Entrées creusées sombres */
   box-shadow: var(--clay-inset);
   font-size: 0.85rem;
   font-weight: 800;
@@ -859,7 +927,7 @@ body {
 
 /* --- Section Images & Galeries --- */
 .image-section {
-  background: var(--card-bg);
+  background: rgba(10, 12, 17, 0.4);
   padding: 14px;
   border-radius: 22px;
   box-shadow: var(--clay-inset);
@@ -892,7 +960,7 @@ body {
   padding: 10px 14px;
   border: none;
   border-radius: 14px;
-  background: var(--card-bg);
+  background: rgba(10, 12, 17, 0.6);
   box-shadow: var(--clay-inset);
   font-size: 0.78rem;
   font-weight: 700;
@@ -984,9 +1052,9 @@ body {
 #lightbox-modal {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(8, 10, 14, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(10, 12, 17, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: none;
   justify-content: center;
   align-items: center;
@@ -997,7 +1065,7 @@ body {
   max-width: 90%;
   max-height: 85vh;
   border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+  box-shadow: 0 30px 70px rgba(0,0,0,0.9);
   object-fit: contain;
   animation: popIn 0.5s var(--spring);
 }
@@ -1005,7 +1073,7 @@ body {
   position: absolute;
   top: 24px; right: 24px;
   background: var(--card-bg);
-  border: none;
+  border: 1px solid rgba(255,255,255,0.1);
   width: 48px; height: 48px;
   border-radius: 50%;
   font-size: 1.3rem;
@@ -1025,7 +1093,7 @@ body {
   top: 100%; left: 0; right: 0;
   background: var(--card-bg);
   border-radius: 20px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.9);
   z-index: 99;
   max-height: 200px;
   overflow-y: auto;
@@ -1043,7 +1111,7 @@ body {
   padding: 10px;
   border-radius: 14px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.1s ease;
 }
 .autocomplete-item:hover {
   background: rgba(167, 243, 208, 0.15); 
@@ -1133,18 +1201,19 @@ body {
 }
 
 .gachapon-modal-box {
-  background: var(--card-bg);
+  background: rgba(28, 33, 46, 0.85);
+  backdrop-filter: blur(20px);
   width: 100%;
   max-width: 340px;
   padding: 26px;
   border-radius: 36px;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.9);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.9);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 14px;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
   animation: popIn 0.6s var(--spring) forwards;
 }
 .gachapon-cover-large {
@@ -1152,7 +1221,7 @@ body {
   height: 210px;
   object-fit: cover;
   border-radius: 20px;
-  box-shadow: var(--clay-shadow);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.8);
 }
 #flash-overlay {
   position: fixed;
