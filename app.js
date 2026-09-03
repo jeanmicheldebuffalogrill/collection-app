@@ -26,9 +26,11 @@ let currentDetailCollectionIndex = null;
 let lastGachaponCategory = 'all';
 let tempFormPhotos = [];
 
-// --- Instances Chart.js ---
+// --- Instances Chart.js (Méga Dashboard) ---
 let platformPieChart = null;
 let monthlyBudgetChart = null;
+let storeBarChart = null;
+let statePieChart = null;
 
 // --- Configurations des listes ---
 const APP_CONFIG = {
@@ -933,27 +935,61 @@ function renderCollection() {
   }
 }
 
-// --- Dashboard Analytique (Charts.js) ---
+// --- Dashboard Analytique (Méga Tableau de Bord) ---
 function updateStatsDashboard() {
+  // 1. Calcul des KPIs
+  let totalVal = 0;
+  let itemCount = collection.length;
   const platformData = {};
   const monthlyData = {};
+  const storeData = {};
+  const stateData = {};
 
   collection.forEach(item => {
-    // 1. Stats par Support (Valeur totale)
-    const plat = item.platform || 'Autre';
     const price = parseFloat(item.price) || 0;
+    totalVal += price;
+
+    // Support
+    const plat = item.platform || 'Autre';
     platformData[plat] = (platformData[plat] || 0) + price;
 
-    // 2. Stats par Mois d'achat
+    // Mois d'achat
     if (item.buyDate) {
       const monthKey = item.buyDate.length >= 7 ? item.buyDate.substring(0, 7) : null;
       if (monthKey) {
         monthlyData[monthKey] = (monthlyData[monthKey] || 0) + price;
       }
     }
+
+    // Enseigne
+    const store = item.store && item.store !== 'Non renseigné' ? item.store : 'Autre / Inconnu';
+    storeData[store] = (storeData[store] || 0) + 1;
+
+    // État
+    const state = item.state || 'Non spécifié';
+    stateData[state] = (stateData[state] || 0) + 1;
   });
 
-  // Tri des mois chronologiquement
+  const avgPrice = itemCount > 0 ? totalVal / itemCount : 0;
+
+  // Calcul du total Wishlist (statut "À prendre")
+  let wishlistTotal = 0;
+  wishlist.forEach(i => {
+    if (i.status === 'À prendre') {
+      wishlistTotal += parseFloat(i.price) || 0;
+    }
+  });
+
+  // Mise à jour des KPIs dans le DOM
+  document.getElementById('kpiTotalValue').textContent = formatMoney(totalVal);
+  document.getElementById('kpiAvgPrice').textContent = formatMoney(avgPrice);
+  document.getElementById('kpiWishlistTotal').textContent = formatMoney(wishlistTotal);
+  document.getElementById('kpiItemCount').textContent = itemCount;
+
+  // --- Préparation des données Charts.js ---
+  const clayColors = ['#ff85a2', '#70c1b3', '#ffe066', '#b5b2ff', '#ffb703', '#8ecae6', '#219ebc', '#fb8500'];
+
+  // Tri des mois
   const sortedMonths = Object.keys(monthlyData).sort();
   const monthlyLabels = sortedMonths.map(ym => {
     const [y, m] = ym.split('-');
@@ -966,9 +1002,13 @@ function updateStatsDashboard() {
   const platLabels = Object.keys(platformData);
   const platValues = Object.keys(platformData).map(p => platformData[p]);
 
-  const clayColors = ['#ff85a2', '#70c1b3', '#ffe066', '#b5b2ff', '#ffb703', '#8ecae6', '#219ebc', '#fb8500'];
+  const storeLabels = Object.keys(storeData);
+  const storeValues = Object.keys(storeData).map(s => storeData[s]);
 
-  // --- 1. Rendu Camembert (Platform Pie Chart) ---
+  const stateLabels = Object.keys(stateData);
+  const stateValues = Object.keys(stateData).map(st => stateData[st]);
+
+  // 1. Camembert : Valeur par Support
   const ctxPie = document.getElementById('chartPlatformPie')?.getContext('2d');
   if (ctxPie) {
     if (platformPieChart) platformPieChart.destroy();
@@ -976,24 +1016,13 @@ function updateStatsDashboard() {
       type: 'doughnut',
       data: {
         labels: platLabels.length > 0 ? platLabels : ['Aucune donnée'],
-        datasets: [{
-          data: platValues.length > 0 ? platValues : [1],
-          backgroundColor: clayColors,
-          borderWidth: 2,
-          borderColor: '#ffffff'
-        }]
+        datasets: [{ data: platValues.length > 0 ? platValues : [1], backgroundColor: clayColors, borderWidth: 2, borderColor: '#ffffff' }]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 11 }, boxWidth: 12 } }
-        }
-      }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 10 }, boxWidth: 10 } } } }
     });
   }
 
-  // --- 2. Rendu Histogramme (Monthly Budget Bar Chart) ---
+  // 2. Histogramme : Dépenses par Mois
   const ctxBar = document.getElementById('chartMonthlyBudget')?.getContext('2d');
   if (ctxBar) {
     if (monthlyBudgetChart) monthlyBudgetChart.destroy();
@@ -1001,26 +1030,37 @@ function updateStatsDashboard() {
       type: 'bar',
       data: {
         labels: monthlyLabels.length > 0 ? monthlyLabels : ['Aucun achat'],
-        datasets: [{
-          label: 'Dépenses (€)',
-          data: monthlyValues.length > 0 ? monthlyValues : [0],
-          backgroundColor: '#70c1b3',
-          borderColor: '#2b7a6b',
-          borderWidth: 1,
-          borderRadius: 8
-        }]
+        datasets: [{ label: 'Dépenses (€)', data: monthlyValues.length > 0 ? monthlyValues : [0], backgroundColor: '#70c1b3', borderColor: '#2b7a6b', borderWidth: 1, borderRadius: 6 }]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          y: { beginAtZero: true, ticks: { font: { weight: 'bold' } } },
-          x: { ticks: { font: { weight: 'bold' } } }
-        }
-      }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { font: { weight: 'bold', size: 10 } } }, x: { ticks: { font: { weight: 'bold', size: 10 } } } } }
+    });
+  }
+
+  // 3. Barres Horizontales : Enseignes
+  const ctxStore = document.getElementById('chartStoreBar')?.getContext('2d');
+  if (ctxStore) {
+    if (storeBarChart) storeBarChart.destroy();
+    storeBarChart = new Chart(ctxStore, {
+      type: 'bar',
+      data: {
+        labels: storeLabels.length > 0 ? storeLabels : ['Aucune enseigne'],
+        datasets: [{ label: 'Objets', data: storeValues.length > 0 ? storeValues : [0], backgroundColor: '#ffb703', borderColor: '#fb8500', borderWidth: 1, borderRadius: 6 }]
+      },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } }, y: { ticks: { font: { weight: 'bold', size: 10 } } } } }
+    });
+  }
+
+  // 4. Camembert : État de la collection
+  const ctxState = document.getElementById('chartStatePie')?.getContext('2d');
+  if (ctxState) {
+    if (statePieChart) statePieChart.destroy();
+    statePieChart = new Chart(ctxState, {
+      type: 'pie',
+      data: {
+        labels: stateLabels.length > 0 ? stateLabels : ['Aucune donnée'],
+        datasets: [{ data: stateValues.length > 0 ? stateValues : [1], backgroundColor: ['#70c1b3', '#ff85a2', '#ffe066', '#b5b2ff', '#fb8500'], borderWidth: 2, borderColor: '#ffffff' }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 10 }, boxWidth: 10 } } } }
     });
   }
 }
@@ -1438,7 +1478,7 @@ document.getElementById('c-platform')?.addEventListener('change', function() { h
 document.getElementById('edit-platform')?.addEventListener('change', function() { handlePlatformChange('edit-'); });
 document.getElementById('edit-c-platform')?.addEventListener('change', function() { handlePlatformChange('edit-c-'); });
 
-// --- Gestion des Onglets (Vérifié et complet) ---
+// --- Gestion des Onglets ---
 function switchTab(tabId) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1454,7 +1494,7 @@ function switchTab(tabId) {
   if (tabId === 'Stats') updateStatsDashboard();
 }
 
-// Écouteurs d'événements des onglets (Vérifiés)
+// Écouteurs d'événements des onglets (Vérifiés et complets)
 document.getElementById('tabBtnWishlist')?.addEventListener('click', () => switchTab('Wishlist'));
 document.getElementById('tabBtnCollection')?.addEventListener('click', () => switchTab('Collection'));
 document.getElementById('tabBtnStats')?.addEventListener('click', () => switchTab('Stats'));
