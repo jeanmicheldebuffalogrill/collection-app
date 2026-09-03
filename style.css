@@ -455,3 +455,18 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 
 /* --- Badges RAWG --- */
 .badge-genre { padding: 5px 11px; border-radius: 10px; font-size: 0.7rem; background: var(--bg); color: var(--text-muted); font-weight: 800; border: 1px solid rgba(255,255,255,0.1); }
+
+/* --- Classes Utilitaires (Nouvelles) --- */
+.form-transparent { box-shadow: none; padding: 0; margin: 0; background: transparent; }
+.text-error { color: var(--clay-pink); font-size: 0.8rem; font-weight: 700; margin-top: 10px; display: none; }
+.btn-flex-half { flex: 1; }
+.btn-purple { background: var(--clay-purple); color: var(--clay-purple-text); }
+.btn-pink { background: var(--clay-pink); color: var(--clay-pink-text); }
+.btn-transparent-close { border: none; background: transparent; }
+.detail-header-text { font-size: 0.85rem; color: var(--text-muted); font-weight: 800; }
+.detail-dynamic-box { text-align: left; margin-top: 12px; background: var(--bg); padding: 16px; border-radius: 24px; display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; font-weight: 800; box-shadow: var(--clay-inset); }
+.w-100 { width: 100%; }
+.text-center { text-align: center; }
+.mb-10 { margin-bottom: 10px; }
+.mt-10 { margin-top: 10px; }
+.mt-4 { margin-top: 4px; }
