@@ -15,9 +15,9 @@ try {
 } catch (e) { console.warn("Supabase non chargé :", e); }
 
 // --- API KEYS ---
-const RAWG_API_KEY = 'METS_TA_CLE_RAWG_ICI'; // <-- TA CLÉ RAWG
-const TMDB_API_KEY = 'METS_TA_CLE_TMDB_ICI'; // <-- TA CLÉ TMDB
-const DISCOGS_API_TOKEN = 'METS_TON_TOKEN_DISCOGS_ICI'; // <-- TON TOKEN DISCOGS
+const RAWG_API_KEY = '5b06b52d45984ed39dbc551b4d72af0d'; // <-- TA CLÉ RAWG
+const TMDB_API_KEY = 'd9e6e0cc19b2c65458fcff77fef7873d'; // <-- TA CLÉ TMDB
+const DISCOGS_API_TOKEN = 'DEEORXJuNHHObCrUjlgqsBvMnlJqLmTfmwpVNRIC'; // <-- TON TOKEN DISCOGS
 
 // --- Variables Globales ---
 let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
