@@ -966,7 +966,6 @@ function updateStatsDashboard() {
   const platLabels = Object.keys(platformData);
   const platValues = Object.keys(platformData).map(p => platformData[p]);
 
-  // Couleurs Claymorphism / Harmonieuses
   const clayColors = ['#ff85a2', '#70c1b3', '#ffe066', '#b5b2ff', '#ffb703', '#8ecae6', '#219ebc', '#fb8500'];
 
   // --- 1. Rendu Camembert (Platform Pie Chart) ---
@@ -1439,17 +1438,23 @@ document.getElementById('c-platform')?.addEventListener('change', function() { h
 document.getElementById('edit-platform')?.addEventListener('change', function() { handlePlatformChange('edit-'); });
 document.getElementById('edit-c-platform')?.addEventListener('change', function() { handlePlatformChange('edit-c-'); });
 
-// --- Onglets ---
+// --- Gestion des Onglets (Vérifié et complet) ---
 function switchTab(tabId) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tabBtn' + tabId).classList.add('active'); 
-  document.getElementById('tab-' + tabId.toLowerCase()).classList.add('active');
   
-  if(tabId === 'Wishlist') renderWishlist();
-  if(tabId === 'Collection') renderCollection();
-  if(tabId === 'Stats') updateStatsDashboard();
+  const btn = document.getElementById('tabBtn' + tabId);
+  const content = document.getElementById('tab-' + tabId.toLowerCase());
+  
+  if (btn) btn.classList.add('active');
+  if (content) content.classList.add('active');
+  
+  if (tabId === 'Wishlist') renderWishlist();
+  if (tabId === 'Collection') renderCollection();
+  if (tabId === 'Stats') updateStatsDashboard();
 }
+
+// Écouteurs d'événements des onglets (Vérifiés)
 document.getElementById('tabBtnWishlist')?.addEventListener('click', () => switchTab('Wishlist'));
 document.getElementById('tabBtnCollection')?.addEventListener('click', () => switchTab('Collection'));
 document.getElementById('tabBtnStats')?.addEventListener('click', () => switchTab('Stats'));
