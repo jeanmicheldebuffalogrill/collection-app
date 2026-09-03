@@ -15,9 +15,9 @@ try {
 } catch (e) { console.warn("Supabase non chargé :", e); }
 
 // --- API KEYS ---
-const RAWG_API_KEY = '5b06b52d45984ed39dbc551b4d72af0d'; // <-- TA CLÉ RAWG
-const TMDB_API_KEY = 'd9e6e0cc19b2c65458fcff77fef7873d'; // <-- TA CLÉ TMDB
-const DISCOGS_API_TOKEN = 'DEEORXJuNHHObCrUjlgqsBvMnlJqLmTfmwpVNRIC'; // <-- TON TOKEN DISCOGS
+const RAWG_API_KEY = 'METS_TA_CLE_RAWG_ICI'; // <-- TA CLÉ RAWG
+const TMDB_API_KEY = 'METS_TA_CLE_TMDB_ICI'; // <-- TA CLÉ TMDB
+const DISCOGS_API_TOKEN = 'METS_TON_TOKEN_DISCOGS_ICI'; // <-- TON TOKEN DISCOGS
 
 // --- Variables Globales ---
 let wishlist = JSON.parse(localStorage.getItem('app_wishlist_cloud_v1')) || [];
@@ -26,7 +26,7 @@ let currentDetailCollectionIndex = null;
 let lastGachaponCategory = 'all';
 let tempFormPhotos = [];
 
-// --- Instances Chart.js (Méga Dashboard) ---
+// --- Instances Chart.js ---
 let platformPieChart = null;
 let monthlyBudgetChart = null;
 let storeBarChart = null;
@@ -935,9 +935,8 @@ function renderCollection() {
   }
 }
 
-// --- Dashboard Analytique (Méga Tableau de Bord) ---
+// --- Dashboard Analytique (Charts.js en mode Claymorphism Pop 3D) ---
 function updateStatsDashboard() {
-  // 1. Calcul des KPIs
   let totalVal = 0;
   let itemCount = collection.length;
   const platformData = {};
@@ -949,11 +948,9 @@ function updateStatsDashboard() {
     const price = parseFloat(item.price) || 0;
     totalVal += price;
 
-    // Support
     const plat = item.platform || 'Autre';
     platformData[plat] = (platformData[plat] || 0) + price;
 
-    // Mois d'achat
     if (item.buyDate) {
       const monthKey = item.buyDate.length >= 7 ? item.buyDate.substring(0, 7) : null;
       if (monthKey) {
@@ -961,18 +958,15 @@ function updateStatsDashboard() {
       }
     }
 
-    // Enseigne
     const store = item.store && item.store !== 'Non renseigné' ? item.store : 'Autre / Inconnu';
     storeData[store] = (storeData[store] || 0) + 1;
 
-    // État
     const state = item.state || 'Non spécifié';
     stateData[state] = (stateData[state] || 0) + 1;
   });
 
   const avgPrice = itemCount > 0 ? totalVal / itemCount : 0;
 
-  // Calcul du total Wishlist (statut "À prendre")
   let wishlistTotal = 0;
   wishlist.forEach(i => {
     if (i.status === 'À prendre') {
@@ -980,16 +974,15 @@ function updateStatsDashboard() {
     }
   });
 
-  // Mise à jour des KPIs dans le DOM
+  // Injection des KPIs
   document.getElementById('kpiTotalValue').textContent = formatMoney(totalVal);
   document.getElementById('kpiAvgPrice').textContent = formatMoney(avgPrice);
   document.getElementById('kpiWishlistTotal').textContent = formatMoney(wishlistTotal);
   document.getElementById('kpiItemCount').textContent = itemCount;
 
-  // --- Préparation des données Charts.js ---
+  // Couleurs acidulées style pâte à modeler
   const clayColors = ['#ff85a2', '#70c1b3', '#ffe066', '#b5b2ff', '#ffb703', '#8ecae6', '#219ebc', '#fb8500'];
 
-  // Tri des mois
   const sortedMonths = Object.keys(monthlyData).sort();
   const monthlyLabels = sortedMonths.map(ym => {
     const [y, m] = ym.split('-');
@@ -1008,7 +1001,20 @@ function updateStatsDashboard() {
   const stateLabels = Object.keys(stateData);
   const stateValues = Object.keys(stateData).map(st => stateData[st]);
 
-  // 1. Camembert : Valeur par Support
+  // Options communes pour supprimer les grilles austères et styliser les polices
+  const cleanChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 10, family: 'sans-serif' }, boxWidth: 10, padding: 10 } }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 9 } } },
+      y: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 9 } } }
+    }
+  };
+
+  // 1. Camembert Donut : Valeur par Support
   const ctxPie = document.getElementById('chartPlatformPie')?.getContext('2d');
   if (ctxPie) {
     if (platformPieChart) platformPieChart.destroy();
@@ -1016,9 +1022,9 @@ function updateStatsDashboard() {
       type: 'doughnut',
       data: {
         labels: platLabels.length > 0 ? platLabels : ['Aucune donnée'],
-        datasets: [{ data: platValues.length > 0 ? platValues : [1], backgroundColor: clayColors, borderWidth: 2, borderColor: '#ffffff' }]
+        datasets: [{ data: platValues.length > 0 ? platValues : [1], backgroundColor: clayColors, borderWidth: 3, borderColor: '#f4f6f9', cutout: '65%', borderRadius: 8, spacing: 4 }]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 10 }, boxWidth: 10 } } } }
+      options: { ...cleanChartOptions, scales: { x: { display: false }, y: { display: false } } }
     });
   }
 
@@ -1030,9 +1036,9 @@ function updateStatsDashboard() {
       type: 'bar',
       data: {
         labels: monthlyLabels.length > 0 ? monthlyLabels : ['Aucun achat'],
-        datasets: [{ label: 'Dépenses (€)', data: monthlyValues.length > 0 ? monthlyValues : [0], backgroundColor: '#70c1b3', borderColor: '#2b7a6b', borderWidth: 1, borderRadius: 6 }]
+        datasets: [{ label: 'Dépenses (€)', data: monthlyValues.length > 0 ? monthlyValues : [0], backgroundColor: '#70c1b3', borderWidth: 0, borderRadius: 10, barThickness: 'flex' }]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { font: { weight: 'bold', size: 10 } } }, x: { ticks: { font: { weight: 'bold', size: 10 } } } } }
+      options: { ...cleanChartOptions, plugins: { legend: { display: false } } }
     });
   }
 
@@ -1044,13 +1050,13 @@ function updateStatsDashboard() {
       type: 'bar',
       data: {
         labels: storeLabels.length > 0 ? storeLabels : ['Aucune enseigne'],
-        datasets: [{ label: 'Objets', data: storeValues.length > 0 ? storeValues : [0], backgroundColor: '#ffb703', borderColor: '#fb8500', borderWidth: 1, borderRadius: 6 }]
+        datasets: [{ label: 'Objets', data: storeValues.length > 0 ? storeValues : [0], backgroundColor: '#ffb703', borderWidth: 0, borderRadius: 8 }]
       },
-      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } }, y: { ticks: { font: { weight: 'bold', size: 10 } } } } }
+      options: { indexAxis: 'y', ...cleanChartOptions, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { stepSize: 1, font: { size: 9 } } }, y: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 9 } } } } }
     });
   }
 
-  // 4. Camembert : État de la collection
+  // 4. Camembert : État de conservation
   const ctxState = document.getElementById('chartStatePie')?.getContext('2d');
   if (ctxState) {
     if (statePieChart) statePieChart.destroy();
@@ -1058,9 +1064,9 @@ function updateStatsDashboard() {
       type: 'pie',
       data: {
         labels: stateLabels.length > 0 ? stateLabels : ['Aucune donnée'],
-        datasets: [{ data: stateValues.length > 0 ? stateValues : [1], backgroundColor: ['#70c1b3', '#ff85a2', '#ffe066', '#b5b2ff', '#fb8500'], borderWidth: 2, borderColor: '#ffffff' }]
+        datasets: [{ data: stateValues.length > 0 ? stateValues : [1], backgroundColor: ['#70c1b3', '#ff85a2', '#ffe066', '#b5b2ff', '#fb8500'], borderWidth: 3, borderColor: '#f4f6f9', borderRadius: 8, spacing: 4 }]
       },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 10 }, boxWidth: 10 } } } }
+      options: { ...cleanChartOptions, scales: { x: { display: false }, y: { display: false } } }
     });
   }
 }
