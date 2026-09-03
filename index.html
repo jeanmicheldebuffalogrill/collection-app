@@ -467,64 +467,64 @@
     <div id="collectionContainer"></div>
   </div>
 
-  <!-- ONGLET STATISTIQUES (MEGA TABLEAU DE BORD) -->
+  <!-- ONGLET STATISTIQUES (MÉGA TABLEAU DE BORD CLAYMORPHISM) -->
   <div id="tab-stats" class="tab-content">
-    <div style="text-align: center; margin-bottom: 16px;">
+    <div style="text-align: center; margin-bottom: 14px;">
       <h2 style="font-size: 1.15rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 2px;">📊 MÉGA TABLEAU DE BORD</h2>
-      <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Vue globale et instantanée de votre collection</p>
+      <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Vue globale en un coup d'œil</p>
     </div>
 
-    <!-- 1. KPI Cartes Chiffres Clés -->
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px;">
-      <div style="background: var(--bg); padding: 12px; border-radius: 20px; box-shadow: var(--clay-inset); text-align: center;">
-        <div style="font-size: 0.68rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase;">Investissement Total</div>
-        <div id="kpiTotalValue" style="font-size: 1.1rem; font-weight: 900; color: var(--clay-yellow); margin-top: 4px;">0,00 €</div>
+    <!-- 1. KPI Cartes Galets 3D -->
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px;">
+      <div class="stats-kpi-card">
+        <div style="font-size: 0.65rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase;">Investissement</div>
+        <div id="kpiTotalValue" style="font-size: 1.05rem; font-weight: 900; color: var(--clay-yellow); margin-top: 4px;">0,00 €</div>
       </div>
-      <div style="background: var(--bg); padding: 12px; border-radius: 20px; box-shadow: var(--clay-inset); text-align: center;">
-        <div style="font-size: 0.68rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase;">Prix Moyen / Objet</div>
-        <div id="kpiAvgPrice" style="font-size: 1.1rem; font-weight: 900; color: var(--clay-blue); margin-top: 4px;">0,00 €</div>
+      <div class="stats-kpi-card">
+        <div style="font-size: 0.65rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase;">Prix Moyen</div>
+        <div id="kpiAvgPrice" style="font-size: 1.05rem; font-weight: 900; color: var(--clay-blue); margin-top: 4px;">0,00 €</div>
       </div>
-      <div style="background: var(--bg); padding: 12px; border-radius: 20px; box-shadow: var(--clay-inset); text-align: center;">
-        <div style="font-size: 0.68rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase;">Wishlist (À prendre)</div>
-        <div id="kpiWishlistTotal" style="font-size: 1.1rem; font-weight: 900; color: var(--clay-pink); margin-top: 4px;">0,00 €</div>
+      <div class="stats-kpi-card">
+        <div style="font-size: 0.65rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase;">Wishlist (À prendre)</div>
+        <div id="kpiWishlistTotal" style="font-size: 1.05rem; font-weight: 900; color: var(--clay-pink); margin-top: 4px;">0,00 €</div>
       </div>
-      <div style="background: var(--bg); padding: 12px; border-radius: 20px; box-shadow: var(--clay-inset); text-align: center;">
-        <div style="font-size: 0.68rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase;">Objets Possédés</div>
-        <div id="kpiItemCount" style="font-size: 1.1rem; font-weight: 900; color: var(--text); margin-top: 4px;">0</div>
+      <div class="stats-kpi-card">
+        <div style="font-size: 0.65rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase;">Objets Possédés</div>
+        <div id="kpiItemCount" style="font-size: 1.05rem; font-weight: 900; color: var(--text); margin-top: 4px;">0</div>
       </div>
     </div>
 
-    <!-- 2. Grille des 4 Graphiques (Optimisée pour tout voir d'un coup d'œil) -->
-    <div style="display: grid; grid-template-columns: 1fr; gap: 14px;">
+    <!-- 2. Grille des Bulles Graphiques 3D -->
+    <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
       
-      <!-- Camembert : Valeur par Support -->
-      <div style="background: var(--bg); padding: 12px; border-radius: 20px; box-shadow: var(--clay-inset);">
-        <div style="font-size: 0.75rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; text-align: center;">🥧 Répartition de la valeur par support</div>
-        <div style="position: relative; height: 180px; width: 100%;">
+      <!-- Camembert Donut : Valeur par Support -->
+      <div class="stats-chart-bubble">
+        <div style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; text-align: center;">🥧 Valeur par Support</div>
+        <div style="position: relative; height: 160px; width: 100%;">
           <canvas id="chartPlatformPie"></canvas>
         </div>
       </div>
 
       <!-- Histogramme : Dépenses par Mois -->
-      <div style="background: var(--bg); padding: 12px; border-radius: 20px; box-shadow: var(--clay-inset);">
-        <div style="font-size: 0.75rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; text-align: center;">📈 Évolution des dépenses par mois</div>
-        <div style="position: relative; height: 180px; width: 100%;">
+      <div class="stats-chart-bubble">
+        <div style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; text-align: center;">📈 Évolution des Dépenses</div>
+        <div style="position: relative; height: 160px; width: 100%;">
           <canvas id="chartMonthlyBudget"></canvas>
         </div>
       </div>
 
-      <!-- Barres Horizontales : Répartition par Enseigne -->
-      <div style="background: var(--bg); padding: 12px; border-radius: 20px; box-shadow: var(--clay-inset);">
-        <div style="font-size: 0.75rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; text-align: center;">🏪 Volume par enseigne d'achat</div>
-        <div style="position: relative; height: 160px; width: 100%;">
+      <!-- Barres Horizontales : Enseignes -->
+      <div class="stats-chart-bubble">
+        <div style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; text-align: center;">🏪 Volume par Enseigne</div>
+        <div style="position: relative; height: 140px; width: 100%;">
           <canvas id="chartStoreBar"></canvas>
         </div>
       </div>
 
       <!-- Camembert : État de conservation -->
-      <div style="background: var(--bg); padding: 12px; border-radius: 20px; box-shadow: var(--clay-inset); margin-bottom: 10px;">
-        <div style="font-size: 0.75rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; text-align: center;">✨ État de conservation de la collection</div>
-        <div style="position: relative; height: 180px; width: 100%;">
+      <div class="stats-chart-bubble" style="margin-bottom: 10px;">
+        <div style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; text-align: center;">✨ État de Conservation</div>
+        <div style="position: relative; height: 160px; width: 100%;">
           <canvas id="chartStatePie"></canvas>
         </div>
       </div>
