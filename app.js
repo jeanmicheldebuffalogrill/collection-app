@@ -26,6 +26,10 @@ let currentDetailCollectionIndex = null;
 let lastGachaponCategory = 'all';
 let tempFormPhotos = [];
 
+// --- Instances Chart.js ---
+let platformPieChart = null;
+let monthlyBudgetChart = null;
+
 // --- Configurations des listes ---
 const APP_CONFIG = {
   platforms: {
@@ -336,6 +340,7 @@ function initApp() {
   updateMonthFilterDropdowns();
   renderWishlist();
   renderCollection();
+  updateStatsDashboard();
   if (supabaseClient) fetchCloudDataBackground();
 }
 
@@ -352,14 +357,14 @@ async function fetchCloudDataBackground() {
     localStorage.setItem('app_wishlist_cloud_v1', JSON.stringify(wishlist));
     localStorage.setItem('app_collection_cloud_v1', JSON.stringify(collection));
     setSyncStatus('🟢 Cloud Synchronisé', 'var(--clay-green)');
-    updateMonthFilterDropdowns(); renderWishlist(); renderCollection();
+    updateMonthFilterDropdowns(); renderWishlist(); renderCollection(); updateStatsDashboard();
   } catch (e) { setSyncStatus('🟢 Mode Local Actif', 'var(--clay-blue)'); }
 }
 
 function saveData() {
   localStorage.setItem('app_wishlist_cloud_v1', JSON.stringify(wishlist));
   localStorage.setItem('app_collection_cloud_v1', JSON.stringify(collection));
-  updateMonthFilterDropdowns(); renderWishlist(); renderCollection();
+  updateMonthFilterDropdowns(); renderWishlist(); renderCollection(); updateStatsDashboard();
   if (supabaseClient) pushCloudDataBackground();
 }
 
@@ -659,7 +664,6 @@ function renderWishlist() {
     
     card.className = `item-card ${statusClass} ${item.editionType === 'Collector' ? 'is-collector' : ''}`;
     
-    // Affichage des deux dates (Sortie & Prévu au format Mois)
     const releaseDateFormatted = item.releaseDate ? new Date(item.releaseDate).toLocaleDateString('fr-FR') : null;
     let targetDateFormatted = null;
     if (item.targetBuyDate) {
@@ -929,6 +933,99 @@ function renderCollection() {
   }
 }
 
+// --- Dashboard Analytique (Charts.js) ---
+function updateStatsDashboard() {
+  const platformData = {};
+  const monthlyData = {};
+
+  collection.forEach(item => {
+    // 1. Stats par Support (Valeur totale)
+    const plat = item.platform || 'Autre';
+    const price = parseFloat(item.price) || 0;
+    platformData[plat] = (platformData[plat] || 0) + price;
+
+    // 2. Stats par Mois d'achat
+    if (item.buyDate) {
+      const monthKey = item.buyDate.length >= 7 ? item.buyDate.substring(0, 7) : null;
+      if (monthKey) {
+        monthlyData[monthKey] = (monthlyData[monthKey] || 0) + price;
+      }
+    }
+  });
+
+  // Tri des mois chronologiquement
+  const sortedMonths = Object.keys(monthlyData).sort();
+  const monthlyLabels = sortedMonths.map(ym => {
+    const [y, m] = ym.split('-');
+    const dateObj = new Date(parseInt(y, 10), parseInt(m, 10) - 1, 1);
+    const label = dateObj.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  });
+  const monthlyValues = sortedMonths.map(ym => monthlyData[ym]);
+
+  const platLabels = Object.keys(platformData);
+  const platValues = Object.keys(platformData).map(p => platformData[p]);
+
+  // Couleurs Claymorphism / Harmonieuses
+  const clayColors = ['#ff85a2', '#70c1b3', '#ffe066', '#b5b2ff', '#ffb703', '#8ecae6', '#219ebc', '#fb8500'];
+
+  // --- 1. Rendu Camembert (Platform Pie Chart) ---
+  const ctxPie = document.getElementById('chartPlatformPie')?.getContext('2d');
+  if (ctxPie) {
+    if (platformPieChart) platformPieChart.destroy();
+    platformPieChart = new Chart(ctxPie, {
+      type: 'doughnut',
+      data: {
+        labels: platLabels.length > 0 ? platLabels : ['Aucune donnée'],
+        datasets: [{
+          data: platValues.length > 0 ? platValues : [1],
+          backgroundColor: clayColors,
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 11 }, boxWidth: 12 } }
+        }
+      }
+    });
+  }
+
+  // --- 2. Rendu Histogramme (Monthly Budget Bar Chart) ---
+  const ctxBar = document.getElementById('chartMonthlyBudget')?.getContext('2d');
+  if (ctxBar) {
+    if (monthlyBudgetChart) monthlyBudgetChart.destroy();
+    monthlyBudgetChart = new Chart(ctxBar, {
+      type: 'bar',
+      data: {
+        labels: monthlyLabels.length > 0 ? monthlyLabels : ['Aucun achat'],
+        datasets: [{
+          label: 'Dépenses (€)',
+          data: monthlyValues.length > 0 ? monthlyValues : [0],
+          backgroundColor: '#70c1b3',
+          borderColor: '#2b7a6b',
+          borderWidth: 1,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { font: { weight: 'bold' } } },
+          x: { ticks: { font: { weight: 'bold' } } }
+        }
+      }
+    });
+  }
+}
+
 function updateDynamicCollectionFilters() {
   const platform = document.getElementById('c-filterPlatform')?.value;
   const gameplayFilter = document.getElementById('c-filterGameplay');
@@ -975,7 +1072,6 @@ window.moveToCollection = function(index) {
   if (!item) return;
   if (supabaseClient && item.id) { supabaseClient.from('wishlist_items').delete().eq('id', item.id); }
 
-  // Si on a un mois d'achat prévu, on le garde au format YYYY-MM (sinon la date du jour au format YYYY-MM)
   let finalBuyDate = item.targetBuyDate || new Date().toISOString().slice(0, 7);
 
   collection.unshift({
@@ -1347,12 +1443,16 @@ document.getElementById('edit-c-platform')?.addEventListener('change', function(
 function switchTab(tabId) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tabBtn' + tabId).classList.add('active'); document.getElementById('tab-' + tabId.toLowerCase()).classList.add('active');
+  document.getElementById('tabBtn' + tabId).classList.add('active'); 
+  document.getElementById('tab-' + tabId.toLowerCase()).classList.add('active');
+  
   if(tabId === 'Wishlist') renderWishlist();
   if(tabId === 'Collection') renderCollection();
+  if(tabId === 'Stats') updateStatsDashboard();
 }
 document.getElementById('tabBtnWishlist')?.addEventListener('click', () => switchTab('Wishlist'));
 document.getElementById('tabBtnCollection')?.addEventListener('click', () => switchTab('Collection'));
+document.getElementById('tabBtnStats')?.addEventListener('click', () => switchTab('Stats'));
 document.getElementById('tabBtnRandom')?.addEventListener('click', () => switchTab('Random'));
 
 document.getElementById('btnResetPlatform')?.addEventListener('click', () => { 
