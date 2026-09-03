@@ -1,5 +1,5 @@
 /* ==========================================================================
-   VRAI CLAYMORPHISM SOMBRE + PASTEL POP 3D (ZÉRO BUG DE SCROLL & iOS SAFE)
+   VRAI CLAYMORPHISM SOMBRE + PASTEL POP 3D (ULTRA OPTIMISÉ iOS & PC)
 ========================================================================== */
 
 :root {
@@ -106,7 +106,7 @@ body {
 .tab-content.active { display: block; animation: slideUp 0.3s ease-out; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* --- Boutons d'Action Principaux (Dégradés Pastel) --- */
+/* --- Boutons d'Action Principaux --- */
 .btn-open-add { width: 100%; border: none; padding: 18px; border-radius: 24px; font-weight: 900; font-size: 0.88rem; color: var(--text-dark); cursor: pointer; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; transition: transform 0.2s ease; box-shadow: var(--clay-btn), var(--pastel-btn-inset); }
 #btnOpenAddWishlist { background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple)); }
 #btnOpenAddCollection { background: linear-gradient(135deg, var(--pastel-green), var(--pastel-blue)); }
@@ -121,106 +121,70 @@ body {
 .amount-pending { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.3); }
 .amount-value { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.3); }
 
-/* --- Filtres & Contrôles --- */
-.search-bar-input { width: 100%; padding: 14px 16px; border: none; border-radius: 18px; background: var(--bg); box-shadow: var(--clay-inset); font-size: 0.85rem; font-weight: 700; color: var(--pastel-blue); margin-bottom: 14px; outline: none; transition: box-shadow 0.3s ease; }
+/* ==============================================================
+   🎯 NOUVELLE GRILLE DE FILTRES HARMONISÉE (IMAGE 10)
+============================================================== */
+.search-bar-input { width: 100%; padding: 14px 16px; border: none; border-radius: 18px; background: var(--bg); box-shadow: var(--clay-inset); font-size: 0.85rem; font-weight: 700; color: var(--pastel-blue); margin-bottom: 14px; outline: none; }
 .search-bar-input:focus { box-shadow: var(--clay-inset), 0 0 0 2px var(--pastel-blue); }
-.month-filter-box { background: var(--bg); padding: 12px 16px; border-radius: 18px; box-shadow: var(--clay-inset); display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; font-size: 0.78rem; font-weight: 800; }
-.month-filter-box select { border: none; background: var(--card-bg); box-shadow: var(--clay-btn); padding: 8px 12px; border-radius: 12px; font-weight: 800; font-size: 0.75rem; color: var(--pastel-blue); outline: none; cursor: pointer; max-width: 55%; }
-.controls { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; width: 100%; }
-.controls select { flex: 1; min-width: 130px; border: none; background: var(--bg); box-shadow: var(--clay-inset); padding: 12px; border-radius: 16px; font-size: 0.75rem; font-weight: 800; color: var(--text); outline: none; cursor: pointer; }
+
+/* La zone controls devient une vraie grille 2 colonnes parfaite */
+.controls { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 12px; 
+  margin-bottom: 16px; 
+  width: 100%; 
+}
+.controls select, .month-filter-box { 
+  width: 100%; 
+  border: none; 
+  background: var(--bg); 
+  box-shadow: var(--clay-inset); 
+  padding: 12px; 
+  border-radius: 16px; 
+  font-size: 0.75rem; 
+  font-weight: 800; 
+  color: var(--text); 
+  outline: none; 
+  cursor: pointer; 
+}
+/* Exception si la box de mois est gérée différemment dans ton HTML, elle s'intégrera quand même */
+.month-filter-box { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; grid-column: span 2; }
+.month-filter-box select { background: var(--card-bg); box-shadow: var(--clay-btn); padding: 8px; border-radius: 12px; color: var(--pastel-blue); }
 
 /* --- Grille Plateformes --- */
 .platform-breakdown { background: var(--bg); padding: 18px; border-radius: 24px; box-shadow: var(--clay-inset); margin-bottom: 20px; }
 .platform-breakdown-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .platform-breakdown-title { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); }
 .btn-reset-chip { background: var(--card-bg); border: none; padding: 6px 12px; border-radius: 12px; box-shadow: var(--clay-btn); font-size: 0.65rem; font-weight: 800; cursor: pointer; color: var(--text); }
-.btn-reset-chip:active { box-shadow: var(--clay-btn-active); }
+.btn-reset-chip:active { box-shadow: var(--clay-btn-active); transform: scale(0.95); }
 .platform-grid { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
-.platform-chip { background: var(--card-bg); padding: 10px 14px; border-radius: 16px; box-shadow: var(--clay-btn); min-width: 90px; text-align: center; cursor: pointer; flex-shrink: 0; transition: transform 0.2s ease; }
+.platform-chip { background: var(--card-bg); padding: 10px 14px; border-radius: 16px; box-shadow: var(--clay-btn); min-width: 90px; text-align: center; cursor: pointer; flex-shrink: 0; }
 .platform-chip:active { transform: scale(0.95); }
 .platform-chip.active { box-shadow: var(--clay-btn-active); background: rgba(167, 243, 208, 0.15); }
 .platform-chip-name { font-size: 0.7rem; font-weight: 900; margin-bottom: 2px; }
 .platform-chip-value { font-size: 0.75rem; font-weight: 900; color: var(--pastel-yellow); }
 .platform-chip-count { font-size: 0.6rem; color: var(--text-muted); font-weight: 800; }
 
-/* ==============================================================
-   CARTES ARTICLES & ANIMATIONS HOLOGRAPHIQUES (OPTIMISÉES GPU)
-============================================================== */
+/* --- Cartes Articles --- */
+@keyframes holoSweep { 0% { transform: translateX(-150%); } 100% { transform: translateX(150%); } }
 
-@keyframes holoSweep { 
-  0% { transform: translateX(-150%); } 
-  100% { transform: translateX(150%); } 
-}
-
-.item-card, .grid-item-card, .tile-card { 
-  background: var(--card-bg); 
-  position: relative; 
-  overflow: hidden; 
-  border: 2px solid transparent; 
-  transition: transform 0.2s ease, box-shadow 0.2s ease; 
-}
+.item-card, .grid-item-card, .tile-card { background: var(--card-bg); position: relative; overflow: hidden; border: 2px solid transparent; transition: transform 0.2s ease, box-shadow 0.2s ease; }
 .item-card { border-radius: 26px; padding: 16px; margin-bottom: 16px; box-shadow: var(--clay-shadow); display: flex; gap: 14px; }
 .grid-item-card { border-radius: 26px; padding: 12px; box-shadow: var(--clay-shadow); display: flex; flex-direction: column; gap: 10px; }
 .tile-card { border-radius: 28px; padding: 14px; box-shadow: var(--clay-shadow); min-width: 180px; max-width: 180px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
 
-/* 👆 COMPORTEMENT TACTILE iPHONE */
-.item-card:active, .grid-item-card:active, .tile-card:active { 
-  transform: scale(0.97); 
-  box-shadow: var(--clay-inset); 
-  border-color: rgba(233, 213, 255, 0.5); 
-}
+.item-card:active, .grid-item-card:active, .tile-card:active { transform: scale(0.97); box-shadow: var(--clay-inset); border-color: rgba(233, 213, 255, 0.5); }
 
-/* 🖱️ COMPORTEMENT SOURIS PC */
-@media (hover: hover) and (pointer: fine) {
-  .item-card:hover, .grid-item-card:hover, .tile-card:hover {
-    transform: translateY(-4px) scale(1.01);
-    border-color: rgba(233, 213, 255, 0.6);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.95), 0 0 30px rgba(233, 213, 255, 0.25), var(--clay-shadow);
-    z-index: 10;
-  }
-}
+/* Reflets Standards */
+.item-card::after, .grid-item-card::after, .tile-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(105deg, transparent 25%, rgba(186, 230, 253, 0.15) 45%, rgba(233, 213, 255, 0.2) 50%, transparent 75%); animation: holoSweep 5s infinite linear; pointer-events: none; z-index: 1; -webkit-transform: translateZ(0); }
 
-/* ✨ EFFET "CYBER-GLASS" SUR LES JEUX STANDARDS ✨ */
-.item-card::after, .grid-item-card::after, .tile-card::after {
-  content: ''; 
-  position: absolute; 
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(105deg, transparent 25%, rgba(186, 230, 253, 0.15) 45%, rgba(233, 213, 255, 0.2) 50%, transparent 75%);
-  animation: holoSweep 5s infinite linear;
-  pointer-events: none; 
-  z-index: 1; 
-  -webkit-transform: translateZ(0); /* Accélération matérielle iOS */
-}
-
-/* 💎 LISERÉ HOLOGRAPHIQUE COLLECTOR 💎 */
-.item-card.is-collector, .grid-item-card.is-collector, .tile-card.is-collector { 
-  border: 2px solid rgba(253, 224, 71, 0.6) !important; 
-  box-shadow: var(--clay-shadow), inset 0 0 15px rgba(253, 224, 71, 0.1) !important; 
-}
-
-/* Override de l'animation standard pour les collectors (plus rapide, or et rose) */
-.item-card.is-collector::after, .grid-item-card.is-collector::after, .tile-card.is-collector::after {
-  background: linear-gradient(105deg, transparent 25%, rgba(255, 255, 255, 0.5) 45%, rgba(255, 183, 3, 0.6) 50%, rgba(255, 89, 100, 0.4) 55%, transparent 75%);
-  animation: holoSweep 3s infinite linear; 
-  opacity: 0.9;
-}
-
-/* 🌟 DÉPLACEMENT DES ÉTOILES DU COLLECTOR (EN HAUT À GAUCHE) 🌟 */
-.item-card.is-collector::before, .grid-item-card.is-collector::before, .tile-card.is-collector::before {
-  content: '✨'; 
-  position: absolute; 
-  top: -4px; 
-  left: -4px; 
-  font-size: 1.6rem; 
-  opacity: 0.9; 
-  pointer-events: none; 
-  filter: drop-shadow(0 0 8px rgba(254, 240, 138, 0.9)); 
-  z-index: 5; 
-}
+/* Collector */
+.item-card.is-collector, .grid-item-card.is-collector, .tile-card.is-collector { border: 2px solid rgba(253, 224, 71, 0.6) !important; box-shadow: var(--clay-shadow), inset 0 0 15px rgba(253, 224, 71, 0.1) !important; }
+.item-card.is-collector::after, .grid-item-card.is-collector::after, .tile-card.is-collector::after { background: linear-gradient(105deg, transparent 25%, rgba(255, 255, 255, 0.5) 45%, rgba(255, 183, 3, 0.6) 50%, rgba(255, 89, 100, 0.4) 55%, transparent 75%); animation: holoSweep 3s infinite linear; opacity: 0.9; }
+.item-card.is-collector::before, .grid-item-card.is-collector::before, .tile-card.is-collector::before { content: '✨'; position: absolute; top: -4px; left: -4px; font-size: 1.6rem; opacity: 0.9; pointer-events: none; filter: drop-shadow(0 0 8px rgba(254, 240, 138, 0.9)); z-index: 5; }
 
 .item-cover, .item-content, .grid-item-cover, .grid-item-title, .tile-cover, .tile-info { position: relative; z-index: 2; }
-
-/* Contenus des cartes */
 .item-cover { width: 80px; height: 115px; object-fit: cover; border-radius: 16px; box-shadow: var(--clay-btn); flex-shrink: 0; }
 .item-cover-placeholder { width: 80px; height: 115px; border-radius: 16px; background: var(--bg); box-shadow: var(--clay-inset); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; flex-shrink: 0; }
 .item-content { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
@@ -249,66 +213,89 @@ body {
 /* Liens Marchands */
 .market-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; padding-bottom: 2px; }
 .btn-market { background: var(--card-bg); padding: 5px 10px; border-radius: 10px; box-shadow: var(--clay-inset); font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-decoration: none; white-space: nowrap; }
-.btn-market.collector { color: var(--pastel-yellow); background: rgba(254, 240, 138, 0.1); }
-.btn-market.discogs { color: var(--pastel-purple); background: rgba(233, 213, 255, 0.1); }
-.btn-market.pricecharting { color: var(--pastel-green); background: rgba(167, 243, 208, 0.1); }
 
-/* Vues Grid & Timeline */
-.grid-collection-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+/* Grid & Timeline specifics */
 .grid-item-cover { width: 100%; height: 170px; object-fit: cover; border-radius: 16px; box-shadow: var(--clay-btn); position: relative; z-index: 2; }
-.grid-item-cover-placeholder { width: 100%; height: 170px; border-radius: 16px; background: var(--bg); box-shadow: var(--clay-inset); display: flex; justify-content: center; align-items: center; font-size: 2rem; position: relative; z-index: 2; }
 .grid-item-title { font-size: 0.8rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; z-index: 2;}
-
 .timeline-h-container { display: flex; gap: 18px; overflow-x: auto; padding: 10px 4px 20px 4px; }
 .tile-cover { width: 100%; height: 220px; object-fit: cover; border-radius: 18px; box-shadow: var(--clay-btn); position: relative; z-index: 2;}
 .tile-title { font-size: 0.85rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tile-meta { display: flex; justify-content: space-between; align-items: center; }
 
 /* ==============================================================
-   🛑 MODALES : CORRECTION DÉFINITIVE DATES EMPILÉES SUR MOBILE
+   🪟 MODALE PRODUIT : ULTRA COMPACTE ET LISIBLE
 ============================================================== */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 12, 17, 0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: none; justify-content: center; align-items: center; z-index: 999; padding: 16px; }
-.modal-box { background: rgba(28, 33, 46, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); width: 100%; max-width: 445px; max-height: 85vh; overflow-y: auto; padding: 24px; border-radius: 36px; box-shadow: 0 40px 80px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.05); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-@keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-weight: 900; font-size: 1rem; }
+/* Réduction des marges internes pour la compacité */
+.modal-box { 
+  background: rgba(28, 33, 46, 0.9); 
+  backdrop-filter: blur(10px); 
+  -webkit-backdrop-filter: blur(10px); 
+  width: 100%; 
+  max-width: 445px; 
+  max-height: 85vh; 
+  overflow-y: auto; 
+  padding: 20px 16px; /* Plus compact */
+  border-radius: 36px; 
+  box-shadow: 0 40px 80px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.05); 
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+}
 
-/* 🛑 LA SOLUTION ANTI-CHEVAUCHEMENT DES DATES ET PRIX 🛑 */
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-weight: 900; font-size: 1rem; }
+
+/* 🛑 LA GRILLE COMPACTE SANS CHEVAUCHEMENT 🛑 */
 .form-row { 
-  display: flex; 
-  flex-direction: column; /* Force l'empilement vertical par défaut (Mobile) */
-  gap: 14px; 
-  margin-bottom: 16px; 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; /* Force 2 colonnes égales partout */
+  gap: 10px; 
+  margin-bottom: 12px; /* Marges réduites */
 }
 .form-row > * { 
-  width: 100%; 
+  min-width: 0; /* Évite que les éléments explosent la grille */
+}
+.form-row label { 
+  display: block; 
+  margin-bottom: 4px; 
+  font-size: 0.65rem; 
+  font-weight: 800; 
+  color: var(--text-muted); 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; /* MAGIE : Le texte trop long se coupe avec "..." */
 }
 
-/* On ne remet côte à côte QUE si l'écran est très large (PC) */
-@media (min-width: 500px) {
-  .form-row { 
-    flex-direction: row; 
-  }
-  .form-row > * { 
-    flex: 1; 
-  }
-}
-
-.form-row label { display: block; margin-bottom: 6px; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); }
-
-.modal-box input, .modal-box select, .modal-box textarea { width: 100%; padding: 14px; border: none; border-radius: 18px; background: rgba(10, 12, 17, 0.6); box-shadow: var(--clay-inset); font-size: 0.85rem; font-weight: 800; color: var(--text); outline: none; }
+/* On réduit légèrement la taille des inputs pour gagner de la place */
+.modal-box input, .modal-box select, .modal-box textarea { width: 100%; padding: 12px 14px; border: none; border-radius: 14px; background: rgba(10, 12, 17, 0.6); box-shadow: var(--clay-inset); font-size: 0.85rem; font-weight: 800; color: var(--text); outline: none; }
 .modal-box input:focus, .modal-box select:focus, .modal-box textarea:focus { box-shadow: var(--clay-inset), 0 0 0 2px var(--pastel-blue); }
-.modal-box textarea { resize: vertical; min-height: 75px; margin-bottom: 14px; }
+.modal-box textarea { resize: vertical; min-height: 60px; margin-bottom: 12px; }
+
+/* 🎬 LE BOUTON TMDB MAGNIFIÉ 🎬 */
+.modal-box a[href*="tmdb"], .modal-box .btn-tmdb, .tmdb-btn {
+  background: linear-gradient(135deg, var(--clay-blue), #0ea5e9);
+  color: var(--text-dark) !important;
+  padding: 14px;
+  border-radius: 18px;
+  font-weight: 900;
+  font-size: 0.85rem;
+  text-align: center;
+  display: block;
+  text-decoration: none;
+  box-shadow: var(--clay-btn), inset 2px 2px 6px rgba(255,255,255,0.4);
+  margin-bottom: 14px;
+  transition: transform 0.2s ease;
+}
+.modal-box a[href*="tmdb"]:active { transform: scale(0.96); box-shadow: var(--clay-inset); }
 
 .btn-add { width: 100%; background: var(--card-bg); border: none; padding: 16px; border-radius: 20px; box-shadow: var(--clay-btn); font-weight: 900; font-size: 0.9rem; color: var(--text); cursor: pointer; margin-top: 6px; }
 .btn-add:active { box-shadow: var(--clay-btn-active); transform: scale(0.96); }
 
-/* AFFICHE RÉDUITE DANS LES DÉTAILS */
-.detail-cover-large { width: 110px !important; height: 150px !important; object-fit: cover; border-radius: 16px !important; box-shadow: var(--clay-btn); margin: 0 auto 16px auto; cursor: pointer; display: block; }
+/* Affiche Réduite */
+.detail-cover-large { width: 110px !important; height: 150px !important; object-fit: cover; border-radius: 16px !important; box-shadow: var(--clay-btn); margin: 0 auto 12px auto; cursor: pointer; display: block; }
 
-/* Section Images & Galeries */
-.image-section { background: rgba(10, 12, 17, 0.4); padding: 14px; border-radius: 22px; box-shadow: var(--clay-inset); margin-bottom: 14px; }
-.image-action-grid { display: flex; gap: 10px; margin-bottom: 10px; }
+/* Section Images */
+.image-section { background: rgba(10, 12, 17, 0.4); padding: 12px; border-radius: 22px; box-shadow: var(--clay-inset); margin-bottom: 12px; }
+.image-action-grid { display: flex; gap: 8px; margin-bottom: 8px; }
 .btn-image-action { flex: 1; background: var(--card-bg); border: none; padding: 10px; border-radius: 14px; box-shadow: var(--clay-btn); font-size: 0.75rem; font-weight: 900; color: var(--text); }
 .btn-image-action:active { box-shadow: var(--clay-btn-active); transform: scale(0.95); }
 .image-input-direct { width: 100%; padding: 10px 14px; border: none; border-radius: 14px; background: rgba(10, 12, 17, 0.6); box-shadow: var(--clay-inset); font-size: 0.78rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
@@ -317,14 +304,28 @@ body {
 .btn-remove-preview { background: transparent; border: none; font-weight: 900; color: var(--pastel-pink); cursor: pointer; font-size: 0.9rem; }
 .detail-gallery-grid { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px; }
 .gallery-thumb-wrapper { position: relative; flex-shrink: 0; }
-.gallery-thumb { width: 65px; height: 85px; object-fit: cover; border-radius: 14px; box-shadow: var(--clay-btn); }
-.btn-delete-gallery-photo { position: absolute; top: -6px; right: -6px; background: var(--pastel-pink); color: var(--text-dark); border: none; width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; font-weight: 900; display: flex; justify-content: center; align-items: center; }
-.btn-add-photo { background: var(--card-bg); border: none; padding: 12px; border-radius: 16px; box-shadow: var(--clay-btn); font-size: 0.78rem; font-weight: 900; color: var(--text); }
+.gallery-thumb { width: 60px; height: 80px; object-fit: cover; border-radius: 12px; box-shadow: var(--clay-btn); }
+.btn-delete-gallery-photo { position: absolute; top: -6px; right: -6px; background: var(--pastel-pink); color: var(--text-dark); border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 0.7rem; font-weight: 900; display: flex; justify-content: center; align-items: center; }
+.btn-add-photo { background: var(--card-bg); border: none; padding: 10px; border-radius: 14px; box-shadow: var(--clay-btn); font-size: 0.75rem; font-weight: 900; color: var(--text); }
 
-/* LIGHTBOX (Image Plein Écran + Croix Toujours Accessible) */
+/* ==============================================================
+   🛑 LIGHTBOX : CROIX PARFAITEMENT ACCESSIBLE SOUS L'ENCOCHE 🛑
+============================================================== */
 #lightbox-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 12, 17, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
 #lightbox-img { max-width: 90vw; max-height: 70vh; border-radius: 24px; box-shadow: 0 30px 70px rgba(0,0,0,0.9); object-fit: contain; animation: popIn 0.4s ease-out; }
-.btn-close-lightbox { position: fixed; top: 20px; right: 20px; background: var(--card-bg); border: none; width: 48px; height: 48px; border-radius: 50%; font-size: 1.3rem; font-weight: 900; color: var(--text); box-shadow: var(--clay-shadow); cursor: pointer; z-index: 10000; }
+
+.btn-close-lightbox { 
+  position: fixed; 
+  /* Descend dynamiquement la croix sous la zone système de l'iPhone */
+  top: max(50px, env(safe-area-inset-top)); 
+  right: 20px; 
+  background: var(--card-bg); 
+  border: none; width: 50px; height: 50px; border-radius: 50%; 
+  font-size: 1.3rem; font-weight: 900; color: var(--text); 
+  box-shadow: var(--clay-shadow); cursor: pointer; 
+  z-index: 10000; 
+}
+.btn-close-lightbox:active { transform: scale(0.9); box-shadow: var(--clay-inset); }
 
 /* --- Auto-complétion --- */
 .autocomplete-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); z-index: 99; max-height: 200px; overflow-y: auto; display: none; flex-direction: column; gap: 6px; padding: 8px; margin-top: 6px; border: 1px solid rgba(255,255,255,0.06); }
@@ -349,6 +350,5 @@ body {
 @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
 
 /* --- Styles Dashboard Stats --- */
-.stats-kpi-card { background: var(--card-bg); padding: 16px; border-radius: 24px; box-shadow: var(--clay-inset); text-align: center; transition: transform 0.2s ease; }
-.stats-kpi-card:active { transform: scale(0.95); }
+.stats-kpi-card { background: var(--card-bg); padding: 16px; border-radius: 24px; box-shadow: var(--clay-inset); text-align: center; }
 .stats-chart-bubble { background: var(--card-bg); padding: 16px; border-radius: 28px; box-shadow: var(--clay-inset); margin-bottom: 16px; }
