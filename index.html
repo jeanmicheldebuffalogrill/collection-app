@@ -32,11 +32,11 @@
 <div id="auth-screen">
   <div class="auth-box">
     <h2>Identification</h2>
-    <form id="loginForm" class="form-minimal" style="box-shadow:none; padding:0; background:transparent;">
+    <form id="loginForm" class="form-minimal form-transparent">
       <input type="email" id="authEmail" placeholder="Adresse e-mail" required>
       <input type="password" id="authPassword" placeholder="Mot de passe" required>
       <button type="submit" class="btn-add">Se connecter</button>
-      <div id="authError" style="color:var(--clay-pink); font-size:0.8rem; font-weight:700; margin-top:10px; display:none;">Erreur de connexion</div>
+      <div id="authError" class="text-error">Erreur de connexion</div>
     </form>
   </div>
 </div>
@@ -58,25 +58,27 @@
       <div id="gachaponCoverContainer"></div>
       <h2 id="gachaponTitle" style="font-size: 1.3rem; font-weight: 900; text-shadow: var(--text-pop);"></h2>
       <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
-        <button type="button" class="btn-add" style="background: var(--clay-purple); color: var(--clay-purple-text); flex: 1;" id="btnGachaponDetail">🔍 Fiche</button>
-        <button type="button" class="btn-add" style="background: var(--accent); color: white; flex: 1;" id="btnGachaponReroll">🎲 Re-tirer !</button>
+        <button type="button" class="btn-add btn-purple btn-flex-half" id="btnGachaponDetail">🔍 Fiche</button>
+        <button type="button" class="btn-add btn-flex-half" id="btnGachaponReroll">🎲 Re-tirer !</button>
       </div>
-      <button type="button" class="btn-action" style="background:var(--bg); border:none; margin-top: 4px;" id="btnCloseGachapon">Fermer</button>
+      <button type="button" class="btn-action btn-transparent-close mt-4" id="btnCloseGachapon">Fermer</button>
     </div>
   </div>
 
   <!-- Modal Fiche Détaillée -->
   <div id="detail-modal" class="modal-overlay">
-    <div class="modal-box" style="text-align:center;">
+    <div class="modal-box text-center">
       <div class="modal-header" style="justify-content:space-between;">
-        <span id="detail-header-title" style="font-size:0.85rem; color:var(--text-muted); font-weight:800;">Détails de l'objet</span>
-        <button type="button" class="btn-action" style="border:none;" id="btnCloseDetail">✕</button>
+        <span id="detail-header-title" class="detail-header-text">Détails de l'objet</span>
+        <button type="button" class="btn-action btn-transparent-close" id="btnCloseDetail">✕</button>
       </div>
       <div id="detail-cover-container"></div>
       <h2 id="detail-title" style="font-size:1.3rem; font-weight:900; margin-top:6px; text-shadow:var(--text-pop);"></h2>
       <div id="detail-meta" style="font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:4px;"></div>
-      <div style="text-align:left; margin-top:12px; background:var(--bg); padding:16px; border-radius:24px; display:flex; flex-direction:column; gap:8px; font-size:0.82rem; font-weight:800; box-shadow:var(--clay-inset);" id="detail-dynamic-infos"></div>
-      <div style="text-align:left; margin-top:12px; background:var(--bg); padding:16px; border-radius:24px; box-shadow:var(--clay-inset);">
+      
+      <div class="detail-dynamic-box" id="detail-dynamic-infos"></div>
+      
+      <div class="detail-dynamic-box">
         <div style="font-size:0.75rem; font-weight:900; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase;">Galerie Photos</div>
         <div class="detail-gallery-grid" id="detailGalleryGrid"></div>
         <label class="btn-add-photo" style="display:block;" id="btnAddPhotoLabel">
@@ -84,10 +86,12 @@
           <input type="file" style="display:none;" accept="image/*" id="inputAddDetailPhoto">
         </label>
       </div>
-      <div id="detail-notes-container" style="text-align:left; font-size:0.82rem; font-weight:800; background:var(--bg); padding:16px; border-radius:24px; color:var(--text-muted); box-shadow:var(--clay-inset);"></div>
+      
+      <div id="detail-notes-container" class="detail-dynamic-box" style="color:var(--text-muted);"></div>
+      
       <div style="display:flex; gap:10px; margin-top:10px;">
-        <button type="button" class="btn-add" style="background:var(--clay-purple); color:var(--clay-purple-text); flex:1;" id="btnDetailEdit">✏️ Modifier</button>
-        <button type="button" class="btn-add" style="background:var(--clay-pink); color:var(--clay-pink-text); flex:1;" id="btnDetailDelete">🗑️ Supprimer</button>
+        <button type="button" class="btn-add btn-purple btn-flex-half" id="btnDetailEdit">✏️ Modifier</button>
+        <button type="button" class="btn-add btn-pink btn-flex-half" id="btnDetailDelete">🗑️ Supprimer</button>
       </div>
     </div>
   </div>
@@ -97,16 +101,14 @@
     <div class="modal-box">
       <div class="modal-header">
         <span>Ajouter à la wishlist</span>
-        <button type="button" class="btn-action" style="border:none;" id="btnCloseAddWishlist">✕</button>
+        <button type="button" class="btn-action btn-transparent-close" id="btnCloseAddWishlist">✕</button>
       </div>
-      <form id="wishlistForm" style="box-shadow:none; padding:0; margin:0; background:transparent;">
+      <form id="wishlistForm" class="form-transparent">
         
-        <!-- 1. Support en premier -->
         <div class="form-row">
-          <select id="w-platform" required style="width:100%;"></select>
+          <select id="w-platform" required class="w-100"></select>
         </div>
 
-        <!-- 2. Nom du produit & Recherche ensuite -->
         <div class="form-row" style="position: relative;">
           <input type="text" id="w-title" placeholder="Nom du produit..." required autocomplete="off" disabled>
           <div id="w-suggestions" class="autocomplete-suggestions"></div>
@@ -135,7 +137,7 @@
         </div>
 
         <div class="form-row">
-          <select id="w-store" style="width:100%;"></select>
+          <select id="w-store" class="w-100"></select>
         </div>
 
         <div class="image-section">
@@ -171,16 +173,14 @@
     <div class="modal-box">
       <div class="modal-header">
         <span>Ajouter à la collection</span>
-        <button type="button" class="btn-action" style="border:none;" id="btnCloseAddCollection">✕</button>
+        <button type="button" class="btn-action btn-transparent-close" id="btnCloseAddCollection">✕</button>
       </div>
-      <form id="collectionForm" style="box-shadow:none; padding:0; margin:0; background:transparent;">
+      <form id="collectionForm" class="form-transparent">
         
-        <!-- 1. Support en premier -->
         <div class="form-row">
-          <select id="c-platform" required style="width:100%;"></select>
+          <select id="c-platform" required class="w-100"></select>
         </div>
 
-        <!-- 2. Nom du produit & Recherche ensuite -->
         <div class="form-row" style="position: relative;">
           <input type="text" id="c-title" placeholder="Nom de l'objet possédé..." required autocomplete="off" disabled>
           <div id="c-suggestions" class="autocomplete-suggestions"></div>
@@ -197,7 +197,7 @@
         <div id="c-dynamic-fields"></div>
 
         <div class="form-row">
-          <select id="c-state" required style="width:100%;">
+          <select id="c-state" required class="w-100">
             <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
             <option value="🟢 Occasion (Comme neuf)">🟢 Occasion (Comme neuf)</option>
             <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
@@ -207,7 +207,7 @@
         </div>
 
         <div class="form-row">
-          <select id="c-store" style="width:100%;"></select>
+          <select id="c-store" class="w-100"></select>
         </div>
 
         <div class="form-row">
@@ -249,12 +249,12 @@
     <div class="modal-box">
       <div class="modal-header">
         <span>Modifier l'article</span>
-        <button type="button" class="btn-action" style="border:none;" id="btnCloseEditWishlist">✕</button>
+        <button type="button" class="btn-action btn-transparent-close" id="btnCloseEditWishlist">✕</button>
       </div>
       <input type="hidden" id="edit-index">
       
       <div class="form-row">
-        <select id="edit-platform" required style="width:100%;"></select>
+        <select id="edit-platform" required class="w-100"></select>
       </div>
       
       <div style="position: relative; width: 100%;">
@@ -276,7 +276,7 @@
       </div>
 
       <div class="form-row">
-        <select id="edit-store" style="width:100%;"></select>
+        <select id="edit-store" class="w-100"></select>
       </div>
 
       <div class="image-section">
@@ -308,12 +308,12 @@
     <div class="modal-box">
       <div class="modal-header">
         <span>Modifier l'objet</span>
-        <button type="button" class="btn-action" style="border:none;" id="btnCloseEditCollection">✕</button>
+        <button type="button" class="btn-action btn-transparent-close" id="btnCloseEditCollection">✕</button>
       </div>
       <input type="hidden" id="edit-c-index">
       
       <div class="form-row">
-        <select id="edit-c-platform" required style="width:100%;"></select>
+        <select id="edit-c-platform" required class="w-100"></select>
       </div>
 
       <div style="position: relative; width: 100%;">
@@ -329,7 +329,7 @@
       <div id="edit-c-dynamic-fields"></div>
 
       <div class="form-row">
-        <select id="edit-c-state" required style="width:100%;">
+        <select id="edit-c-state" required class="w-100">
           <option value="✨ Neuf sous blister">✨ Neuf sous blister</option>
           <option value="🟢 Occasion (Comme neuf)">🟢 Occasion (Comme neuf)</option>
           <option value="🟢 Occasion (Très bon état)">🟢 Très bon état</option>
@@ -339,7 +339,7 @@
       </div>
 
       <div class="form-row">
-        <select id="edit-c-store" style="width:100%;"></select>
+        <select id="edit-c-store" class="w-100"></select>
       </div>
 
       <div class="form-row">
@@ -408,7 +408,7 @@
       <select id="w-filterStatus"><option value="all">Tous statuts</option><option value="À prendre">Je prends</option><option value="En réflexion">En réflexion</option><option value="Je passe">Je passe</option></select>
     </div>
     <div class="controls">
-      <select id="w-filterEdition" style="width:100%;">
+      <select id="w-filterEdition" class="w-100">
         <option value="all">✨ Toutes éditions (Wishlist)</option>
         <option value="Standard">📦 Standard</option>
         <option value="Collector">🌟 Collector</option>
@@ -469,12 +469,11 @@
 
   <!-- ONGLET STATISTIQUES (MÉGA TABLEAU DE BORD CLAYMORPHISM) -->
   <div id="tab-stats" class="tab-content">
-    <div style="text-align: center; margin-bottom: 14px;">
+    <div class="text-center mb-10">
       <h2 style="font-size: 1.15rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 2px;">📊 MÉGA TABLEAU DE BORD</h2>
       <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Vue globale en un coup d'œil</p>
     </div>
 
-    <!-- 1. KPI Cartes Galets 3D -->
     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px;">
       <div class="stats-kpi-card">
         <div style="font-size: 0.65rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase;">Investissement</div>
@@ -494,36 +493,31 @@
       </div>
     </div>
 
-    <!-- 2. Grille des Bulles Graphiques 3D -->
     <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
       
-      <!-- Camembert Donut : Valeur par Support -->
       <div class="stats-chart-bubble">
-        <div style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; text-align: center;">🥧 Valeur par Support</div>
+        <div class="text-center" style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">🥧 Valeur par Support</div>
         <div style="position: relative; height: 160px; width: 100%;">
           <canvas id="chartPlatformPie"></canvas>
         </div>
       </div>
 
-      <!-- Histogramme : Dépenses par Mois -->
       <div class="stats-chart-bubble">
-        <div style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; text-align: center;">📈 Évolution des Dépenses</div>
+        <div class="text-center" style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">📈 Évolution des Dépenses</div>
         <div style="position: relative; height: 160px; width: 100%;">
           <canvas id="chartMonthlyBudget"></canvas>
         </div>
       </div>
 
-      <!-- Barres Horizontales : Enseignes -->
       <div class="stats-chart-bubble">
-        <div style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; text-align: center;">🏪 Volume par Enseigne</div>
+        <div class="text-center" style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">🏪 Volume par Enseigne</div>
         <div style="position: relative; height: 140px; width: 100%;">
           <canvas id="chartStoreBar"></canvas>
         </div>
       </div>
 
-      <!-- Camembert : État de conservation -->
-      <div class="stats-chart-bubble" style="margin-bottom: 10px;">
-        <div style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; text-align: center;">✨ État de Conservation</div>
+      <div class="stats-chart-bubble mb-10">
+        <div class="text-center" style="font-size: 0.72rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">✨ État de Conservation</div>
         <div style="position: relative; height: 160px; width: 100%;">
           <canvas id="chartStatePie"></canvas>
         </div>
@@ -534,7 +528,7 @@
 
   <!-- ONGLET ALÉATOIRE / BOOSTERS -->
   <div id="tab-random" class="tab-content">
-    <div style="text-align: center; margin-bottom: 20px;">
+    <div class="text-center mb-10">
       <h2 style="font-size: 1.25rem; font-weight: 900; text-shadow: var(--text-pop); margin-bottom: 4px;">✨ PLACE DES BOOSTERS ✨</h2>
       <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">Glisse la languette dorée du haut vers la droite !</p>
     </div>
