@@ -1,32 +1,27 @@
 /* ==========================================================================
-   VRAI CLAYMORPHISM SOMBRE + PASTEL POP 3D (ULTRA OPTIMISÉ iOS & PC)
+   VRAI CLAYMORPHISM SOMBRE + PASTEL POP 3D (FORÇAGE DES BUGS iOS & UI)
 ========================================================================== */
 
 :root {
-  /* Fond et Cartes */
   --bg: #11141c;
   --card-bg: #1b202c;
   
-  /* Textes */
   --text: #f8fafc;
   --text-dark: #0f172a;
   --text-muted: #94a3b8;
   
-  /* Couleurs Pastel Pop */
   --pastel-pink: #fbcfe8;
   --pastel-purple: #e9d5ff;
   --pastel-blue: #bae6fd;
   --pastel-green: #a7f3d0;
   --pastel-yellow: #fef08a;
 
-  /* Couleurs de badges vives */
   --clay-green: #4ade80;
   --clay-yellow: #fde047;
   --clay-pink: #fb7185;
   --clay-purple: #c084fc;
   --clay-blue: #38bdf8;
 
-  /* Reliefs 3D pâte à modeler profonds et organiques */
   --clay-shadow: 10px 10px 20px rgba(0,0,0,0.6), -10px -10px 20px rgba(42,50,70,0.5);
   --clay-inset: inset 5px 5px 10px rgba(0,0,0,0.5), inset -5px -5px 10px rgba(42,50,70,0.4);
   --clay-btn: 6px 6px 12px rgba(0,0,0,0.5), -6px -6px 12px rgba(42,50,70,0.4);
@@ -37,58 +32,20 @@
   --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* 🛑 SUPPRESSION GLOBALE DES SCROLLBARS MOCHES 🛑 */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  -webkit-tap-highlight-color: transparent;
-  -ms-overflow-style: none;  /* IE et Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-*::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
+/* 🛑 SUPPRESSION DES SCROLLBARS 🛑 */
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; -ms-overflow-style: none; scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
 
-/* 🎬 EFFET DE GRAIN (NOISE) GLOBAL 🎬 */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-}
+body::before { content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
 
-body {
-  background-color: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 12px;
-  overflow-x: hidden; 
-}
+body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 12px; overflow-x: hidden; }
+.container { width: 100%; max-width: 480px; background: var(--card-bg); padding: 24px; border-radius: 36px; box-shadow: var(--clay-shadow); margin-bottom: 40px; position: relative; }
 
-.container {
-  width: 100%;
-  max-width: 480px;
-  background: var(--card-bg);
-  padding: 24px;
-  border-radius: 36px;
-  box-shadow: var(--clay-shadow);
-  margin-bottom: 40px;
-  position: relative;
-}
-
-/* --- Écran d'Authentification --- */
+/* --- Écran Authentification --- */
 #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
 .auth-box { background: var(--card-bg); padding: 36px 28px; border-radius: 32px; box-shadow: var(--clay-shadow); width: 100%; max-width: 380px; text-align: center; }
 .auth-box h2 { font-size: 1.4rem; font-weight: 900; margin-bottom: 20px; color: var(--pastel-purple); }
-.auth-box input { width: 100%; padding: 16px 18px; margin-bottom: 16px; border: none; border-radius: 18px; background: var(--bg); box-shadow: var(--clay-inset); font-size: 0.95rem; font-weight: 700; color: var(--text); outline: none; transition: box-shadow 0.3s ease; }
+.auth-box input { width: 100%; padding: 16px 18px; margin-bottom: 16px; border: none; border-radius: 18px; background: var(--bg); box-shadow: var(--clay-inset); font-size: 0.95rem; font-weight: 700; color: var(--text); outline: none; }
 .auth-box input:focus { box-shadow: var(--clay-inset), 0 0 0 2px var(--pastel-purple); }
 
 /* --- En-tête --- */
@@ -107,7 +64,7 @@ body {
 @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* --- Boutons d'Action Principaux --- */
-.btn-open-add { width: 100%; border: none; padding: 18px; border-radius: 24px; font-weight: 900; font-size: 0.88rem; color: var(--text-dark); cursor: pointer; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; transition: transform 0.2s ease; box-shadow: var(--clay-btn), var(--pastel-btn-inset); }
+.btn-open-add { width: 100%; border: none; padding: 18px; border-radius: 24px; font-weight: 900; font-size: 0.88rem; color: var(--text-dark); cursor: pointer; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: var(--clay-btn), var(--pastel-btn-inset); }
 #btnOpenAddWishlist { background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple)); }
 #btnOpenAddCollection { background: linear-gradient(135deg, var(--pastel-green), var(--pastel-blue)); }
 .btn-open-add:active { box-shadow: inset 4px 4px 10px rgba(0,0,0,0.25), inset -4px -4px 10px rgba(255,255,255,0.6); transform: scale(0.96); }
@@ -118,53 +75,51 @@ body {
 .summary-label { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.04em; }
 .summary-amount { font-size: 1.15rem; font-weight: 900; }
 .amount-confirmed { color: var(--pastel-green); text-shadow: 0 0 8px rgba(167, 243, 208, 0.3); }
-.amount-pending { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.3); }
-.amount-value { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.3); }
+.amount-pending, .amount-value { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.3); }
 
 /* ==============================================================
-   🎯 NOUVELLE GRILLE DE FILTRES HARMONISÉE (IMAGE 10)
+   🎯 1. CORRECTION : GRILLE DES FILTRES HARMONISÉE
 ============================================================== */
-.search-bar-input { width: 100%; padding: 14px 16px; border: none; border-radius: 18px; background: var(--bg); box-shadow: var(--clay-inset); font-size: 0.85rem; font-weight: 700; color: var(--pastel-blue); margin-bottom: 14px; outline: none; }
-.search-bar-input:focus { box-shadow: var(--clay-inset), 0 0 0 2px var(--pastel-blue); }
+.search-bar-input { width: 100% !important; padding: 16px !important; border: none !important; border-radius: 18px !important; background: var(--bg) !important; box-shadow: var(--clay-inset) !important; font-size: 0.85rem !important; font-weight: 700 !important; color: var(--pastel-blue) !important; margin-bottom: 16px !important; outline: none !important; }
 
-/* La zone controls devient une vraie grille 2 colonnes parfaite */
+/* La zone controls devient une vraie grille 2 colonnes forcée */
 .controls { 
-  display: grid; 
-  grid-template-columns: 1fr 1fr; 
-  gap: 12px; 
-  margin-bottom: 16px; 
-  width: 100%; 
+  display: grid !important; 
+  grid-template-columns: 1fr 1fr !important; 
+  gap: 12px !important; 
+  margin-bottom: 24px !important; 
+  width: 100% !important; 
 }
-.controls select, .month-filter-box { 
-  width: 100%; 
-  border: none; 
-  background: var(--bg); 
-  box-shadow: var(--clay-inset); 
-  padding: 12px; 
-  border-radius: 16px; 
-  font-size: 0.75rem; 
-  font-weight: 800; 
-  color: var(--text); 
-  outline: none; 
-  cursor: pointer; 
+.controls select { 
+  width: 100% !important; 
+  margin: 0 !important;
+  border: none !important; 
+  background: var(--bg) !important; 
+  box-shadow: var(--clay-inset) !important; 
+  padding: 14px 12px !important; 
+  border-radius: 16px !important; 
+  font-size: 0.75rem !important; 
+  font-weight: 800 !important; 
+  color: var(--text) !important; 
+  outline: none !important; 
 }
-/* Exception si la box de mois est gérée différemment dans ton HTML, elle s'intégrera quand même */
-.month-filter-box { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; grid-column: span 2; }
-.month-filter-box select { background: var(--card-bg); box-shadow: var(--clay-btn); padding: 8px; border-radius: 12px; color: var(--pastel-blue); }
+/* Les éléments qui doivent prendre toute la largeur dans la grille */
+.controls .search-bar-input, .controls .month-filter-box, .month-filter-box {
+  grid-column: 1 / -1 !important;
+}
+.month-filter-box { background: var(--bg) !important; padding: 12px 16px !important; border-radius: 18px !important; box-shadow: var(--clay-inset) !important; display: flex !important; align-items: center !important; justify-content: space-between !important; margin-bottom: 12px !important; font-size: 0.78rem !important; font-weight: 800 !important; }
+.month-filter-box select { background: var(--card-bg) !important; box-shadow: var(--clay-btn) !important; padding: 8px 12px !important; border-radius: 12px !important; color: var(--pastel-blue) !important; width: auto !important; }
 
 /* --- Grille Plateformes --- */
 .platform-breakdown { background: var(--bg); padding: 18px; border-radius: 24px; box-shadow: var(--clay-inset); margin-bottom: 20px; }
 .platform-breakdown-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .platform-breakdown-title { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); }
 .btn-reset-chip { background: var(--card-bg); border: none; padding: 6px 12px; border-radius: 12px; box-shadow: var(--clay-btn); font-size: 0.65rem; font-weight: 800; cursor: pointer; color: var(--text); }
-.btn-reset-chip:active { box-shadow: var(--clay-btn-active); transform: scale(0.95); }
 .platform-grid { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
 .platform-chip { background: var(--card-bg); padding: 10px 14px; border-radius: 16px; box-shadow: var(--clay-btn); min-width: 90px; text-align: center; cursor: pointer; flex-shrink: 0; }
-.platform-chip:active { transform: scale(0.95); }
 .platform-chip.active { box-shadow: var(--clay-btn-active); background: rgba(167, 243, 208, 0.15); }
 .platform-chip-name { font-size: 0.7rem; font-weight: 900; margin-bottom: 2px; }
 .platform-chip-value { font-size: 0.75rem; font-weight: 900; color: var(--pastel-yellow); }
-.platform-chip-count { font-size: 0.6rem; color: var(--text-muted); font-weight: 800; }
 
 /* --- Cartes Articles --- */
 @keyframes holoSweep { 0% { transform: translateX(-150%); } 100% { transform: translateX(150%); } }
@@ -220,14 +175,12 @@ body {
 .timeline-h-container { display: flex; gap: 18px; overflow-x: auto; padding: 10px 4px 20px 4px; }
 .tile-cover { width: 100%; height: 220px; object-fit: cover; border-radius: 18px; box-shadow: var(--clay-btn); position: relative; z-index: 2;}
 .tile-title { font-size: 0.85rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tile-meta { display: flex; justify-content: space-between; align-items: center; }
 
 /* ==============================================================
-   🪟 MODALE PRODUIT : ULTRA COMPACTE ET LISIBLE
+   MODALE PRODUIT : COMPACTE
 ============================================================== */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 12, 17, 0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: none; justify-content: center; align-items: center; z-index: 999; padding: 16px; }
 
-/* Réduction des marges internes pour la compacité */
 .modal-box { 
   background: rgba(28, 33, 46, 0.9); 
   backdrop-filter: blur(10px); 
@@ -236,56 +189,52 @@ body {
   max-width: 445px; 
   max-height: 85vh; 
   overflow-y: auto; 
-  padding: 20px 16px; /* Plus compact */
+  padding: 20px 16px; 
   border-radius: 36px; 
   box-shadow: 0 40px 80px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.05); 
   animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
 }
+@keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-weight: 900; font-size: 1rem; }
 
-/* 🛑 LA GRILLE COMPACTE SANS CHEVAUCHEMENT 🛑 */
+/* Grille 2 colonnes sans chevauchement pour les formulaires (Dates/Prix) */
 .form-row { 
-  display: grid; 
-  grid-template-columns: 1fr 1fr; /* Force 2 colonnes égales partout */
-  gap: 10px; 
-  margin-bottom: 12px; /* Marges réduites */
+  display: grid !important; 
+  grid-template-columns: 1fr 1fr !important; 
+  gap: 10px !important; 
+  margin-bottom: 12px !important; 
 }
-.form-row > * { 
-  min-width: 0; /* Évite que les éléments explosent la grille */
-}
-.form-row label { 
-  display: block; 
-  margin-bottom: 4px; 
-  font-size: 0.65rem; 
-  font-weight: 800; 
-  color: var(--text-muted); 
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; /* MAGIE : Le texte trop long se coupe avec "..." */
-}
+.form-row > * { min-width: 0 !important; }
+.form-row label { display: block; margin-bottom: 4px; font-size: 0.65rem; font-weight: 800; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* On réduit légèrement la taille des inputs pour gagner de la place */
 .modal-box input, .modal-box select, .modal-box textarea { width: 100%; padding: 12px 14px; border: none; border-radius: 14px; background: rgba(10, 12, 17, 0.6); box-shadow: var(--clay-inset); font-size: 0.85rem; font-weight: 800; color: var(--text); outline: none; }
 .modal-box input:focus, .modal-box select:focus, .modal-box textarea:focus { box-shadow: var(--clay-inset), 0 0 0 2px var(--pastel-blue); }
 .modal-box textarea { resize: vertical; min-height: 60px; margin-bottom: 12px; }
 
-/* 🎬 LE BOUTON TMDB MAGNIFIÉ 🎬 */
-.modal-box a[href*="tmdb"], .modal-box .btn-tmdb, .tmdb-btn {
-  background: linear-gradient(135deg, var(--clay-blue), #0ea5e9);
+/* ==============================================================
+   🎯 2. CORRECTION : BOUTON TMDB FORCÉ
+============================================================== */
+a[href*="tmdb"], a[href*="themoviedb"], .btn-tmdb, #btn-tmdb {
+  background: linear-gradient(135deg, var(--clay-blue), #0ea5e9) !important;
   color: var(--text-dark) !important;
-  padding: 14px;
-  border-radius: 18px;
-  font-weight: 900;
-  font-size: 0.85rem;
-  text-align: center;
-  display: block;
-  text-decoration: none;
-  box-shadow: var(--clay-btn), inset 2px 2px 6px rgba(255,255,255,0.4);
-  margin-bottom: 14px;
-  transition: transform 0.2s ease;
+  padding: 16px !important;
+  border-radius: 20px !important;
+  font-weight: 900 !important;
+  font-size: 0.9rem !important;
+  text-align: center !important;
+  display: block !important;
+  width: 100% !important;
+  text-decoration: none !important;
+  box-shadow: var(--clay-btn), inset 2px 2px 6px rgba(255,255,255,0.4) !important;
+  margin: 14px 0 !important;
+  grid-column: 1 / -1 !important; /* Pleine largeur s'il est dans une grille */
+  transition: transform 0.2s ease !important;
 }
-.modal-box a[href*="tmdb"]:active { transform: scale(0.96); box-shadow: var(--clay-inset); }
+a[href*="tmdb"]:active, .btn-tmdb:active {
+  transform: scale(0.96) !important;
+  box-shadow: var(--clay-inset) !important;
+}
 
 .btn-add { width: 100%; background: var(--card-bg); border: none; padding: 16px; border-radius: 20px; box-shadow: var(--clay-btn); font-weight: 900; font-size: 0.9rem; color: var(--text); cursor: pointer; margin-top: 6px; }
 .btn-add:active { box-shadow: var(--clay-btn-active); transform: scale(0.96); }
@@ -306,26 +255,30 @@ body {
 .gallery-thumb-wrapper { position: relative; flex-shrink: 0; }
 .gallery-thumb { width: 60px; height: 80px; object-fit: cover; border-radius: 12px; box-shadow: var(--clay-btn); }
 .btn-delete-gallery-photo { position: absolute; top: -6px; right: -6px; background: var(--pastel-pink); color: var(--text-dark); border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 0.7rem; font-weight: 900; display: flex; justify-content: center; align-items: center; }
-.btn-add-photo { background: var(--card-bg); border: none; padding: 10px; border-radius: 14px; box-shadow: var(--clay-btn); font-size: 0.75rem; font-weight: 900; color: var(--text); }
 
 /* ==============================================================
-   🛑 LIGHTBOX : CROIX PARFAITEMENT ACCESSIBLE SOUS L'ENCOCHE 🛑
+   🎯 3. CORRECTION : CROIX LIGHTBOX FORCÉE EN DESSOUS DE L'ENCOCHE
 ============================================================== */
 #lightbox-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 12, 17, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
 #lightbox-img { max-width: 90vw; max-height: 70vh; border-radius: 24px; box-shadow: 0 30px 70px rgba(0,0,0,0.9); object-fit: contain; animation: popIn 0.4s ease-out; }
 
 .btn-close-lightbox { 
-  position: fixed; 
-  /* Descend dynamiquement la croix sous la zone système de l'iPhone */
-  top: max(50px, env(safe-area-inset-top)); 
-  right: 20px; 
-  background: var(--card-bg); 
-  border: none; width: 50px; height: 50px; border-radius: 50%; 
-  font-size: 1.3rem; font-weight: 900; color: var(--text); 
-  box-shadow: var(--clay-shadow); cursor: pointer; 
-  z-index: 10000; 
+  position: fixed !important; 
+  top: 70px !important; /* Forcé brutalement sous la Dynamic Island de l'iPhone */
+  right: 20px !important; 
+  background: var(--card-bg) !important; 
+  border: 1px solid rgba(255,255,255,0.1) !important; 
+  width: 50px !important; 
+  height: 50px !important; 
+  border-radius: 50% !important; 
+  font-size: 1.3rem !important; 
+  font-weight: 900 !important; 
+  color: var(--text) !important; 
+  box-shadow: var(--clay-shadow) !important; 
+  cursor: pointer !important; 
+  z-index: 999999 !important; 
 }
-.btn-close-lightbox:active { transform: scale(0.9); box-shadow: var(--clay-inset); }
+.btn-close-lightbox:active { transform: scale(0.9) !important; box-shadow: var(--clay-inset) !important; }
 
 /* --- Auto-complétion --- */
 .autocomplete-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); z-index: 99; max-height: 200px; overflow-y: auto; display: none; flex-direction: column; gap: 6px; padding: 8px; margin-top: 6px; border: 1px solid rgba(255,255,255,0.06); }
@@ -342,13 +295,9 @@ body {
 .tcg-crimp-top { width: 100%; height: 32px; background: linear-gradient(90deg, #b8860b, #fef08a, #daa520, #fef08a, #b8860b); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; font-size: 0.72rem; font-weight: 900; color: var(--text-dark); z-index: 5; touch-action: none; }
 .tcg-logo-box { background: var(--bg); padding: 8px 14px; border-radius: 14px; color: var(--text); font-size: 0.75rem; font-weight: 900; letter-spacing: 0.05em; box-shadow: var(--clay-inset); }
 .tcg-art-center { font-size: 2.5rem; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6)); }
-.tcg-crimp-bottom { width: 100%; height: 20px; background: linear-gradient(90deg, #b8860b, #fef08a, #daa520, #fef08a, #b8860b); border-radius: 10px; box-shadow: 0 -2px 6px rgba(0,0,0,0.4), inset 0 -2px 3px rgba(255,255,255,0.6); }
 
 .gachapon-modal-box { background: rgba(28, 33, 46, 0.9); backdrop-filter: blur(10px); width: 100%; max-width: 340px; padding: 26px; border-radius: 36px; box-shadow: 0 40px 80px rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; animation: popIn 0.5s ease-out forwards; }
 .gachapon-cover-large { width: 150px; height: 210px; object-fit: cover; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
-#flash-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 99999; display: none; pointer-events: none; animation: flashAnim 0.4s ease-out; }
-@keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
 
 /* --- Styles Dashboard Stats --- */
-.stats-kpi-card { background: var(--card-bg); padding: 16px; border-radius: 24px; box-shadow: var(--clay-inset); text-align: center; }
-.stats-chart-bubble { background: var(--card-bg); padding: 16px; border-radius: 28px; box-shadow: var(--clay-inset); margin-bottom: 16px; }
+.stats-kpi-card { background: var(--card-bg); padding: 16px; border-radius: 24px; box-shadow: var(--clay-inset); text-align: center; transition: transform 0.2s ease; }
