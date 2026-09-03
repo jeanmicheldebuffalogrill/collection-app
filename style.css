@@ -1,33 +1,39 @@
 /* ==========================================================================
-   VRAI CLAYMORPHISM SOMBRE + PASTEL POP 3D (REFONTE ERGONOMIQUE TOTALE)
+   VRAI CLAYMORPHISM SOMBRE + PASTEL POP 3D (FICHIER 100% COMPLET & iOS SAFE)
 ========================================================================== */
 
 :root {
+  /* Fond et Cartes */
   --bg: #11141c;
   --card-bg: #1b202c;
   
+  /* Textes */
   --text: #f8fafc;
   --text-dark: #0f172a;
   --text-muted: #94a3b8;
   
+  /* Couleurs Pastel Pop */
   --pastel-pink: #fbcfe8;
   --pastel-purple: #e9d5ff;
   --pastel-blue: #bae6fd;
   --pastel-green: #a7f3d0;
   --pastel-yellow: #fef08a;
 
+  /* Couleurs de badges vives */
   --clay-green: #4ade80;
   --clay-yellow: #fde047;
   --clay-pink: #fb7185;
   --clay-purple: #c084fc;
   --clay-blue: #38bdf8;
 
+  /* Reliefs 3D pâte à modeler profonds et organiques */
   --clay-shadow: 10px 10px 20px rgba(0,0,0,0.6), -10px -10px 20px rgba(42,50,70,0.5);
   --clay-inset: inset 5px 5px 10px rgba(0,0,0,0.5), inset -5px -5px 10px rgba(42,50,70,0.4);
   --clay-btn: 6px 6px 12px rgba(0,0,0,0.5), -6px -6px 12px rgba(42,50,70,0.4);
   --clay-btn-active: inset 4px 4px 8px rgba(0,0,0,0.6), inset -4px -4px 8px rgba(42,50,70,0.3);
   --pastel-btn-inset: inset 2px 2px 6px rgba(255,255,255,0.5), inset -2px -2px 6px rgba(0,0,0,0.15);
   
+  --text-pop: 0px 2px 4px rgba(0, 0, 0, 0.6);
   --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -41,17 +47,22 @@ body::before { content: ""; position: fixed; top: 0; left: 0; width: 100vw; heig
 body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 12px; }
 .container { width: 100%; max-width: 480px; background: var(--card-bg); padding: 24px; border-radius: 36px; box-shadow: var(--clay-shadow); margin-bottom: 40px; }
 
-/* --- En-tête & Auth --- */
+/* ==============================================================
+   AUTH & HEADER
+============================================================== */
 #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
 .auth-box { background: var(--card-bg); padding: 36px 28px; border-radius: 32px; box-shadow: var(--clay-shadow); width: 100%; max-width: 380px; text-align: center; }
+.auth-box h2 { font-size: 1.4rem; font-weight: 900; margin-bottom: 20px; color: var(--pastel-purple); }
 .auth-box input { width: 100%; padding: 16px; margin-bottom: 16px; border: none; border-radius: 18px; background: var(--bg); box-shadow: var(--clay-inset); color: var(--text); outline: none; }
 .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; padding: 0 4px; }
-.header-bar h1 { font-size: 1.4rem; font-weight: 900; color: var(--pastel-purple); }
+.header-bar h1 { font-size: 1.4rem; font-weight: 900; color: var(--pastel-purple); text-shadow: var(--text-pop); }
 .sync-status { font-size: 0.7rem; font-weight: 800; color: var(--pastel-green); }
 .btn-backup { background: var(--card-bg); border: none; width: 44px; height: 44px; border-radius: 16px; box-shadow: var(--clay-btn); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1rem; }
 .btn-backup:active { box-shadow: var(--clay-btn-active); transform: scale(0.92); }
 
-/* --- Onglets --- */
+/* ==============================================================
+   ONGLETS & BOUTONS PRINCIPAUX
+============================================================== */
 .tabs { display: flex; gap: 8px; margin-bottom: 24px; background: var(--card-bg); padding: 8px; border-radius: 22px; box-shadow: var(--clay-inset); }
 .tab-btn { flex: 1; background: transparent; border: none; padding: 12px 4px; font-size: 0.75rem; font-weight: 900; color: var(--text-muted); border-radius: 16px; cursor: pointer; }
 .tab-btn.active { background: var(--card-bg); color: var(--pastel-purple); box-shadow: var(--clay-btn); transform: scale(1.03); }
@@ -59,12 +70,14 @@ body { background-color: var(--bg); color: var(--text); min-height: 100vh; displ
 .tab-content.active { display: block; animation: slideUp 0.3s ease-out; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* --- Boutons d'Action Principaux --- */
 .btn-open-add { width: 100%; border: none; padding: 18px; border-radius: 24px; font-weight: 900; font-size: 0.88rem; color: var(--text-dark); cursor: pointer; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: var(--clay-btn), var(--pastel-btn-inset); }
 #btnOpenAddWishlist { background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple)); }
 #btnOpenAddCollection { background: linear-gradient(135deg, var(--pastel-green), var(--pastel-blue)); }
+.btn-open-add:active { box-shadow: inset 4px 4px 10px rgba(0,0,0,0.25), inset -4px -4px 10px rgba(255,255,255,0.6); transform: scale(0.96); }
 
-/* --- Résumés --- */
+/* ==============================================================
+   RÉSUMÉS & FILTRES HARMONISÉS (GRILLE 2 COLONNES)
+============================================================== */
 .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
 .summary-card { background: var(--card-bg); padding: 16px; border-radius: 22px; box-shadow: var(--clay-inset); text-align: center; }
 .summary-label { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
@@ -72,46 +85,17 @@ body { background-color: var(--bg); color: var(--text); min-height: 100vh; displ
 .amount-confirmed { color: var(--pastel-green); }
 .amount-pending, .amount-value { color: var(--pastel-yellow); }
 
-/* ==============================================================
-   🎯 3. FILTRES HARMONISÉS (LE TABLEAU DE BORD PARFAIT)
-============================================================== */
 .search-bar-input { width: 100% !important; padding: 16px !important; border: none !important; border-radius: 18px !important; background: var(--bg) !important; box-shadow: var(--clay-inset) !important; font-size: 0.85rem !important; font-weight: 700 !important; color: var(--pastel-blue) !important; margin-bottom: 16px !important; outline: none !important; }
 
-/* Force la grille 2x2 parfaite pour les menus */
-.controls { 
-  display: grid !important; 
-  grid-template-columns: 1fr 1fr !important; 
-  gap: 12px !important; 
-  margin-bottom: 24px !important; 
-}
-.controls select { 
-  width: 100% !important; 
-  margin: 0 !important;
-  border: none !important; 
-  background: var(--bg) !important; 
-  box-shadow: var(--clay-inset) !important; 
-  padding: 14px 10px !important; 
-  border-radius: 16px !important; 
-  font-size: 0.75rem !important; 
-  font-weight: 800 !important; 
-  color: var(--text) !important; 
-}
-/* La période prend toute la largeur si besoin, encastrée de la même façon */
-.month-filter-box { 
-  grid-column: 1 / -1 !important; 
-  background: var(--bg) !important; 
-  padding: 12px 16px !important; 
-  border-radius: 18px !important; 
-  box-shadow: var(--clay-inset) !important; 
-  display: flex !important; 
-  align-items: center !important; 
-  justify-content: space-between !important; 
-  font-size: 0.78rem !important; 
-  font-weight: 800 !important; 
-}
+/* La zone controls devient une vraie grille 2 colonnes forcée */
+.controls { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; margin-bottom: 24px !important; width: 100% !important; }
+.controls select, select[id*="filter"], select[id*="sort"], select[id*="status"] { width: 100% !important; margin: 0 !important; border: none !important; background: var(--bg) !important; box-shadow: var(--clay-inset) !important; padding: 14px 12px !important; border-radius: 16px !important; font-size: 0.75rem !important; font-weight: 800 !important; color: var(--text) !important; outline: none !important; }
+.month-filter-box, div[class*="month-filter"], div[id*="month-filter"] { grid-column: 1 / -1 !important; background: var(--bg) !important; padding: 12px 16px !important; border-radius: 18px !important; box-shadow: var(--clay-inset) !important; display: flex !important; align-items: center !important; justify-content: space-between !important; font-size: 0.78rem !important; font-weight: 800 !important; }
 .month-filter-box select { background: var(--card-bg) !important; box-shadow: var(--clay-btn) !important; padding: 8px 12px !important; border-radius: 12px !important; color: var(--pastel-blue) !important; width: auto !important; }
 
-/* --- Plateformes --- */
+/* ==============================================================
+   PLATEFORMES (COLLECTION)
+============================================================== */
 .platform-breakdown { background: var(--bg); padding: 18px; border-radius: 24px; box-shadow: var(--clay-inset); margin-bottom: 20px; }
 .platform-breakdown-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .platform-breakdown-title { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); }
@@ -141,12 +125,12 @@ body { background-color: var(--bg); color: var(--text); min-height: 100vh; displ
 
 .item-cover, .item-content { position: relative; z-index: 2; }
 .item-cover { width: 80px; height: 115px; object-fit: cover; border-radius: 16px; box-shadow: var(--clay-btn); flex-shrink: 0; }
+.item-cover-placeholder { width: 80px; height: 115px; border-radius: 16px; background: var(--bg); box-shadow: var(--clay-inset); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; flex-shrink: 0; position: relative; z-index: 2; }
 .item-content { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
 .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.item-info h3 { font-size: 0.95rem; font-weight: 900; margin-bottom: 3px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-info h3 { font-size: 0.95rem; font-weight: 900; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .item-meta { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; }
 
-/* Badges */
 .badge { background: var(--bg); padding: 3px 9px; border-radius: 10px; box-shadow: var(--clay-inset); font-size: 0.65rem; font-weight: 900; color: var(--text); }
 .badge-collector { background: var(--pastel-yellow); color: var(--text-dark); padding: 2px 8px; border-radius: 8px; font-size: 0.6rem; font-weight: 900; }
 .badge-state { background: rgba(167, 243, 208, 0.15); color: var(--pastel-green); padding: 2px 6px; border-radius: 8px; font-size: 0.6rem; font-weight: 900; }
@@ -162,147 +146,119 @@ body { background-color: var(--bg); color: var(--text); min-height: 100vh; displ
 .market-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; padding-bottom: 2px; }
 .btn-market { background: var(--card-bg); padding: 5px 10px; border-radius: 10px; box-shadow: var(--clay-inset); font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-decoration: none; white-space: nowrap; }
 
-/* ==============================================================
-   🎯 4. MODALE PRODUIT : ULTRA COMPACTE POUR ÉVITER LE SCROLL
-============================================================== */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 12, 17, 0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: none; justify-content: center; align-items: center; z-index: 999; padding: 12px; }
+/* Grid & Timeline specifics */
+.grid-collection-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.grid-item-cover { width: 100%; height: 170px; object-fit: cover; border-radius: 16px; box-shadow: var(--clay-btn); position: relative; z-index: 2; }
+.grid-item-title { font-size: 0.8rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; z-index: 2;}
+.timeline-h-container { display: flex; gap: 18px; overflow-x: auto; padding: 10px 4px 20px 4px; }
+.tile-cover { width: 100%; height: 220px; object-fit: cover; border-radius: 18px; box-shadow: var(--clay-btn); position: relative; z-index: 2;}
+.tile-title { font-size: 0.85rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.modal-box { 
-  background: rgba(28, 33, 46, 0.95); 
-  backdrop-filter: blur(10px); 
-  -webkit-backdrop-filter: blur(10px); 
-  width: 100%; 
-  max-width: 445px; 
-  max-height: 90vh; /* Laisse un peu plus de place en hauteur */
-  overflow-y: auto; 
-  padding: 18px 14px; /* Marges drastiquement réduites */
-  border-radius: 32px; 
-  box-shadow: 0 40px 80px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.05); 
-}
+/* ==============================================================
+   MODALE PRODUIT : ULTRA COMPACTE SANS CHEVAUCHEMENT
+============================================================== */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 12, 17, 0.7); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: none; justify-content: center; align-items: center; z-index: 999; padding: 12px; }
+
+.modal-box { background: rgba(28, 33, 46, 0.95); width: 100%; max-width: 440px; max-height: 88vh; overflow-y: auto; padding: 16px 14px; border-radius: 28px; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-weight: 900; font-size: 0.95rem; }
 
-/* Image beaucoup plus petite pour sauver de la place verticale */
-.detail-cover-large { 
-  width: 90px !important; 
-  height: 130px !important; 
-  object-fit: cover; 
-  border-radius: 14px !important; 
-  box-shadow: var(--clay-btn); 
-  margin: 0 auto 12px auto !important; 
-  display: block; 
-}
-
-/* Grille ultra-dense pour les champs (2 par ligne forcé) */
-.form-row { 
-  display: grid !important; 
-  grid-template-columns: repeat(2, 1fr) !important; 
-  gap: 8px !important; /* Espace réduit */
-  margin-bottom: 8px !important; 
-}
-.form-row > * { min-width: 0 !important; width: 100% !important; margin: 0 !important; }
-
-/* Mini libellés cachés au maximum */
-.form-row label { 
-  display: block; 
-  margin-bottom: 2px !important; 
-  font-size: 0.6rem !important; 
-  font-weight: 800; color: var(--text-muted); 
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-}
-
-/* Inputs très resserrés */
-.modal-box input, .modal-box select, .modal-box textarea { 
-  width: 100%; 
-  padding: 10px 12px !important; /* Hauteur réduite */
-  border: none; border-radius: 14px; 
-  background: rgba(10, 12, 17, 0.6); 
-  box-shadow: var(--clay-inset); 
-  font-size: 0.8rem !important; 
-  font-weight: 800; color: var(--text); outline: none; 
-}
+/* Force l'empilement vertical propre sur mobile pour éviter tout chevauchement */
+.form-row, div[class*="row"], div[class*="date"] { display: flex !important; flex-direction: column !important; gap: 10px !important; margin-bottom: 10px !important; }
+.form-row > *, div[class*="row"] > * { width: 100% !important; min-width: 100% !important; }
+.modal-box label { display: block !important; margin-bottom: 3px !important; font-size: 0.68rem !important; font-weight: 800 !important; color: var(--text-muted) !important; }
+.modal-box input, .modal-box select, .modal-box textarea { width: 100% !important; padding: 10px 12px !important; border: none !important; border-radius: 14px !important; background: rgba(10, 12, 17, 0.6) !important; box-shadow: var(--clay-inset) !important; font-size: 0.8rem !important; font-weight: 800 !important; color: var(--text) !important; outline: none !important; }
 .modal-box textarea { resize: vertical; min-height: 50px !important; margin-bottom: 8px !important; }
 
-/* ==============================================================
-   🎯 2. BOUTONS TMDB & ÉDITIONS DANS LA FICHE (FORCÉS)
-============================================================== */
-/* Tous les liens normaux dans la modale se transforment en pilule 3D */
-.modal-box a:not(.btn-close-lightbox):not(.gallery-thumb-wrapper a) {
+/* CORRECTION CIBLÉE DU BOUTON TMDB / RECHERCHE (GROS BOUTON POP) */
+button[id*="tmdb"], button[class*="tmdb"], a[href*="tmdb"], a[href*="themoviedb"], a[id*="tmdb"], a[class*="tmdb"], div[id*="tmdb"], span[id*="tmdb"], [onclick*="tmdb"], [onclick*="TMDB"] {
+  background: linear-gradient(135deg, var(--clay-blue), #0ea5e9) !important;
+  color: var(--text-dark) !important;
+  padding: 12px 16px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  font-weight: 900 !important;
+  font-size: 0.82rem !important;
+  text-align: center !important;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
-  background: linear-gradient(135deg, var(--clay-blue), #0ea5e9) !important;
-  color: var(--text-dark) !important;
-  padding: 14px !important;
-  border-radius: 20px !important;
-  font-weight: 900 !important;
-  font-size: 0.85rem !important;
-  text-decoration: none !important;
-  box-shadow: var(--clay-btn), inset 2px 2px 6px rgba(255,255,255,0.4) !important;
-  margin: 10px 0 !important;
   width: 100% !important;
-  grid-column: 1 / -1 !important; /* Si dans la grille, prend toute la largeur */
+  text-decoration: none !important;
+  box-shadow: var(--clay-btn), inset 2px 2px 4px rgba(255, 255, 255, 0.4) !important;
+  margin: 10px 0 !important;
+  cursor: pointer !important;
 }
 
-/* Boutons standard "Ajouter / Sauvegarder" */
-.btn-add { width: 100%; background: var(--card-bg); border: none; padding: 14px; border-radius: 20px; box-shadow: var(--clay-btn); font-weight: 900; font-size: 0.9rem; color: var(--text); margin-top: 6px; }
-
-/* Section Images */
-.image-section { background: rgba(10, 12, 17, 0.4); padding: 10px; border-radius: 18px; box-shadow: var(--clay-inset); margin-bottom: 8px; }
-.image-action-grid { display: flex; gap: 8px; margin-bottom: 8px; }
-.btn-image-action { flex: 1; background: var(--card-bg); border: none; padding: 10px; border-radius: 12px; box-shadow: var(--clay-btn); font-size: 0.75rem; font-weight: 900; color: var(--text); }
-.image-input-direct { width: 100%; padding: 10px 14px; border: none; border-radius: 14px; background: rgba(10, 12, 17, 0.6); box-shadow: var(--clay-inset); font-size: 0.75rem; margin-bottom: 8px; color: var(--text); }
+.btn-add { width: 100%; background: var(--card-bg); border: none; padding: 14px; border-radius: 18px; box-shadow: var(--clay-btn); font-weight: 900; font-size: 0.85rem; color: var(--text); margin-top: 8px; cursor: pointer; }
+.detail-cover-large { width: 90px !important; height: 125px !important; object-fit: cover; border-radius: 14px !important; box-shadow: var(--clay-btn); margin: 0 auto 10px auto !important; display: block; }
 
 /* ==============================================================
-   🎯 1. LIGHTBOX : CROIX FLOTTANTE EN BAS (STYLE iOS NATIF)
+   IMAGES & GALERIES
 ============================================================== */
-#lightbox-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 12, 17, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-#lightbox-img { max-width: 95vw; max-height: 75vh; border-radius: 20px; box-shadow: 0 30px 70px rgba(0,0,0,0.9); object-fit: contain; }
+.image-section { background: rgba(10, 12, 17, 0.4); padding: 12px; border-radius: 18px; box-shadow: var(--clay-inset); margin-bottom: 12px; }
+.image-action-grid { display: flex; gap: 8px; margin-bottom: 8px; }
+.btn-image-action { flex: 1; background: var(--card-bg); border: none; padding: 10px; border-radius: 12px; box-shadow: var(--clay-btn); font-size: 0.75rem; font-weight: 900; color: var(--text); }
+.image-input-direct { width: 100%; padding: 10px 14px; border: none; border-radius: 12px; background: rgba(10, 12, 17, 0.6); box-shadow: var(--clay-inset); font-size: 0.78rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+.image-preview-card { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 8px 12px; border-radius: 14px; box-shadow: var(--clay-inset); }
+.image-preview-thumb { width: 40px; height: 55px; object-fit: cover; border-radius: 8px; box-shadow: var(--clay-btn); }
+.btn-remove-preview { background: transparent; border: none; font-weight: 900; color: var(--pastel-pink); cursor: pointer; font-size: 0.9rem; }
+.detail-gallery-grid { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
+.gallery-thumb-wrapper { position: relative; flex-shrink: 0; }
+.gallery-thumb { width: 60px; height: 80px; object-fit: cover; border-radius: 12px; box-shadow: var(--clay-btn); }
+.btn-delete-gallery-photo { position: absolute; top: -6px; right: -6px; background: var(--pastel-pink); color: var(--text-dark); border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 0.65rem; font-weight: 900; display: flex; justify-content: center; align-items: center; }
+.btn-add-photo { background: var(--card-bg); border: none; padding: 10px; border-radius: 14px; box-shadow: var(--clay-btn); font-size: 0.75rem; font-weight: 900; color: var(--text); }
+
+/* ==============================================================
+   LIGHTBOX : CROIX FLOTTANTE EN BAS (STYLE iOS NATIF)
+============================================================== */
+#lightbox-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 12, 17, 0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 16px; }
+#lightbox-img { max-width: 92vw; max-height: 72vh; border-radius: 18px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9); object-fit: contain; }
 
 .btn-close-lightbox { 
   position: fixed !important; 
-  bottom: 40px !important; /* Centré tout en bas de l'écran */
+  bottom: 35px !important; 
   left: 50% !important; 
   top: auto !important;
   right: auto !important;
-  transform: translateX(-50%) !important; /* Centre parfaitement */
+  transform: translateX(-50%) !important; 
   background: var(--card-bg) !important; 
-  border: 1px solid rgba(255,255,255,0.05) !important; 
-  width: 160px !important; /* Format Pilule large */
-  height: 50px !important; 
+  border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+  padding: 12px 28px !important; 
+  width: auto !important; 
+  height: auto !important; 
   border-radius: 25px !important; 
-  font-size: 0.95rem !important; 
+  font-size: 0.85rem !important; 
   font-weight: 900 !important; 
   color: var(--clay-pink) !important; 
-  box-shadow: 0 15px 30px rgba(0,0,0,0.8), var(--clay-btn) !important; 
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), var(--clay-btn) !important; 
   cursor: pointer !important; 
-  z-index: 999999 !important; 
+  z-index: 10000 !important; 
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
 }
-/* Ajout d'un texte clair dans le bouton */
-.btn-close-lightbox::after {
-  content: ' Fermer';
-  margin-left: 8px;
-}
-.btn-close-lightbox:active { transform: translateX(-50%) scale(0.95) !important; box-shadow: var(--clay-inset) !important; }
+.btn-close-lightbox::after { content: ' Fermer'; margin-left: 6px; }
 
-/* --- Auto-complétion --- */
-.autocomplete-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); z-index: 99; max-height: 200px; overflow-y: auto; display: none; flex-direction: column; gap: 6px; padding: 8px; margin-top: 6px; }
+/* ==============================================================
+   AUTO-COMPLÉTION & GACHAPON & STATS
+============================================================== */
+.autocomplete-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); z-index: 99; max-height: 200px; overflow-y: auto; display: none; flex-direction: column; gap: 6px; padding: 8px; margin-top: 6px; border: 1px solid rgba(255,255,255,0.06); }
 .autocomplete-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 14px; }
 .autocomplete-thumb { width: 36px; height: 50px; object-fit: cover; border-radius: 8px; box-shadow: var(--clay-btn); }
 .autocomplete-text { display: flex; flex-direction: column; }
 .autocomplete-title { font-size: 0.8rem; font-weight: 900; }
 .autocomplete-date { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); }
 
-/* --- Boosters --- */
 .booster-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-.tcg-booster { position: relative; height: 220px; border-radius: 24px; box-shadow: var(--clay-shadow), inset 0 0 20px rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 12px; }
+.tcg-booster { position: relative; height: 220px; border-radius: 24px; box-shadow: var(--clay-shadow), inset 0 0 20px rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; user-select: none; }
 .tcg-crimp-top { width: 100%; height: 32px; background: linear-gradient(90deg, #b8860b, #fef08a, #daa520, #fef08a, #b8860b); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; font-size: 0.72rem; font-weight: 900; color: var(--text-dark); z-index: 5; }
-.tcg-logo-box { background: var(--bg); padding: 8px 14px; border-radius: 14px; color: var(--text); font-size: 0.75rem; font-weight: 900; }
+.tcg-logo-box { background: var(--bg); padding: 8px 14px; border-radius: 14px; color: var(--text); font-size: 0.75rem; font-weight: 900; letter-spacing: 0.05em; box-shadow: var(--clay-inset); }
 .tcg-art-center { font-size: 2.5rem; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6)); }
-.tcg-crimp-bottom { width: 100%; height: 20px; background: linear-gradient(90deg, #b8860b, #fef08a, #daa520, #fef08a, #b8860b); border-radius: 10px; }
+.tcg-crimp-bottom { width: 100%; height: 20px; background: linear-gradient(90deg, #b8860b, #fef08a, #daa520, #fef08a, #b8860b); border-radius: 10px; box-shadow: 0 -2px 6px rgba(0,0,0,0.4), inset 0 -2px 3px rgba(255,255,255,0.6); }
 
-.gachapon-modal-box { background: rgba(28, 33, 46, 0.9); backdrop-filter: blur(10px); width: 100%; max-width: 340px; padding: 26px; border-radius: 36px; box-shadow: 0 40px 80px rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.gachapon-cover-large { width: 150px; height: 210px; object-fit: cover; border-radius: 20px; }
+.gachapon-modal-box { background: rgba(28, 33, 46, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); width: 100%; max-width: 340px; padding: 26px; border-radius: 36px; box-shadow: 0 40px 80px rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+.gachapon-cover-large { width: 150px; height: 210px; object-fit: cover; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
 #flash-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 99999; display: none; pointer-events: none; }
+
+.stats-kpi-card { background: var(--card-bg); padding: 16px; border-radius: 24px; box-shadow: var(--clay-inset); text-align: center; }
+.stats-chart-bubble { background: var(--card-bg); padding: 16px; border-radius: 28px; box-shadow: var(--clay-inset); margin-bottom: 16px; }
