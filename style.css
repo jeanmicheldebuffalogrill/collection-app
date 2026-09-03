@@ -1,23 +1,35 @@
-/* --- Vrai Claymorphism Sombre 3D & Pop --- */
+/* --- Vrai Claymorphism Sombre + PASTEL POP 3D --- */
 :root {
+  /* Fond très sombre */
   --bg: #141721;
   --card-bg: #1e2230;
+  
+  /* Textes */
   --text: #f1f5f9;
+  --text-dark: #0f172a; /* Pour les textes sur les boutons pastel */
   --text-muted: #94a3b8;
   
-  --accent: #ff85a2;
-  --clay-green: #38b000;
-  --clay-yellow: #ffb703;
-  --clay-pink: #ff5964;
-  --clay-purple: #9d4edd;
-  --clay-purple-text: #e0aaff;
-  --clay-blue: #4cc9f0;
+  /* Couleurs Pastel Pop (Pâte à modeler) */
+  --pastel-pink: #fbcfe8;
+  --pastel-purple: #e9d5ff;
+  --pastel-blue: #bae6fd;
+  --pastel-green: #a7f3d0;
+  --pastel-yellow: #fef08a;
 
-  /* Reliefs 3D pâte à modeler prononcés (Bombés) */
+  /* Couleurs de badges (Sombre pop) */
+  --clay-green: #4ade80;
+  --clay-yellow: #fde047;
+  --clay-pink: #fb7185;
+  --clay-purple: #c084fc;
+  --clay-blue: #38bdf8;
+
+  /* Reliefs 3D pâte à modeler profonds */
   --clay-shadow: 10px 10px 22px rgba(8, 10, 14, 0.8), -10px -10px 22px rgba(30, 36, 50, 0.7);
   --clay-inset: inset 5px 5px 10px rgba(8, 10, 14, 0.75), inset -5px -5px 10px rgba(30, 36, 50, 0.6);
   --clay-btn: 6px 6px 14px rgba(8, 10, 14, 0.7), -6px -6px 14px rgba(30, 36, 50, 0.6);
   --clay-btn-active: inset 4px 4px 8px rgba(8, 10, 14, 0.8), inset -4px -4px 8px rgba(30, 36, 50, 0.5);
+  --pastel-btn-inset: inset 3px 3px 8px rgba(255,255,255,0.7), inset -3px -3px 8px rgba(0,0,0,0.15);
+  
   --text-pop: 0px 2px 0px rgba(0, 0, 0, 0.6);
 }
 
@@ -75,7 +87,7 @@ body {
   font-size: 1.4rem;
   font-weight: 900;
   margin-bottom: 20px;
-  color: var(--text);
+  color: var(--pastel-purple);
 }
 .auth-box input {
   width: 100%;
@@ -103,12 +115,14 @@ body {
   font-size: 1.4rem;
   font-weight: 900;
   letter-spacing: -0.02em;
+  color: var(--pastel-purple);
   text-shadow: var(--text-pop);
 }
 .sync-status {
   font-size: 0.7rem;
   font-weight: 800;
   margin-top: 3px;
+  color: var(--pastel-green);
 }
 .btn-backup {
   background: var(--card-bg);
@@ -153,10 +167,11 @@ body {
 }
 .tab-btn.active {
   background: var(--card-bg);
-  color: var(--text);
+  color: var(--pastel-purple);
   box-shadow: var(--clay-btn);
   font-weight: 900;
   text-shadow: var(--text-pop);
+  border-bottom: 3px solid var(--pastel-purple);
 }
 .tab-content {
   display: none;
@@ -170,17 +185,15 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Boutons d'Action Principaux --- */
+/* --- Boutons d'Action Principaux (Les gros boutons pop pastel) --- */
 .btn-open-add {
   width: 100%;
-  background: var(--card-bg);
   border: none;
   padding: 16px;
-  border-radius: 22px;
-  box-shadow: var(--clay-btn);
+  border-radius: 24px;
   font-weight: 900;
-  font-size: 0.85rem;
-  color: var(--text);
+  font-size: 0.88rem;
+  color: var(--text-dark); /* Texte sombre pour lire sur fond pastel */
   cursor: pointer;
   margin-bottom: 20px;
   display: flex;
@@ -188,9 +201,16 @@ body {
   align-items: center;
   gap: 8px;
   transition: transform 0.1s ease;
+  box-shadow: var(--clay-btn), var(--pastel-btn-inset);
+}
+#btnOpenAddWishlist {
+  background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple));
+}
+#btnOpenAddCollection {
+  background: linear-gradient(135deg, var(--pastel-green), var(--pastel-blue));
 }
 .btn-open-add:active {
-  box-shadow: var(--clay-btn-active);
+  box-shadow: inset 4px 4px 8px rgba(0,0,0,0.15), inset -4px -4px 8px rgba(255,255,255,0.4);
   transform: scale(0.98);
 }
 
@@ -220,9 +240,9 @@ body {
   font-size: 1.1rem;
   font-weight: 900;
 }
-.amount-confirmed { color: #34d399; }
-.amount-pending { color: #facc15; }
-.amount-value { color: #facc15; }
+.amount-confirmed { color: var(--pastel-green); text-shadow: 0 0 8px rgba(167, 243, 208, 0.4); }
+.amount-pending { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.4); }
+.amount-value { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.4); }
 
 /* --- Filtres & Contrôles (Correction du bug de dépassement) --- */
 .search-bar-input {
@@ -234,9 +254,12 @@ body {
   box-shadow: var(--clay-inset);
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--text);
+  color: var(--pastel-blue);
   margin-bottom: 14px;
   outline: none;
+}
+.search-bar-input::placeholder {
+  color: var(--text-muted);
 }
 .month-filter-box {
   background: var(--card-bg);
@@ -259,7 +282,7 @@ body {
   border-radius: 12px;
   font-weight: 800;
   font-size: 0.75rem;
-  color: var(--text);
+  color: var(--pastel-blue);
   outline: none;
   cursor: pointer;
   max-width: 55%;
@@ -274,7 +297,7 @@ body {
 .controls select {
   flex: 1;
   min-width: 130px;
-  max-width: 100%; /* S'assure que le select reste bien dans le conteneur */
+  max-width: 100%;
   border: none;
   background: var(--card-bg);
   box-shadow: var(--clay-inset);
@@ -336,7 +359,7 @@ body {
 }
 .platform-chip.active {
   box-shadow: var(--clay-btn-active);
-  background: rgba(56, 176, 0, 0.2);
+  background: rgba(167, 243, 208, 0.15); /* pastel green tint */
 }
 .platform-chip-name {
   font-size: 0.7rem;
@@ -346,7 +369,7 @@ body {
 .platform-chip-value {
   font-size: 0.75rem;
   font-weight: 900;
-  color: var(--clay-yellow);
+  color: var(--pastel-yellow);
 }
 .platform-chip-count {
   font-size: 0.6rem;
@@ -366,13 +389,22 @@ body {
   position: relative;
   overflow: hidden;
 }
+
+/* !!! LE STYLE COLLECTOR VISUEL ET POP !!! */
+.item-card.is-collector {
+  border: 2px solid var(--pastel-yellow); /* Bordure hyper visible */
+  box-shadow: var(--clay-shadow), 0 0 20px rgba(254, 240, 138, 0.15); /* Lueur dorée */
+  background: linear-gradient(145deg, var(--card-bg) 60%, rgba(254, 240, 138, 0.08) 100%); /* Teinte dorée au fond */
+}
 .item-card.is-collector::before {
   content: '✨';
   position: absolute;
-  top: -6px; right: -6px;
-  font-size: 1.5rem;
-  opacity: 0.5;
+  top: -2px; right: 2px;
+  font-size: 1.8rem;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 4px rgba(254, 240, 138, 0.5));
 }
+
 .item-cover {
   width: 78px;
   height: 110px;
@@ -430,6 +462,8 @@ body {
   align-items: center;
   margin-top: 6px;
 }
+
+/* Badges avec des touches pop */
 .badge {
   background: var(--card-bg);
   padding: 3px 9px;
@@ -440,32 +474,33 @@ body {
   color: var(--text);
 }
 .badge-collector {
-  background: rgba(255, 183, 3, 0.2);
-  color: #fde047;
-  padding: 2px 6px;
+  background: var(--pastel-yellow);
+  color: var(--text-dark);
+  padding: 2px 8px;
   border-radius: 8px;
   font-size: 0.6rem;
   font-weight: 900;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
 }
 .badge-state {
-  background: rgba(56, 176, 0, 0.2);
-  color: #4ade80;
+  background: rgba(167, 243, 208, 0.15);
+  color: var(--pastel-green);
   padding: 2px 6px;
   border-radius: 8px;
   font-size: 0.6rem;
   font-weight: 900;
 }
 .badge-play {
-  background: rgba(76, 201, 240, 0.2);
-  color: #38bdf8;
+  background: rgba(186, 230, 253, 0.15);
+  color: var(--pastel-blue);
   padding: 2px 6px;
   border-radius: 8px;
   font-size: 0.6rem;
   font-weight: 900;
 }
 .badge-store {
-  background: rgba(157, 78, 221, 0.2);
-  color: #c084fc;
+  background: rgba(233, 213, 255, 0.15);
+  color: var(--pastel-purple);
   padding: 2px 6px;
   border-radius: 8px;
   font-size: 0.6rem;
@@ -476,9 +511,9 @@ body {
   box-shadow: var(--clay-inset);
   color: var(--text-muted);
 }
-.badge-status.take { color: #4ade80; font-weight: 900; }
-.badge-status.think { color: #fde047; font-weight: 900; }
-.badge-status.pass { color: #f43f5e; font-weight: 900; }
+.badge-status.take { color: var(--pastel-green); font-weight: 900; }
+.badge-status.think { color: var(--pastel-yellow); font-weight: 900; }
+.badge-status.pass { color: var(--pastel-pink); font-weight: 900; }
 
 .item-note {
   font-size: 0.72rem;
@@ -516,7 +551,7 @@ body {
 /* --- Liens Marchands (Correction de la barre de défilement horizontale) --- */
 .market-links {
   display: flex;
-  flex-wrap: wrap; /* Retour à la ligne automatique pour éviter le scroll horizontal moche */
+  flex-wrap: wrap; /* Correction du scroll ! */
   gap: 6px;
   margin-top: 12px;
   padding-bottom: 2px;
@@ -532,9 +567,9 @@ body {
   text-decoration: none;
   white-space: nowrap;
 }
-.btn-market.collector { color: #fde047; background: rgba(255, 183, 3, 0.15); }
-.btn-market.discogs { color: #c084fc; background: rgba(157, 78, 221, 0.15); }
-.btn-market.pricecharting { color: #4ade80; background: rgba(56, 176, 0, 0.15); }
+.btn-market.collector { color: var(--pastel-yellow); background: rgba(254, 240, 138, 0.1); }
+.btn-market.discogs { color: var(--pastel-purple); background: rgba(233, 213, 255, 0.1); }
+.btn-market.pricecharting { color: var(--pastel-green); background: rgba(167, 243, 208, 0.1); }
 
 /* --- Vues Grid & Timeline (Collection) --- */
 .grid-collection-container {
@@ -551,6 +586,10 @@ body {
   flex-direction: column;
   gap: 10px;
   cursor: pointer;
+}
+.grid-item-card.is-collector {
+  border: 2px solid var(--pastel-yellow);
+  box-shadow: var(--clay-shadow), 0 0 15px rgba(254, 240, 138, 0.1);
 }
 .grid-item-cover {
   width: 100%;
@@ -596,6 +635,10 @@ body {
   gap: 10px;
   cursor: pointer;
   flex-shrink: 0;
+}
+.tile-card.is-collector {
+  border: 2px solid var(--pastel-yellow);
+  box-shadow: var(--clay-shadow), 0 0 15px rgba(254, 240, 138, 0.1);
 }
 .tile-cover {
   width: 100%;
@@ -695,13 +738,13 @@ body {
 }
 .btn-collector-link {
   width: 100%;
-  background: rgba(255, 183, 3, 0.15);
+  background: rgba(254, 240, 138, 0.15);
   border: none;
   padding: 12px;
   border-radius: 16px;
   font-size: 0.78rem;
   font-weight: 900;
-  color: #fde047;
+  color: var(--pastel-yellow);
   cursor: pointer;
   margin-bottom: 14px;
   box-shadow: var(--clay-btn);
@@ -765,7 +808,7 @@ body {
   background: transparent;
   border: none;
   font-weight: 900;
-  color: #f43f5e;
+  color: var(--pastel-pink);
   cursor: pointer;
   font-size: 0.9rem;
 }
@@ -792,8 +835,8 @@ body {
 .btn-delete-gallery-photo {
   position: absolute;
   top: -6px; right: -6px;
-  background: #f43f5e;
-  color: white;
+  background: var(--pastel-pink);
+  color: var(--text-dark);
   border: none;
   width: 22px; height: 22px;
   border-radius: 50%;
@@ -866,7 +909,6 @@ body {
   gap: 6px;
   padding: 8px;
   margin-top: 6px;
-  border: 1px solid rgba(255,255,255,0.06);
 }
 .autocomplete-item {
   display: flex;
@@ -878,7 +920,7 @@ body {
   transition: background 0.1s ease;
 }
 .autocomplete-item:hover {
-  background: rgba(56, 176, 0, 0.15);
+  background: rgba(167, 243, 208, 0.15); /* Vert pastel subtil */
 }
 .autocomplete-thumb {
   width: 36px;
@@ -924,7 +966,7 @@ body {
 .tcg-crimp-top {
   width: 100%;
   height: 32px;
-  background: linear-gradient(90deg, #b8860b, #ffd700, #daa520, #ffd700, #b8860b);
+  background: linear-gradient(90deg, #b8860b, #fef08a, #daa520, #fef08a, #b8860b);
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.8);
   display: flex;
@@ -932,15 +974,14 @@ body {
   align-items: center;
   font-size: 0.72rem;
   font-weight: 900;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  color: var(--text-dark);
   cursor: grab;
   z-index: 5;
   touch-action: none;
 }
 .tcg-crimp-top:active { cursor: grabbing; }
 .tcg-logo-box {
-  background: var(--card-bg);
+  background: var(--bg);
   padding: 8px 14px;
   border-radius: 14px;
   color: var(--text);
@@ -956,9 +997,9 @@ body {
 .tcg-crimp-bottom {
   width: 100%;
   height: 20px;
-  background: linear-gradient(90deg, #b8860b, #ffd700, #daa520, #ffd700, #b8860b);
+  background: linear-gradient(90deg, #b8860b, #fef08a, #daa520, #fef08a, #b8860b);
   border-radius: 10px;
-  box-shadow: 0 -2px 6px rgba(0,0,0,0.4);
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.4), inset 0 -2px 3px rgba(255,255,255,0.6);
 }
 
 .gachapon-modal-box {
