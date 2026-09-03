@@ -1,22 +1,22 @@
-/* --- Vrai Claymorphism Sombre + PASTEL POP 3D --- */
+/* --- Vrai Claymorphism Sombre + PASTEL POP 3D & EFFETS PREMIUM --- */
 :root {
   /* Fond très sombre */
-  --bg: #141721;
-  --card-bg: #1e2230;
+  --bg: #11141d;
+  --card-bg: #1c212e;
   
   /* Textes */
-  --text: #f1f5f9;
-  --text-dark: #0f172a; /* Pour les textes sur les boutons pastel */
+  --text: #f8fafc;
+  --text-dark: #0f172a;
   --text-muted: #94a3b8;
   
-  /* Couleurs Pastel Pop (Pâte à modeler) */
+  /* Couleurs Pastel Pop */
   --pastel-pink: #fbcfe8;
   --pastel-purple: #e9d5ff;
   --pastel-blue: #bae6fd;
   --pastel-green: #a7f3d0;
   --pastel-yellow: #fef08a;
 
-  /* Couleurs de badges (Sombre pop) */
+  /* Couleurs de badges */
   --clay-green: #4ade80;
   --clay-yellow: #fde047;
   --clay-pink: #fb7185;
@@ -24,13 +24,16 @@
   --clay-blue: #38bdf8;
 
   /* Reliefs 3D pâte à modeler profonds */
-  --clay-shadow: 10px 10px 22px rgba(8, 10, 14, 0.8), -10px -10px 22px rgba(30, 36, 50, 0.7);
-  --clay-inset: inset 5px 5px 10px rgba(8, 10, 14, 0.75), inset -5px -5px 10px rgba(30, 36, 50, 0.6);
-  --clay-btn: 6px 6px 14px rgba(8, 10, 14, 0.7), -6px -6px 14px rgba(30, 36, 50, 0.6);
-  --clay-btn-active: inset 4px 4px 8px rgba(8, 10, 14, 0.8), inset -4px -4px 8px rgba(30, 36, 50, 0.5);
-  --pastel-btn-inset: inset 3px 3px 8px rgba(255,255,255,0.7), inset -3px -3px 8px rgba(0,0,0,0.15);
+  --clay-shadow: 10px 10px 24px rgba(6, 8, 12, 0.9), -10px -10px 24px rgba(36, 43, 58, 0.6);
+  --clay-inset: inset 5px 5px 12px rgba(6, 8, 12, 0.8), inset -5px -5px 12px rgba(36, 43, 58, 0.5);
+  --clay-btn: 6px 6px 14px rgba(6, 8, 12, 0.8), -6px -6px 14px rgba(36, 43, 58, 0.6);
+  --clay-btn-active: inset 4px 4px 10px rgba(6, 8, 12, 0.9), inset -4px -4px 10px rgba(36, 43, 58, 0.6);
+  --pastel-btn-inset: inset 3px 3px 8px rgba(255,255,255,0.6), inset -3px -3px 8px rgba(0,0,0,0.2);
   
-  --text-pop: 0px 2px 0px rgba(0, 0, 0, 0.6);
+  --text-pop: 0px 2px 4px rgba(0, 0, 0, 0.6);
+  
+  /* Transition Elastique (Spring) */
+  --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 * {
@@ -39,6 +42,17 @@
   padding: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* 🎬 EFFET DE GRAIN (NOISE) GLOBAL 🎬 */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: 99999;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
 body {
@@ -60,7 +74,8 @@ body {
   border-radius: 36px;
   box-shadow: var(--clay-shadow);
   margin-bottom: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  position: relative;
 }
 
 /* --- Écran d'Authentification --- */
@@ -82,6 +97,7 @@ body {
   width: 100%;
   max-width: 380px;
   text-align: center;
+  animation: popIn 0.6s var(--spring) forwards;
 }
 .auth-box h2 {
   font-size: 1.4rem;
@@ -101,6 +117,10 @@ body {
   font-weight: 700;
   color: var(--text);
   outline: none;
+  transition: box-shadow 0.3s ease;
+}
+.auth-box input:focus {
+  box-shadow: var(--clay-inset), 0 0 0 2px var(--pastel-purple);
 }
 
 /* --- En-tête --- */
@@ -135,20 +155,24 @@ body {
   justify-content: center;
   align-items: center;
   font-size: 1rem;
-  transition: transform 0.1s ease;
+  transition: transform 0.3s var(--spring), box-shadow 0.3s ease;
+}
+.btn-backup:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(233, 213, 255, 0.2), var(--clay-btn);
 }
 .btn-backup:active {
   box-shadow: var(--clay-btn-active);
-  transform: scale(0.95);
+  transform: scale(0.92);
 }
 
-/* --- Navigation / Onglets --- */
+/* --- Navigation / Onglets (Effet Ressort) --- */
 .tabs {
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
   background: var(--card-bg);
-  padding: 6px;
+  padding: 8px;
   border-radius: 22px;
   box-shadow: var(--clay-inset);
 }
@@ -162,8 +186,11 @@ body {
   color: var(--text-muted);
   border-radius: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.4s var(--spring);
   text-align: center;
+}
+.tab-btn:active {
+  transform: scale(0.9);
 }
 .tab-btn.active {
   background: var(--card-bg);
@@ -171,21 +198,21 @@ body {
   box-shadow: var(--clay-btn);
   font-weight: 900;
   text-shadow: var(--text-pop);
-  border-bottom: 3px solid var(--pastel-purple);
+  transform: scale(1.05);
 }
 .tab-content {
   display: none;
 }
 .tab-content.active {
   display: block;
-  animation: fadeIn 0.2s ease;
+  animation: slideUp 0.4s var(--spring);
 }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Boutons d'Action Principaux (Les gros boutons pop pastel) --- */
+/* --- Boutons d'Action Principaux (Gros boutons pop pastel animés) --- */
 .btn-open-add {
   width: 100%;
   border: none;
@@ -193,14 +220,14 @@ body {
   border-radius: 24px;
   font-weight: 900;
   font-size: 0.88rem;
-  color: var(--text-dark); /* Texte sombre pour lire sur fond pastel */
+  color: var(--text-dark); 
   cursor: pointer;
   margin-bottom: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
-  transition: transform 0.1s ease;
+  transition: transform 0.4s var(--spring), box-shadow 0.3s ease;
   box-shadow: var(--clay-btn), var(--pastel-btn-inset);
 }
 #btnOpenAddWishlist {
@@ -209,9 +236,13 @@ body {
 #btnOpenAddCollection {
   background: linear-gradient(135deg, var(--pastel-green), var(--pastel-blue));
 }
+.btn-open-add:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 25px rgba(255, 255, 255, 0.15), var(--clay-btn), var(--pastel-btn-inset);
+}
 .btn-open-add:active {
-  box-shadow: inset 4px 4px 8px rgba(0,0,0,0.15), inset -4px -4px 8px rgba(255,255,255,0.4);
-  transform: scale(0.98);
+  box-shadow: inset 4px 4px 10px rgba(0,0,0,0.25), inset -4px -4px 10px rgba(255,255,255,0.6);
+  transform: scale(0.96);
 }
 
 /* --- Résumés & Cartes Montant --- */
@@ -227,6 +258,10 @@ body {
   border-radius: 22px;
   box-shadow: var(--clay-inset);
   text-align: center;
+  transition: transform 0.3s var(--spring);
+}
+.summary-card:hover {
+  transform: scale(1.03);
 }
 .summary-label {
   font-size: 0.65rem;
@@ -237,14 +272,14 @@ body {
   letter-spacing: 0.04em;
 }
 .summary-amount {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 900;
 }
 .amount-confirmed { color: var(--pastel-green); text-shadow: 0 0 8px rgba(167, 243, 208, 0.4); }
 .amount-pending { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.4); }
 .amount-value { color: var(--pastel-yellow); text-shadow: 0 0 8px rgba(254, 240, 138, 0.4); }
 
-/* --- Filtres & Contrôles (Correction du bug de dépassement) --- */
+/* --- Filtres & Contrôles (Aucun dépassement) --- */
 .search-bar-input {
   width: 100%;
   padding: 14px 16px;
@@ -257,9 +292,10 @@ body {
   color: var(--pastel-blue);
   margin-bottom: 14px;
   outline: none;
+  transition: box-shadow 0.3s ease;
 }
-.search-bar-input::placeholder {
-  color: var(--text-muted);
+.search-bar-input:focus {
+  box-shadow: var(--clay-inset), 0 0 0 2px var(--pastel-blue);
 }
 .month-filter-box {
   background: var(--card-bg);
@@ -291,7 +327,7 @@ body {
   display: flex;
   gap: 10px;
   margin-bottom: 12px;
-  flex-wrap: wrap; /* Empêche les éléments de sortir du cadre */
+  flex-wrap: wrap; /* Sécurité anti-scroll horizontal */
   width: 100%;
 }
 .controls select {
@@ -308,6 +344,10 @@ body {
   color: var(--text);
   outline: none;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.controls select:active {
+  transform: scale(0.98);
 }
 
 /* --- Grille Plateformes (Collection) --- */
@@ -341,6 +381,9 @@ body {
   cursor: pointer;
   color: var(--text);
 }
+.btn-reset-chip:active {
+  box-shadow: var(--clay-btn-active);
+}
 .platform-grid {
   display: flex;
   gap: 10px;
@@ -356,10 +399,14 @@ body {
   text-align: center;
   cursor: pointer;
   flex-shrink: 0;
+  transition: transform 0.3s var(--spring);
+}
+.platform-chip:hover {
+  transform: translateY(-3px);
 }
 .platform-chip.active {
   box-shadow: var(--clay-btn-active);
-  background: rgba(167, 243, 208, 0.15); /* pastel green tint */
+  background: rgba(167, 243, 208, 0.12); 
 }
 .platform-chip-name {
   font-size: 0.7rem;
@@ -377,7 +424,7 @@ body {
   font-weight: 800;
 }
 
-/* --- Cartes Articles (Wishlist & Collection) --- */
+/* --- Cartes Articles (HOVER GLOW & ÉLASTICITÉ) --- */
 .item-card {
   background: var(--card-bg);
   border-radius: 28px;
@@ -388,13 +435,26 @@ body {
   gap: 14px;
   position: relative;
   overflow: hidden;
+  transition: transform 0.4s var(--spring), box-shadow 0.4s ease;
+}
+.item-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 255, 255, 0.05), var(--clay-shadow);
 }
 
-/* !!! LE STYLE COLLECTOR VISUEL ET POP !!! */
+/* 💎 LISERÉ HOLOGRAPHIQUE ANIMÉ POUR LES COLLECTORS 💎 */
+@keyframes holoGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 .item-card.is-collector {
-  border: 2px solid var(--pastel-yellow); /* Bordure hyper visible */
-  box-shadow: var(--clay-shadow), 0 0 20px rgba(254, 240, 138, 0.15); /* Lueur dorée */
-  background: linear-gradient(145deg, var(--card-bg) 60%, rgba(254, 240, 138, 0.08) 100%); /* Teinte dorée au fond */
+  background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+              linear-gradient(135deg, var(--pastel-yellow), var(--pastel-pink), var(--pastel-blue), var(--pastel-yellow)) border-box;
+  border: 2px solid transparent;
+  background-size: 300% 300%;
+  animation: holoGradient 5s ease infinite;
+  box-shadow: var(--clay-shadow), 0 0 15px rgba(254, 240, 138, 0.15);
 }
 .item-card.is-collector::before {
   content: '✨';
@@ -402,21 +462,25 @@ body {
   top: -2px; right: 2px;
   font-size: 1.8rem;
   opacity: 0.9;
-  filter: drop-shadow(0 2px 4px rgba(254, 240, 138, 0.5));
+  filter: drop-shadow(0 2px 4px rgba(254, 240, 138, 0.6));
 }
 
 .item-cover {
-  width: 78px;
-  height: 110px;
+  width: 80px;
+  height: 115px;
   object-fit: cover;
   border-radius: 16px;
   box-shadow: var(--clay-btn);
   cursor: pointer;
   flex-shrink: 0;
+  transition: transform 0.3s var(--spring);
+}
+.item-cover:hover {
+  transform: scale(1.08) rotate(-2deg);
 }
 .item-cover-placeholder {
-  width: 78px;
-  height: 110px;
+  width: 80px;
+  height: 115px;
   border-radius: 16px;
   background: var(--card-bg);
   box-shadow: var(--clay-inset);
@@ -444,7 +508,7 @@ body {
   min-width: 0;
 }
 .item-info h3 {
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 900;
   margin-bottom: 3px;
   line-height: 1.25;
@@ -463,7 +527,7 @@ body {
   margin-top: 6px;
 }
 
-/* Badges avec des touches pop */
+/* Badges avec touches pop */
 .badge {
   background: var(--card-bg);
   padding: 3px 9px;
@@ -534,7 +598,7 @@ body {
 .btn-action {
   background: var(--card-bg);
   border: none;
-  width: 32px; height: 32px;
+  width: 34px; height: 34px;
   border-radius: 12px;
   box-shadow: var(--clay-btn);
   cursor: pointer;
@@ -543,15 +607,20 @@ body {
   align-items: center;
   font-size: 0.8rem;
   color: var(--text);
+  transition: transform 0.3s var(--spring);
+}
+.btn-action:hover {
+  transform: scale(1.1) translateY(-2px);
 }
 .btn-action:active {
   box-shadow: var(--clay-btn-active);
+  transform: scale(0.9);
 }
 
-/* --- Liens Marchands (Correction de la barre de défilement horizontale) --- */
+/* --- Liens Marchands (Flex-Wrap = Plus de barre horizontale) --- */
 .market-links {
   display: flex;
-  flex-wrap: wrap; /* Correction du scroll ! */
+  flex-wrap: wrap; 
   gap: 6px;
   margin-top: 12px;
   padding-bottom: 2px;
@@ -566,6 +635,10 @@ body {
   color: var(--text-muted);
   text-decoration: none;
   white-space: nowrap;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.btn-market:hover {
+  transform: translateY(-2px);
 }
 .btn-market.collector { color: var(--pastel-yellow); background: rgba(254, 240, 138, 0.1); }
 .btn-market.discogs { color: var(--pastel-purple); background: rgba(233, 213, 255, 0.1); }
@@ -580,16 +653,24 @@ body {
 .grid-item-card {
   background: var(--card-bg);
   padding: 12px;
-  border-radius: 24px;
+  border-radius: 26px;
   box-shadow: var(--clay-shadow);
   display: flex;
   flex-direction: column;
   gap: 10px;
   cursor: pointer;
+  transition: transform 0.4s var(--spring), box-shadow 0.4s ease;
+}
+.grid-item-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.9), var(--clay-shadow);
 }
 .grid-item-card.is-collector {
-  border: 2px solid var(--pastel-yellow);
-  box-shadow: var(--clay-shadow), 0 0 15px rgba(254, 240, 138, 0.1);
+  background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+              linear-gradient(135deg, var(--pastel-yellow), var(--pastel-pink), var(--pastel-blue), var(--pastel-yellow)) border-box;
+  border: 2px solid transparent;
+  background-size: 300% 300%;
+  animation: holoGradient 5s ease infinite;
 }
 .grid-item-cover {
   width: 100%;
@@ -626,7 +707,7 @@ body {
 .tile-card {
   background: var(--card-bg);
   padding: 14px;
-  border-radius: 26px;
+  border-radius: 28px;
   box-shadow: var(--clay-shadow);
   min-width: 180px;
   max-width: 180px;
@@ -635,16 +716,23 @@ body {
   gap: 10px;
   cursor: pointer;
   flex-shrink: 0;
+  transition: transform 0.4s var(--spring);
+}
+.tile-card:hover {
+  transform: scale(1.03) translateY(-4px);
 }
 .tile-card.is-collector {
-  border: 2px solid var(--pastel-yellow);
-  box-shadow: var(--clay-shadow), 0 0 15px rgba(254, 240, 138, 0.1);
+  background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+              linear-gradient(135deg, var(--pastel-yellow), var(--pastel-pink), var(--pastel-blue), var(--pastel-yellow)) border-box;
+  border: 2px solid transparent;
+  background-size: 300% 300%;
+  animation: holoGradient 5s ease infinite;
 }
 .tile-cover {
   width: 100%;
   height: 220px;
   object-fit: cover;
-  border-radius: 16px;
+  border-radius: 18px;
   box-shadow: var(--clay-btn);
 }
 .tile-info {
@@ -665,12 +753,17 @@ body {
   align-items: center;
 }
 
-/* --- Modales Plein Écran & Fiches --- */
+/* 🪟 Modales Plein Écran & Fiches (EFFET GLASSMORPHISM PROFOND) 🪟 */
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(8, 10, 14, 0.85);
-  backdrop-filter: blur(6px);
+  background: rgba(8, 10, 14, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: none;
   justify-content: center;
   align-items: center;
@@ -685,7 +778,8 @@ body {
   overflow-y: auto;
   padding: 24px;
   border-radius: 36px;
-  box-shadow: var(--clay-shadow);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.08);
+  animation: popIn 0.5s var(--spring) forwards;
 }
 .modal-header {
   display: flex;
@@ -714,6 +808,10 @@ body {
   font-weight: 800;
   color: var(--text);
   outline: none;
+  transition: box-shadow 0.3s ease;
+}
+.modal-box input:focus, .modal-box select:focus, .modal-box textarea:focus {
+  box-shadow: var(--clay-inset), 0 0 0 2px var(--pastel-blue);
 }
 .modal-box textarea {
   resize: vertical;
@@ -732,9 +830,14 @@ body {
   color: var(--text);
   cursor: pointer;
   margin-top: 6px;
+  transition: transform 0.3s var(--spring);
+}
+.btn-add:hover {
+  transform: scale(1.02);
 }
 .btn-add:active {
   box-shadow: var(--clay-btn-active);
+  transform: scale(0.98);
 }
 .btn-collector-link {
   width: 100%;
@@ -748,6 +851,10 @@ body {
   cursor: pointer;
   margin-bottom: 14px;
   box-shadow: var(--clay-btn);
+  transition: transform 0.3s var(--spring);
+}
+.btn-collector-link:hover {
+  transform: scale(1.02);
 }
 
 /* --- Section Images & Galeries --- */
@@ -775,6 +882,10 @@ body {
   cursor: pointer;
   text-align: center;
   color: var(--text);
+  transition: transform 0.3s var(--spring);
+}
+.btn-image-action:hover {
+  transform: translateY(-2px);
 }
 .image-input-direct {
   width: 100%;
@@ -831,6 +942,10 @@ body {
   border-radius: 14px;
   box-shadow: var(--clay-btn);
   cursor: pointer;
+  transition: transform 0.3s var(--spring);
+}
+.gallery-thumb:hover {
+  transform: scale(1.1);
 }
 .btn-delete-gallery-photo {
   position: absolute;
@@ -859,6 +974,10 @@ body {
   cursor: pointer;
   text-align: center;
   color: var(--text);
+  transition: transform 0.3s var(--spring);
+}
+.btn-add-photo:hover {
+  transform: translateY(-2px);
 }
 
 /* --- Lightbox --- */
@@ -866,7 +985,8 @@ body {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(8, 10, 14, 0.92);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: none;
   justify-content: center;
   align-items: center;
@@ -879,6 +999,7 @@ body {
   border-radius: 24px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.9);
   object-fit: contain;
+  animation: popIn 0.5s var(--spring);
 }
 .btn-close-lightbox {
   position: absolute;
@@ -892,6 +1013,10 @@ body {
   cursor: pointer;
   box-shadow: var(--clay-shadow);
   color: var(--text);
+  transition: transform 0.3s var(--spring);
+}
+.btn-close-lightbox:hover {
+  transform: scale(1.1);
 }
 
 /* --- Auto-complétion --- */
@@ -900,7 +1025,7 @@ body {
   top: 100%; left: 0; right: 0;
   background: var(--card-bg);
   border-radius: 20px;
-  box-shadow: var(--clay-shadow);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.9);
   z-index: 99;
   max-height: 200px;
   overflow-y: auto;
@@ -909,6 +1034,7 @@ body {
   gap: 6px;
   padding: 8px;
   margin-top: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
 }
 .autocomplete-item {
   display: flex;
@@ -917,10 +1043,10 @@ body {
   padding: 10px;
   border-radius: 14px;
   cursor: pointer;
-  transition: background 0.1s ease;
+  transition: background 0.2s ease;
 }
 .autocomplete-item:hover {
-  background: rgba(167, 243, 208, 0.15); /* Vert pastel subtil */
+  background: rgba(167, 243, 208, 0.15); 
 }
 .autocomplete-thumb {
   width: 36px;
@@ -962,6 +1088,10 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
   overflow: hidden;
   user-select: none;
+  transition: transform 0.4s var(--spring);
+}
+.tcg-booster:hover {
+  transform: translateY(-5px);
 }
 .tcg-crimp-top {
   width: 100%;
@@ -1008,13 +1138,14 @@ body {
   max-width: 340px;
   padding: 26px;
   border-radius: 36px;
-  box-shadow: var(--clay-shadow);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.9);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 14px;
   border: 1px solid rgba(255,255,255,0.08);
+  animation: popIn 0.6s var(--spring) forwards;
 }
 .gachapon-cover-large {
   width: 150px;
@@ -1066,10 +1197,11 @@ body {
   border-radius: 24px;
   box-shadow: var(--clay-inset);
   text-align: center;
-  transition: transform 0.2s ease;
+  transition: transform 0.4s var(--spring), box-shadow 0.3s ease;
 }
 .stats-kpi-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.8), var(--clay-inset);
 }
 
 .stats-chart-bubble {
