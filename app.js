@@ -1646,3 +1646,12 @@ window.addEventListener('DOMContentLoaded', () => {
   
   updateDynamicCollectionFilters(); checkAuth();
 });
+
+// --- Initialisation PWA (Service Worker) ---
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('✅ Service Worker PWA enregistré avec succès !', reg))
+      .catch(err => console.error('❌ Erreur lors de l\'enregistrement du Service Worker :', err));
+  });
+}
