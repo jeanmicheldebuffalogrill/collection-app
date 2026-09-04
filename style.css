@@ -195,7 +195,78 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .search-bar-input { width: 100%; padding: 14px 18px; font-size: 0.9rem; background: var(--surface); border-radius: 22px; box-shadow: var(--clay-card); margin-bottom: 12px; }
 .controls { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; }
 
-/* Cartes (Vue Liste) */
+
+/* =========================================
+   CARTES - IDENTITÉ VISUELLE & HOLOGRAPHIE
+   ========================================= */
+
+/* 1. Base pour TOUTES les cartes (Standard + Collector) */
+.item-card,
+.grid-item-card,
+.tile-card {
+  position: relative;
+  overflow: hidden; /* Empêche le reflet de déborder des angles arrondis */
+  
+  /* Définition de l'iridescence PLATINE pour les éditions Standards */
+  --holo-grad: linear-gradient(
+    90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.1), 
+    rgba(175, 252, 255, 0.4), /* Reflet Cyan glacé */
+    rgba(255, 255, 255, 0.8), /* Flash central pur */
+    rgba(231, 198, 255, 0.4), /* Reflet Violet doux */
+    rgba(255, 255, 255, 0.1), 
+    transparent
+  );
+}
+
+/* 2. Surcharge pour les éditions COLLECTOR (Bordure Or + Iridescence Arc-en-ciel) */
+.item-card.is-collector,
+.grid-item-card.is-collector,
+.tile-card.is-collector {
+  border: 3px solid #ffd700; 
+  box-shadow: var(--clay-card), 0 0 15px rgba(255, 215, 0, 0.4); 
+  
+  /* Définition de l'iridescence OR/ARC-EN-CIEL pour les Collectors */
+  --holo-grad: linear-gradient(
+    90deg, 
+    transparent, 
+    rgba(255, 215, 0, 0.2),   /* Or */
+    rgba(255, 105, 180, 0.5), /* Rose vibrant */
+    rgba(0, 255, 255, 0.6),   /* Cyan */
+    rgba(255, 255, 255, 0.9), /* Flash central pur */
+    rgba(138, 43, 226, 0.5),  /* Violet profond */
+    rgba(255, 215, 0, 0.2),   /* Or */
+    transparent
+  );
+}
+
+/* 3. Le calque holographique partagé qui balaye toutes les cartes */
+.item-card::after,
+.grid-item-card::after,
+.tile-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -150%;
+  width: 150%; 
+  background: var(--holo-grad); /* Utilise la variable définie au-dessus selon l'édition */
+  transform: skewX(-25deg);
+  animation: holo-sweep 6s cubic-bezier(0.3, 0, 0.7, 1) infinite;
+  pointer-events: none; /* Indispensable pour laisser passer les clics */
+  z-index: 5;
+}
+
+/* 4. Animation plus fluide et régulière (Boucle de 6s avec 60% d'activité) */
+@keyframes holo-sweep {
+  0% { left: -150%; }
+  60% { left: 150%; }
+  100% { left: 150%; } /* Légère pause de 2.4s avant de repartir */
+}
+
+
+/* Cartes (Vue Liste) - Base structurelle */
 .item-card { 
   background: var(--surface); 
   border-radius: 30px; 
@@ -206,64 +277,17 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   box-shadow: var(--clay-card); 
   cursor: pointer; 
   transition: transform 0.2s ease; 
-  position: relative;
-  overflow: hidden; 
 }
 
 .item-card:hover { transform: translateY(-4px); }
+/* Les bordures de statuts de la wishlist viennent s'ajouter harmonieusement */
 .item-card.status-take { border-left: 10px solid var(--clay-green); }
 .item-card.status-think { border-left: 10px solid var(--clay-yellow); }
 .item-card.status-pass { border-left: 10px solid var(--clay-pink); }
 
-/* =========================================
-   ÉDITIONS COLLECTOR - BORDURE & EFFET HOLO
-   Applicable sur Vue Liste, Grille et Frise
-   ========================================= */
-
-/* 1. Bordure dorée épaisse et lueur externe */
-.item-card.is-collector,
-.grid-item-card.is-collector,
-.tile-card.is-collector {
-  border: 3px solid #ffd700; 
-  box-shadow: var(--clay-card), 0 0 15px rgba(255, 215, 0, 0.4); 
-  position: relative;
-  overflow: hidden; /* Crucial pour que le reflet ne dépasse pas les bords arrondis */
-}
-
-/* 2. Le reflet holographique qui balaye toute la carte */
-.item-card.is-collector::after,
-.grid-item-card.is-collector::after,
-.tile-card.is-collector::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -150%;
-  width: 150%; 
-  background: linear-gradient(
-    90deg, 
-    transparent, 
-    rgba(255, 215, 0, 0.15), 
-    rgba(255, 255, 255, 0.6), /* Éclat blanc au centre du reflet */
-    rgba(255, 215, 0, 0.15), 
-    transparent
-  );
-  transform: skewX(-25deg); /* Donne l'inclinaison au reflet */
-  animation: holo-sweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none; /* Empêche le reflet de bloquer les clics sur la carte */
-  z-index: 5; /* Passe au-dessus des images mais sous les boutons d'action si nécessaire */
-}
-
-/* 3. L'animation fluide de gauche à droite */
-@keyframes holo-sweep {
-  0% { left: -150%; }
-  40% { left: 150%; }
-  100% { left: 150%; } /* Le temps de pause avant le prochain passage */
-}
-
 .badge-collector { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); color: #161922; font-weight: 900; }
-.item-cover { width: 80px; height: 108px; border-radius: 20px; object-fit: cover; background: var(--bg); flex-shrink: 0; box-shadow: var(--clay-btn); }
-.item-cover-placeholder { width: 80px; height: 108px; border-radius: 20px; background: var(--bg); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: var(--clay-btn); }
+.item-cover { width: 80px; height: 108px; border-radius: 20px; object-fit: cover; background: var(--bg); flex-shrink: 0; box-shadow: var(--clay-btn); position: relative; z-index: 6; }
+.item-cover-placeholder { width: 80px; height: 108px; border-radius: 20px; background: var(--bg); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: var(--clay-btn); position: relative; z-index: 6;}
 
 .item-content { 
   display: flex; 
@@ -271,6 +295,8 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   gap: 6px; 
   flex: 1; 
   min-width: 0; 
+  position: relative;
+  z-index: 6; /* Assure que le texte reste bien visible au dessus du reflet */
 }
 
 .card-header { 
@@ -323,7 +349,7 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 
 .item-note { font-size: 0.78rem; background: var(--bg); padding: 10px 14px; border-radius: 14px; color: var(--text-muted); box-shadow: var(--clay-inset); margin-top: 4px; font-weight: 700; }
 .market-links { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.06); }
-.btn-market { font-size: 0.72rem; padding: 6px 12px; border-radius: 12px; background: var(--bg); color: var(--clay-blue); text-decoration: none; font-weight: 800; box-shadow: var(--clay-btn); }
+.btn-market { font-size: 0.72rem; padding: 6px 12px; border-radius: 12px; background: var(--bg); color: var(--clay-blue); text-decoration: none; font-weight: 800; box-shadow: var(--clay-btn); position: relative; z-index: 10;}
 .btn-market.collector { background: var(--clay-yellow); color: var(--clay-yellow-text); }
 .btn-market.discogs { background: var(--clay-purple); color: var(--clay-purple-text); }
 
@@ -350,10 +376,12 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .grid-item-card > div {
   min-width: 0;
   width: 100%;
+  position: relative;
+  z-index: 6;
 }
 
-.grid-item-cover { width: 100%; height: 180px; border-radius: 16px; object-fit: cover; box-shadow: var(--clay-btn); }
-.grid-item-cover-placeholder { width: 100%; height: 180px; border-radius: 16px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: var(--clay-btn); }
+.grid-item-cover { width: 100%; height: 180px; border-radius: 16px; object-fit: cover; box-shadow: var(--clay-btn); position: relative; z-index: 6;}
+.grid-item-cover-placeholder { width: 100%; height: 180px; border-radius: 16px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: var(--clay-btn); position: relative; z-index: 6;}
 
 .grid-item-title { 
   font-size: 0.85rem; 
@@ -371,9 +399,10 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .timeline-h-container { -ms-overflow-style: none; scrollbar-width: none; }
 
 .tile-card { background: var(--surface); border-radius: 30px; padding: 18px; min-width: 220px; max-width: 220px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; scroll-snap-align: center; box-shadow: var(--clay-card); }
-.tile-cover { width: 100%; height: 270px; border-radius: 20px; object-fit: cover; box-shadow: var(--clay-btn); }
-.tile-cover-placeholder { width: 100%; height: 270px; border-radius: 20px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: var(--clay-btn); }
-.tile-title { font-size: 1rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-cover { width: 100%; height: 270px; border-radius: 20px; object-fit: cover; box-shadow: var(--clay-btn); position: relative; z-index: 6;}
+.tile-cover-placeholder { width: 100%; height: 270px; border-radius: 20px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: var(--clay-btn); position: relative; z-index: 6;}
+.tile-title { font-size: 1rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; z-index: 6;}
+.tile-info { position: relative; z-index: 6; }
 
 /* =========================================
    GACHAPON BOOSTERS - EFFET PLASTIQUE FOIL
