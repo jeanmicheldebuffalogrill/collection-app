@@ -206,16 +206,15 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .tile-card {
   position: relative;
   overflow: hidden; /* Empêche le reflet de déborder des angles arrondis */
+  border: 2px solid #a8b0c3; /* Liseré argenté pour les éditions standards */
   
-  /* Définition de l'iridescence PLATINE pour les éditions Standards */
+  /* Reflet CHROME/ARGENT très épuré, sans couleurs pour se détacher du Collector */
   --holo-grad: linear-gradient(
     90deg, 
     transparent, 
-    rgba(255, 255, 255, 0.1), 
-    rgba(175, 252, 255, 0.4), /* Reflet Cyan glacé */
-    rgba(255, 255, 255, 0.8), /* Flash central pur */
-    rgba(231, 198, 255, 0.4), /* Reflet Violet doux */
-    rgba(255, 255, 255, 0.1), 
+    rgba(255, 255, 255, 0.02), 
+    rgba(255, 255, 255, 0.4), /* Éclat argenté pur */
+    rgba(255, 255, 255, 0.02), 
     transparent
   );
 }
@@ -224,19 +223,19 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .item-card.is-collector,
 .grid-item-card.is-collector,
 .tile-card.is-collector {
-  border: 3px solid #ffd700; 
+  border: 3px solid #ffd700; /* Liseré or massif */
   box-shadow: var(--clay-card), 0 0 15px rgba(255, 215, 0, 0.4); 
   
-  /* Définition de l'iridescence OR/ARC-EN-CIEL pour les Collectors */
+  /* Iridescence OR/ARC-EN-CIEL très saturée et bien distincte */
   --holo-grad: linear-gradient(
     90deg, 
     transparent, 
-    rgba(255, 215, 0, 0.2),   /* Or */
-    rgba(255, 105, 180, 0.5), /* Rose vibrant */
-    rgba(0, 255, 255, 0.6),   /* Cyan */
+    rgba(255, 215, 0, 0.3),   /* Or */
+    rgba(255, 105, 180, 0.6), /* Rose vibrant */
+    rgba(0, 255, 255, 0.7),   /* Cyan */
     rgba(255, 255, 255, 0.9), /* Flash central pur */
-    rgba(138, 43, 226, 0.5),  /* Violet profond */
-    rgba(255, 215, 0, 0.2),   /* Or */
+    rgba(138, 43, 226, 0.6),  /* Violet profond */
+    rgba(255, 215, 0, 0.3),   /* Or */
     transparent
   );
 }
@@ -251,18 +250,19 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
   bottom: 0;
   left: -150%;
   width: 150%; 
-  background: var(--holo-grad); /* Utilise la variable définie au-dessus selon l'édition */
+  background: var(--holo-grad); 
   transform: skewX(-25deg);
-  animation: holo-sweep 6s cubic-bezier(0.3, 0, 0.7, 1) infinite;
+  /* Animation de 4.5s avec un timing linéaire fluide */
+  animation: holo-sweep 4.5s ease-in-out infinite;
   pointer-events: none; /* Indispensable pour laisser passer les clics */
   z-index: 5;
 }
 
-/* 4. Animation plus fluide et régulière (Boucle de 6s avec 60% d'activité) */
+/* 4. Animation : balayage plus long (85% du temps) et pause très courte (15%) */
 @keyframes holo-sweep {
   0% { left: -150%; }
-  60% { left: 150%; }
-  100% { left: 150%; } /* Légère pause de 2.4s avant de repartir */
+  85% { left: 150%; }
+  100% { left: 150%; } /* Pause très courte avant de recommencer */
 }
 
 
@@ -280,10 +280,10 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 }
 
 .item-card:hover { transform: translateY(-4px); }
-/* Les bordures de statuts de la wishlist viennent s'ajouter harmonieusement */
-.item-card.status-take { border-left: 10px solid var(--clay-green); }
-.item-card.status-think { border-left: 10px solid var(--clay-yellow); }
-.item-card.status-pass { border-left: 10px solid var(--clay-pink); }
+/* Les bordures de statuts de la wishlist remplacent le liseré gauche argenté/or */
+.item-card.status-take { border-left-color: var(--clay-green); border-left-width: 10px; }
+.item-card.status-think { border-left-color: var(--clay-yellow); border-left-width: 10px; }
+.item-card.status-pass { border-left-color: var(--clay-pink); border-left-width: 10px; }
 
 .badge-collector { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); color: #161922; font-weight: 900; }
 .item-cover { width: 80px; height: 108px; border-radius: 20px; object-fit: cover; background: var(--bg); flex-shrink: 0; box-shadow: var(--clay-btn); position: relative; z-index: 6; }
