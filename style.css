@@ -214,7 +214,53 @@ input:focus, select:focus, textarea:focus { box-shadow: var(--clay-inset), 0 0 0
 .item-card.status-take { border-left: 10px solid var(--clay-green); }
 .item-card.status-think { border-left: 10px solid var(--clay-yellow); }
 .item-card.status-pass { border-left: 10px solid var(--clay-pink); }
-.item-card.is-collector { border: 2px solid #f1c40f; box-shadow: 16px 16px 35px rgba(0, 0, 0, 0.7), 0 0 15px rgba(241, 196, 15, 0.25); }
+
+/* =========================================
+   ÉDITIONS COLLECTOR - BORDURE & EFFET HOLO
+   Applicable sur Vue Liste, Grille et Frise
+   ========================================= */
+
+/* 1. Bordure dorée épaisse et lueur externe */
+.item-card.is-collector,
+.grid-item-card.is-collector,
+.tile-card.is-collector {
+  border: 3px solid #ffd700; 
+  box-shadow: var(--clay-card), 0 0 15px rgba(255, 215, 0, 0.4); 
+  position: relative;
+  overflow: hidden; /* Crucial pour que le reflet ne dépasse pas les bords arrondis */
+}
+
+/* 2. Le reflet holographique qui balaye toute la carte */
+.item-card.is-collector::after,
+.grid-item-card.is-collector::after,
+.tile-card.is-collector::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -150%;
+  width: 150%; 
+  background: linear-gradient(
+    90deg, 
+    transparent, 
+    rgba(255, 215, 0, 0.15), 
+    rgba(255, 255, 255, 0.6), /* Éclat blanc au centre du reflet */
+    rgba(255, 215, 0, 0.15), 
+    transparent
+  );
+  transform: skewX(-25deg); /* Donne l'inclinaison au reflet */
+  animation: holo-sweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none; /* Empêche le reflet de bloquer les clics sur la carte */
+  z-index: 5; /* Passe au-dessus des images mais sous les boutons d'action si nécessaire */
+}
+
+/* 3. L'animation fluide de gauche à droite */
+@keyframes holo-sweep {
+  0% { left: -150%; }
+  40% { left: 150%; }
+  100% { left: 150%; } /* Le temps de pause avant le prochain passage */
+}
+
 .badge-collector { padding: 5px 11px; border-radius: 10px; font-size: 0.72rem; background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); color: #161922; font-weight: 900; }
 .item-cover { width: 80px; height: 108px; border-radius: 20px; object-fit: cover; background: var(--bg); flex-shrink: 0; box-shadow: var(--clay-btn); }
 .item-cover-placeholder { width: 80px; height: 108px; border-radius: 20px; background: var(--bg); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: var(--clay-btn); }
